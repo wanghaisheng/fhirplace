@@ -1,7 +1,11 @@
 (ns fhirplace.core-test
-  (:require [clojure.test :refer :all]
-            [fhirplace.core :refer :all]))
+  (:use midje.sweet)
+  (:require [fhirplace.core :refer :all]))
 
-(deftest a-test
-  (testing "FIXME, I fail."
-    (is (= 0 1))))
+(fact "`resource-types` function returns sequence of all Resources availabe in FhirBase"
+  (def resources (resource-types))
+
+  (contains? resources "Patient") => truthy
+  (contains? resources "Order") => truthy
+  (contains? resources "Encounter") => truthy
+  (contains? resources "SomeUnknownResource") => falsey)
