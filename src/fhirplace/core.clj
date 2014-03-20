@@ -1,6 +1,9 @@
-(ns fhirplace.core)
+(ns fhirplace.core
+  (:use ring.util.response))
 
-(defn foo
-  "I don't do a whole lot."
-  [x]
-  (println x "Hello, World!"))
+(defn app-handler
+  "Root request handler."
+  [request]
+  (-> (response "Hello World")
+    (content-type "text/plain")))
+
