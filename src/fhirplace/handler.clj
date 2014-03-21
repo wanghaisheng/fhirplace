@@ -66,4 +66,3 @@ Update: PUT    [base]/[type]/[id] {?_format=[mime-type]}"
 
   (when-let [handler-func (find-handler request)]
     (handler-func request)))
-
