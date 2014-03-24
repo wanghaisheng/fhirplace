@@ -18,16 +18,21 @@
 
 (defn uuid [] (str (java.util.UUID/randomUUID)))
 
-(facts "About read-handler 200 OK"
+(facts "About READ for existed resource"
   (let [patient (read-patient)
         patient-id (insert-patient patient)
-        res (parse-body 
-              (perform-request :get (str "/patient/" patient-id)))]
-
+        req (perform-request :get (str "/patient/" patient-id))
+        res (parse-body req)]
+              
       (get res "_id")          => patient-id
-      (get res "resourceType") => "Patient")
+      (get res "resourceType") => "Patient"
+      (:status req)            => 200)
     (clear-resources))
 
-(facts "About read-handler 404"
+(facts "About READ for non-existed resource"
   (:status (perform-request :get "/patient/blablabla"))     => 404
   (:status (perform-request :get (str "/patient/" (uuid)))) => 404)
+
+(facts "About CREATE"
+  (let [patient (json/read-str (read-patient))]
+    ))
