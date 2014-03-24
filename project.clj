@@ -11,10 +11,11 @@
             [lein-midje "3.0.0"]]
 
   :dependencies [[org.clojure/clojure "1.5.1"]
-                 [ring/ring-core "1.2.2"]
                  [org.clojure/data.json "0.2.4"]
                  [org.clojure/java.jdbc "0.3.3"]
-                 [org.postgresql/postgresql "9.3-1101-jdbc41"]]
-
+                 [org.postgresql/postgresql "9.3-1101-jdbc41"]
+                 [ring-mock "0.1.5"]
+                 [compojure "1.1.6"]
+                 [ring "1.2.1"]]
 
   :profiles {:dev {:dependencies [[midje "1.6.0"]]}})

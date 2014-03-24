@@ -1,22 +1,27 @@
 (ns fhirplace.handler-test
-  (:use midje.sweet)
-  (:require [fhirplace.handler :refer :all]))
+  (:use midje.sweet
+        fhirplace.core
+        fhirplace.app
+        ring.mock.request)
+  (:require [fhirplace.handler :refer :all]
+            [clojure.java.jdbc :as sql]
+            [clojure.data.json :as json])) 
 
-(defn mk-request [method uri]
-  {:request-method method
-   :uri uri})
+(defn read-patient []
+  (slurp "test/fixtures/patient.json"))
 
-(fact "Requests to CREATE action are delegated to `create-handler`"
-  (find-handler (mk-request :get "/patient"))  =>     nil
-  (find-handler (mk-request :post "/patient")) =>     create-handler)
+(defn perform-request [& request-params]
+  (app (apply request request-params)))
 
-(fact "Requests to READ action are delegated to `read-handler`"
-  (find-handler (mk-request :get "/patient/51400fa3-c860-4e44-baaa-13db5c8d8621")) => read-handler
-  (find-handler (mk-request :get "/group/51400fa3-c860-4e44-baaa-13db5c8d8621")) => read-handler
-  (find-handler (mk-request :post "/group/51400fa3-c860-4e44-baaa-13db5c8d8621")) => nil)
+(defn parse-body [response]
+  (json/read-str (:body response)))
 
-(fact "Requests to DELETE action are delegated to `delete-handler`"
-  (find-handler (mk-request :delete "/group/51400fa3-c860-4e44-baaa-13db5c8d8621")) => delete-handler)
+(facts "About read-handler 200 OK"
+  (let [patient (read-patient)
+        patient-id (insert-patient patient)
+        res (parse-body 
+              (perform-request :get (str "/patient/" patient-id)))]
 
-(fact "Requests to UPDATE action are delegated to `update-handler`"
-  (find-handler (mk-request :put "/group/51400fa3-c860-4e44-baaa-13db5c8d8621")) => update-handler)
+      (get res "_id") => patient-id
+      (get res "resourceType") => "Patient")
+    (clear-resources))
