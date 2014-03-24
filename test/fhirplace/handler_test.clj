@@ -16,12 +16,18 @@
 (defn parse-body [response]
   (json/read-str (:body response)))
 
+(defn uuid [] (str (java.util.UUID/randomUUID)))
+
 (facts "About read-handler 200 OK"
   (let [patient (read-patient)
         patient-id (insert-patient patient)
         res (parse-body 
               (perform-request :get (str "/patient/" patient-id)))]
 
-      (get res "_id") => patient-id
+      (get res "_id")          => patient-id
       (get res "resourceType") => "Patient")
     (clear-resources))
+
+(facts "About read-handler 404"
+  (:status (perform-request :get "/patient/blablabla"))     => 404
+  (:status (perform-request :get (str "/patient/" (uuid)))) => 404)

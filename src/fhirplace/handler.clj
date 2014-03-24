@@ -30,8 +30,3 @@
         (content-type "text/plain")
         (status 404))))
 
-(def uuid-regexp
-  #"[0-f]{8}-([0-f]{4}-){3}[0-f]{12}")
-
-(def resource-types-regexp
-  (re-pattern (str "(" (clojure.string/join "|" (core/resource-types)) ")")))
