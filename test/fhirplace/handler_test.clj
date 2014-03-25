@@ -34,5 +34,4 @@
   (:status (perform-request :get (str "/patient/" (uuid)))) => 404)
 
 (facts "About CREATE"
-  (let [patient (json/read-str (read-patient))]
-    ))
+  (let [patient (read-patient)]))
