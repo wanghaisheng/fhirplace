@@ -1,12 +1,24 @@
 (ns fhirplace.handler
-  (:use ring.util.response)
-  (:require [fhirplace.core :as core]))
+  (:use ring.util.response
+        ring.util.request
+        fhirplace.core)
+  (:require [fhirplace.core :as core]
+            [clojure.data.json :as json]))
+
+(defn construct-url 
+  [{scheme :scheme, remote-addr :remote-addr, uri :uri}, id]
+  (str (name scheme) "://" remote-addr uri "/" id))
 
 (defn create-handler
   "Handler for CREATE queries."
-  [request]
-  (-> (response "CREATE")
-      (content-type "text/plain")))
+  [{ system :system params :params :as request }]
+  (let [patient (body-string request)
+        patient-id (insert-patient (:db system) patient)]
+    (-> request
+        (header "Location" (construct-url request patient-id))
+        (content-type "text/plain")
+        (status 200))))
+
 
 (defn update-handler
   "Handler for UPDATE queries."

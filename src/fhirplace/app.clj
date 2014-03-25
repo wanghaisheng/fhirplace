@@ -21,9 +21,6 @@
   (PUT    "/:resource-type/:id"                    [resource-type id] fhandler/update-handler)
   (route/not-found "Not Found"))
 
-(def app
-  (handler/site main-routes))
-
 (defn create-web-handler [system]
   (let [app (handler/site main-routes)]
     (fn [request]
