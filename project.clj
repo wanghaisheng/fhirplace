@@ -34,5 +34,6 @@
                                             '[[vinyasa.inject inject]
                                               [vinyasa.pull pull]
                                               [vinyasa.lein lein]
-                                              [vinyasa.reimport reimport]])]
+                                              [vinyasa.reimport reimport]
+                                              [midje.repl load-facts]])]
                    }})
