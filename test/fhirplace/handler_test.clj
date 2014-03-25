@@ -5,7 +5,7 @@
         ring.mock.request)
   (:require [fhirplace.handler :refer :all]
             [clojure.java.jdbc :as sql]
-            [clojure.data.json :as json])) 
+            [clojure.data.json :as json]))
 
 (defn read-patient []
   (slurp "test/fixtures/patient.json"))
@@ -23,7 +23,7 @@
         patient-id (insert-patient patient)
         req (perform-request :get (str "/patient/" patient-id))
         res (parse-body req)]
-              
+
       (get res "_id")          => patient-id
       (get res "resourceType") => "Patient"
       (:status req)            => 200)

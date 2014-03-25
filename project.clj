@@ -16,7 +16,8 @@
                  [org.postgresql/postgresql "9.3-1101-jdbc41"]
                  [ring-mock "0.1.5"]
                  [compojure "1.1.6"]
-                 [ring "1.2.1"]]
+                 [ring "1.2.1"]
+                 [ring/ring-json "0.3.0"]]
 
   :profiles {:dev {:source-paths ["dev"]
                    :dependencies [[org.clojure/tools.namespace "0.2.4"]
