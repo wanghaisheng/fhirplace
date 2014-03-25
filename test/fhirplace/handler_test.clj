@@ -2,8 +2,7 @@
   (:use midje.sweet
         fhirplace.core
         fhirplace.app
-        ring.util.request
-        ring.mock.request)
+        ring.util.request ring.mock.request)
   (:require [fhirplace.handler :refer :all]
             [clojure.java.jdbc :as sql]
             [clojure.data.json :as json]
@@ -68,8 +67,9 @@
         patient-put-json (assoc patient-json "deceasedBoolean" true)
         patient-put (json/write-str patient-put-json)
         req-put (body (request :put patient-url) patient-put)
+        res (app req-put)
         resource (parse-body (perform-request :get patient-url))]
-    patient-url => "vasia"
+    (:status res) => 200
     (get resource "deceasedBoolean") => true
-    (comment clear-resources db-spec)))
+    (clear-resources db-spec)))
 
