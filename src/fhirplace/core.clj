@@ -1,10 +1,7 @@
 (ns fhirplace.core
   (:require [clojure.java.jdbc :as sql]))
 
-(def db-spec
-  {:subprotocol "postgresql"
-   :subname "//127.0.0.1:5433/fhirbase"
-   :user "vagrant"})
+(def db-spec nil)
 
 (defn resource-types []
   (set
@@ -21,10 +18,6 @@
 (defn clear-resources []
   (sql/execute! db-spec ["DELETE FROM fhir.resource"]))
 
-(defn select-resource [resource-type id]
-  (:json
+(defn select-resource [db-spec resource-type id]
     (first
-      (sql/query db-spec [(str "SELECT json::text"
-                               " FROM fhir.view_" (.toLowerCase resource-type)
-                               " WHERE _id = '" id "'"
-                               " LIMIT 1")]))))
+      (sql/query db-spec [(str "SELECT 2+2")])))

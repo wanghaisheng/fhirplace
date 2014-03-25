@@ -15,7 +15,7 @@
 ;; TODO: Handle non-existed resource types
 (defroutes main-routes
   (POST   "/:resource-type"                        [resource-type]    fhandler/create-handler)
-  (GET    ["/:resource-type/:id", 
+  (GET    ["/:resource-type/:id",
            :id uuid-regexp]                        [resource-type id] fhandler/read-handler)
   (DELETE "/:resource-type/:id"                    [resource-type id] fhandler/delete-handler)
   (PUT    "/:resource-type/:id"                    [resource-type id] fhandler/update-handler)
@@ -23,3 +23,8 @@
 
 (def app
   (handler/site main-routes))
+
+(defn create-web-handler [system]
+  (let [app (handler/site main-routes)]
+    (fn [request]
+      (app (assoc request :system system)))))
