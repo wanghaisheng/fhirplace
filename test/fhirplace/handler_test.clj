@@ -18,7 +18,7 @@
 
 (defn uuid [] (str (java.util.UUID/randomUUID)))
 
-(facts "About READ for existed resource"
+#_(facts "About READ for existed resource"
   (let [patient (read-patient)
         patient-id (insert-patient patient)
         req (perform-request :get (str "/patient/" patient-id))

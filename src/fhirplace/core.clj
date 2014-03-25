@@ -1,7 +1,7 @@
 (ns fhirplace.core
   (:require [clojure.java.jdbc :as sql]))
 
-(def db-spec nil)
+(def db-spec {})
 
 (defn resource-types []
   (set
