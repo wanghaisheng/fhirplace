@@ -26,3 +26,10 @@
 
 (defn delete-resource [db-spec resource-id]
   (sql/execute! db-spec [(str "DELETE FROM fhir.resource WHERE _id = '" resource-id "'")]))
+
+(defn update-resource [db-spec resource-id resource]
+  (sql/execute! db-spec [(str "SELECT fhir.update_resource('"
+                              resource-id
+                              "','"
+                              resource
+                              "'::json)::varchar")]))

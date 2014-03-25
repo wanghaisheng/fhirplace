@@ -22,9 +22,13 @@
 
 (defn update-handler
   "Handler for DELETE queries."
-  [request]
-  (-> (response "UPDATE")
-      (content-type "text/plain")))
+  [{ system :system params :params :as request }]
+  (let [patient (body-string request)]
+    (update-resource (:db system) (:id params) patient)
+    (-> request
+        (header "Last-Modified" (java.util.Date.))
+        (content-type "text/plain")
+        (status 200))))
 
 (defn delete-handler
   "Handler for CREATE queries."

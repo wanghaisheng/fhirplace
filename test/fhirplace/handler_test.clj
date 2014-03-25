@@ -59,3 +59,17 @@
       (:status req) => 204
       (:status req-get) => 404)
     (clear-resources db-spec))
+
+(facts  "About UPDATE"
+  (let [patient (read-patient)
+        patient-json (json/read-str patient)
+        req (body (request :post "/patient") patient)
+        patient-url (response/get-header (app req) "Location")
+        patient-put-json (assoc patient-json "deceasedBoolean" true)
+        patient-put (json/write-str patient-put-json)
+        req-put (body (request :put patient-url) patient-put)
+        resource (parse-body (perform-request :get patient-url))]
+    patient-url => "vasia"
+    (get resource "deceasedBoolean") => true
+    (comment clear-resources db-spec)))
+
