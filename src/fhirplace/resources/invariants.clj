@@ -3,20 +3,27 @@
 (defn- normalize-vector [v]
   (if (vector? v) v [v]))
 
-(defn- filter-nodes [nds [k v]]
+(defn- filter-nodes
+  "filter maps by attribute"
+  [nds [k v]]
   (filterv #(= (k %) v) nds))
 
-(defn- append-to-nodes [acc v]
+(defn- append-to-nodes
+  "make nodes set: if v is vector concat else conj"
+  [acc v]
   (vec ((if (vector? v) concat conj) acc v)))
 
-(defn- apply-filter [flt nodes]
+(defn- apply-filter
+  "filter in path"
+  [flt nodes]
   (let [nds (normalize-vector nodes)]
     (cond
       (keyword? flt) (reduce #(append-to-nodes %1 (flt %2)) [] nds )
       (vector? flt)  (filter-nodes nds flt)
       :else          (throw (Exception. "unknown filter")))))
 
-(defn- apply-last-filter [flt nodes]
+(defn- apply-last-filter
+  [flt nodes]
   (let [nds (normalize-vector nodes)]
     (cond
       (keyword? flt) (filterv identity (mapv flt nds))
