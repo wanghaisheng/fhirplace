@@ -6,11 +6,11 @@
     (map :path
       (sql/query db-spec ["SELECT DISTINCT(path[1]) FROM meta.resource_elements"]))))
 
-(defn insert-patient [db-spec patient]
+(defn insert-resource [db-spec resource]
   (:insert_resource
     (first
       (sql/query db-spec [(str "SELECT fhir.insert_resource('"
-                               patient
+                               resource
                                "'::json)::varchar")]))))
 
 (defn clear-resources [db-spec]
@@ -23,3 +23,6 @@
                                " FROM fhir.view_" (.toLowerCase resource-type)
                                " WHERE _id = '" id "'"
                                " LIMIT 1")]))))
+
+(defn delete-resource [db-spec resource-id]
+  (sql/execute! db-spec [(str "DELETE FROM fhir.resource WHERE _id = '" resource-id "'")]))

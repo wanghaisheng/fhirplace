@@ -29,7 +29,7 @@
 
 (facts "About READ for existed resource"
   (let [patient (read-patient)
-        patient-id (insert-patient db-spec patient)
+        patient-id (insert-resource db-spec patient)
         req (perform-request :get (str "/patient/" patient-id))
         res (parse-body req)]
               
@@ -50,3 +50,12 @@
         resource (parse-body (perform-request :get patient-url))]
     (get resource "resourceType") => "Patient"
     (clear-resources db-spec)))
+
+(facts "About DELETE for existed resource"
+  (let [patient (read-patient)
+        patient-id (insert-resource db-spec patient)
+        req (perform-request :delete (str "/patient/" patient-id))
+        req-get (perform-request :get (str "/patient/" patient-id))]
+      (:status req) => 204
+      (:status req-get) => 404)
+    (clear-resources db-spec))

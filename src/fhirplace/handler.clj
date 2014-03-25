@@ -13,7 +13,7 @@
   "Handler for CREATE queries."
   [{ system :system params :params :as request }]
   (let [patient (body-string request)
-        patient-id (insert-patient (:db system) patient)]
+        patient-id (insert-resource (:db system) patient)]
     (-> request
         (header "Location" (construct-url request patient-id))
         (content-type "text/plain")
@@ -21,16 +21,18 @@
 
 
 (defn update-handler
-  "Handler for UPDATE queries."
+  "Handler for DELETE queries."
   [request]
   (-> (response "UPDATE")
       (content-type "text/plain")))
 
 (defn delete-handler
-  "Handler for DELETE queries."
-  [request]
-  (-> (response "DELETE")
-      (content-type "text/plain")))
+  "Handler for CREATE queries."
+  [{ system :system params :params :as request }]
+  (delete-resource (:db system) (:id params))
+  (-> request
+      (content-type "text/plain")
+      (status 204)))
 
 (defn read-handler
   "Handler for READ queries."
