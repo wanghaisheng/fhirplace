@@ -9,8 +9,8 @@
 (def uuid-regexp
   #"[0-f]{8}-([0-f]{4}-){3}[0-f]{12}")
 
-(def resource-types-regexp
-  (re-pattern (str "(" (clojure.string/join "|" (map clojure.string/lower-case (core/resource-types))) ")")))
+;; (def resource-types-regexp
+;;   (re-pattern (str "(" (clojure.string/join "|" (map clojure.string/lower-case (core/resource-types))) ")")))
 
 ;; TODO: Handle non-existed resource types
 (defroutes main-routes
