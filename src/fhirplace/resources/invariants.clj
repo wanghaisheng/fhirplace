@@ -10,29 +10,25 @@
 
 (defn- append-to-nodes
   "make nodes set: if v is vector concat else conj"
-  [acc v]
-  (vec ((if (vector? v) concat conj) acc v)))
+  [acc v last?]
+  (if (nil? v)
+    []
+    (let  [op (if (and (vector? v) (not last?)) concat conj)]
+      (vec (op acc v)))))
 
+;TODO: remove copy-paste
 (defn- apply-filter
   "filter in path"
-  [flt nodes]
+  [flt nodes & last?]
   (let [nds (normalize-vector nodes)]
     (cond
-      (keyword? flt) (reduce #(append-to-nodes %1 (flt %2)) [] nds )
-      (vector? flt)  (filter-nodes nds flt)
-      :else          (throw (Exception. "unknown filter")))))
-
-(defn- apply-last-filter
-  [flt nodes]
-  (let [nds (normalize-vector nodes)]
-    (cond
-      (keyword? flt) (filterv identity (mapv flt nds))
+      (keyword? flt) (reduce #(append-to-nodes %1 (flt %2) last?) [] nds )
       (vector? flt)  (filter-nodes nds flt)
       :else          (throw (Exception. "unknown filter")))))
 
 (defn- filter-with-path [obj filters]
-  (->> (reduce #(apply-filter %2 %1) obj (butlast filters))
-       (apply-last-filter (last filters))))
+  (let [nodes (reduce #(apply-filter %2 %1) obj (butlast filters))]
+    (apply-filter (last filters) nodes true)))
 
 (def ^{:dynamic true} *obj*)
 
