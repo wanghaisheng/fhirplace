@@ -49,6 +49,7 @@
   "Stop, refresh and go."
   (stop)
   (set-refresh-dirs "./src" "./dev")
+  (refresh)
   (refresh :after 'user/go))
 
 ;;;; Useful additional utilities for the REPL

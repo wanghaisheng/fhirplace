@@ -1,60 +1,47 @@
-(ns fhirplace.handler
+(ns fhirplace.interactions.resource
   (:use ring.util.response
-        ring.util.request
-        fhirplace.core)
-  (:require [fhirplace.core :as core]
-            [fhirplace.conformance :as conf]
-            [clojure.data.json :as json]))
+        ring.util.request)
+  (:require [fhirplace.repositories.resource :as repo])
+  (:refer-clojure :exclude (read)))
 
 (defn construct-url
   [{scheme :scheme, remote-addr :remote-addr, uri :uri}, id]
   (str (name scheme) "://" remote-addr uri "/" id))
 
-(defn create-handler
+(defn create
   "Handler for CREATE queries."
   [{ system :system params :params :as request }]
   (let [patient (body-string request)
-        patient-id (insert-resource (:db system) patient)]
+        patient-id (repo/insert (:db system) patient)]
     (-> request
         (header "Location" (construct-url request patient-id))
         (content-type "text/plain")
         (status 200))))
 
-(defn update-handler
+(defn update
   "Handler for DELETE queries."
   [{ system :system params :params :as request }]
   (let [patient (body-string request)]
-    (update-resource (:db system) (:id params) patient)
+    (repo/update (:db system) (:id params) patient)
     (-> request
         (header "Last-Modified" (java.util.Date.))
         (content-type "text/plain")
         (status 200))))
 
-(defn delete-handler
+(defn delete
   "Handler for CREATE queries."
   [{ system :system params :params :as request }]
-  (delete-resource (:db system) (:id params))
+  (repo/delete (:db system) (:id params))
   (-> request
       (content-type "text/plain")
       (status 204)))
 
-(defn read-handler
+(defn read
   "Handler for READ queries."
   [{ system :system params :params :as request }]
-  (if-let [resource (core/select-resource (:db system) (:resource-type params) (:id params))]
+  (if-let [resource (repo/select (:db system) (:resource-type params) (:id params))]
     (-> (response (str resource))
         (content-type "text/json"))
     (-> (response "Not Found")
         (content-type "text/plain")
         (status 404))))
-
-(defn conformance-handler
-  "Handler for CONFORMANCE interaction."
-  [{ system :system params :params :as request }]
-  { :body (conf/build-conformance (resource-types (:db system))) })
-
-(defn test-handler
-  "Handler for debug purposes (displays system info)."
-  [{ system :system params :params :as request }]
-
-  (-> (response [(str request)])))

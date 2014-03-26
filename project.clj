@@ -10,6 +10,8 @@
   :plugins [[lein-ring "0.8.10"]
             [lein-midje "3.0.0"]]
 
+  :resource-paths ["resources"]
+
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/data.json "0.2.4"]
                  [org.clojure/java.jdbc "0.3.3"]
@@ -25,6 +27,7 @@
                                   [midje "1.6.0"]
                                   [clj-time "0.6.0"]
                                   [im.chit/vinyasa "0.1.8"]
+                                  [io.aviso/pretty "0.1.10"]
                                   [spyscope "0.1.3"]
                                   [criterium "0.4.1"]
                                   [leiningen "2.3.4"]
@@ -36,5 +39,12 @@
                                               [vinyasa.pull pull]
                                               [vinyasa.lein lein]
                                               [vinyasa.reimport reimport]
-                                              [midje.repl load-facts]])]
-                   }})
+                                              [midje.repl load-facts]])
+
+                                (require 'io.aviso.repl
+                                         'clojure.repl
+                                         'clojure.main)
+                                (alter-var-root #'clojure.main/repl-caught
+                                                (constantly @#'io.aviso.repl/pretty-pst))
+                                (alter-var-root #'clojure.repl/pst
+                                                (constantly @#'io.aviso.repl/pretty-pst))] }})

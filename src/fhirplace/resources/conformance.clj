@@ -1,6 +1,5 @@
-(ns fhirplace.conformance
-  (:require [clj-time.core :as t]
-            [fhirplace.core :as core]))
+(ns fhirplace.resources.conformance
+  #_(:require [clj-time.core :as t]))
 
 (defn- build-resource [resource]
   {:type resource
@@ -19,17 +18,17 @@
 
 (defn build-conformance
   "Returns Conformance resource describing this FHIRPlace server"
-  [resources]
+  [resources system-info]
   {:resourceType "Conformance"
    :name "FHIRPlace"
    :publisher "Health Samurai Developers"
    :telecom [{:system "url" :value "http://healthsamurai.github.io"}]
    :description "Open Source FHIR server written in Clojure"
-   :date (t/local-date 2013 3 20)
+   :date  (java.util.Date.) ;(t/local-date 2013 3 20)
    :fhirVersion "DSTU"
    :acceptUnknown true
    :format ["json" "xml"]
    :software {:name "FHIRPlace"
-              :version (:version core/project)}
+              :version (:version system-info)}
    :rest (build-rest resources)})
 
