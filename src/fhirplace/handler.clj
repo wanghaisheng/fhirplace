@@ -3,6 +3,7 @@
         ring.util.request
         fhirplace.core)
   (:require [fhirplace.core :as core]
+            [fhirplace.conformance :as conf]
             [clojure.data.json :as json]))
 
 (defn construct-url
@@ -18,7 +19,6 @@
         (header "Location" (construct-url request patient-id))
         (content-type "text/plain")
         (status 200))))
-
 
 (defn update-handler
   "Handler for DELETE queries."
@@ -47,3 +47,14 @@
     (-> (response "Not Found")
         (content-type "text/plain")
         (status 404))))
+
+(defn conformance-handler
+  "Handler for CONFORMANCE interaction."
+  [{ system :system params :params :as request }]
+  { :body (conf/build-conformance (resource-types (:db system))) })
+
+(defn test-handler
+  "Handler for debug purposes (displays system info)."
+  [{ system :system params :params :as request }]
+
+  (-> (response [(str request)])))

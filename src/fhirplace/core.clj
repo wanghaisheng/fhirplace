@@ -1,6 +1,15 @@
 (ns fhirplace.core
   (:require [clojure.java.jdbc :as sql]))
 
+(def project
+  "FHIRPlace version"
+  (->> "project.clj"
+    slurp
+    read-string
+    (drop 2)
+    (cons :version)
+    (apply hash-map)))
+
 (defn resource-types [db-spec]
   (set
     (map :path

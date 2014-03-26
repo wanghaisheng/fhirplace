@@ -26,4 +26,3 @@
   (when (:server system)
     (server/stop (:server system)))
   (dissoc system :server))
-
