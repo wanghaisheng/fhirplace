@@ -1,5 +1,10 @@
-{:db {:subprotocol "postgresql"
-      :subname "//127.0.0.1:5432/fhirbase"
-      :user "vagrant"}
+{:test {:db {:subprotocol "postgresql"
+             :subname "//127.0.0.1:5433/fhirbase"
+             :user "vagrant"}
+        :port 8889}
 
- :port 8889}
+ :dev {:db {:subprotocol "postgresql"
+            :subname "//127.0.0.1:5433/fhirbase"
+            :user "vagrant"}
+
+       :port 8889}}
