@@ -9,6 +9,7 @@
             [fhirplace.db :as db]
             [fhirplace.core :as core]
             [fhirplace.system :as system]
+            [spyscope.core]
             [ring.util.response :as response])) 
 
 (def db-spec (db/conn))
@@ -59,7 +60,7 @@
       (:status req-get) => 404)
     (clear-resources db-spec))
 
-(facts  "About UPDATE"
+(facts "About UPDATE"
   (let [patient (read-patient)
         patient-json (json/read-str patient)
         req (body (request :post "/patient") patient)
@@ -73,3 +74,28 @@
     (get resource "deceasedBoolean") => true
     (clear-resources db-spec)))
 
+(facts "About VREAD for existed resource"
+  (let [patient (read-patient)
+        patient-json (json/read-str patient)
+        patient-put-json (assoc patient-json "deceasedBoolean" true)
+        patient-put (json/write-str patient-put-json)
+        patient-id (insert-resource db-spec patient)
+        patient-put-id (update-resource db-spec patient-id patient-put)
+        history (select-history db-spec #spy/p patient-id)
+        req-put (perform-request :get (str "/patient/" patient-id "/_history/" #spy/p (:_version_id (first #spy/p history))))
+        res-put (parse-body req-put)
+        req (perform-request :get (str "/patient/" patient-id "/_history/" (:_version_id (first history))))
+        res (parse-body req)
+        req-del (perform-request :delete (str "/patient/" patient-id))
+        ]
+    (:status req) => 200
+    (:status req-put) => 200
+    (:status req-del) => 204
+    (.length (vec history)) => 1
+    (get res "_id") => patient-id
+    (get res "resourceType") => "Patient"
+    (get res "deceasedBoolean") => true
+    (get res-put "_id") => patient-id
+    (get res-put "resourceType") => "Patient"
+    (get res-put "deceasedBoolean") => true
+    (clear-resources db-spec)))

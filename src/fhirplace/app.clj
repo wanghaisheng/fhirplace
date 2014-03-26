@@ -15,8 +15,8 @@
 ;; TODO: Handle non-existed resource types
 (defroutes main-routes
   (POST   "/:resource-type"                        [resource-type]    fhandler/create-handler)
-  (GET    ["/:resource-type/:id",
-           :id uuid-regexp]                        [resource-type id] fhandler/read-handler)
+  (GET    ["/:resource-type/:id/_history/:vid", :id uuid-regexp, :vid uuid-regexp] [resource-type id] fhandler/vread-handler)
+  (GET    ["/:resource-type/:id", :id uuid-regexp] [resource-type id] fhandler/read-handler)
   (DELETE "/:resource-type/:id"                    [resource-type id] fhandler/delete-handler)
   (PUT    "/:resource-type/:id"                    [resource-type id] fhandler/update-handler)
   (route/not-found "Not Found"))

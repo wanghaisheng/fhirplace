@@ -33,3 +33,6 @@
                               "','"
                               resource
                               "'::json)::varchar")]))
+
+(defn select-history [db-spec id]
+  (sql/query db-spec [(str "SELECT _id::varchar as _version_id FROM fhir.resource WHERE _id = '" id "'")]))

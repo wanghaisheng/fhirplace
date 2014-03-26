@@ -3,6 +3,7 @@
         ring.util.request
         fhirplace.core)
   (:require [fhirplace.core :as core]
+            [spyscope.core]
             [clojure.data.json :as json]))
 
 (defn construct-url 
@@ -42,6 +43,16 @@
   "Handler for READ queries."
   [{ system :system params :params :as request }]
   (if-let [resource (core/select-resource (:db system) (:resource-type params) (:id params))]
+    (-> (response (str resource))
+        (content-type "text/json"))
+    (-> (response "Not Found")
+        (content-type "text/plain")
+        (status 404))))
+
+(defn vread-handler
+  "Handler for VREAD queries."
+  [{ system :system params :params :as request }]
+  (if-let [resource (core/select-resource (:db system) (:resource-type params) (:id #spy/p params))]
     (-> (response (str resource))
         (content-type "text/json"))
     (-> (response "Not Found")
