@@ -22,7 +22,7 @@
                    :dependencies [[org.clojure/tools.namespace "0.2.4"]
                                   [com.cemerick/pomegranate "0.2.0"]
                                   [midje "1.6.0"]
-                                  ;; [slamhound "1.3.3"]
+                                  [clj-time "0.6.0"]
                                   [im.chit/vinyasa "0.1.8"]
                                   [spyscope "0.1.3"]
                                   [criterium "0.4.1"]

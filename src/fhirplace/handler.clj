@@ -5,7 +5,7 @@
   (:require [fhirplace.core :as core]
             [clojure.data.json :as json]))
 
-(defn construct-url 
+(defn construct-url
   [{scheme :scheme, remote-addr :remote-addr, uri :uri}, id]
   (str (name scheme) "://" remote-addr uri "/" id))
 
