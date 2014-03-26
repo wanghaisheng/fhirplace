@@ -13,10 +13,8 @@
   [{ system :system params :params :as request }]
   (let [patient (body-string request)
         patient-id (repo/insert (:db system) patient)]
-    (-> request
-        (header "Location" (construct-url request patient-id))
-        (content-type "text/plain")
-        (status 200))))
+    (-> (redirect (str (:uri request) "/" patient-id))
+        (status 201))))
 
 (defn update
   "Handler for DELETE queries."

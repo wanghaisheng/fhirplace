@@ -1,7 +1,7 @@
 (ns user
   "Namespace to support hacking at the REPL."
   (:require [fhirplace.system :as system]
-            [clojure.tools.namespace.repl :refer :all]
+            [clojure.tools.namespace.repl :as ns-repl]
             [clojure.tools.namespace.move :refer :all]
             [clojure.repl :refer :all]
             [clojure.pprint :refer :all]
@@ -45,11 +45,14 @@
   (init)
   (start))
 
+(defn refresh []
+  (ns-repl/refresh))
+
 (defn reset []
   "Stop, refresh and go."
   (stop)
-  (set-refresh-dirs "./src" "./dev")
-  (refresh)
-  (refresh :after 'user/go))
+  ;;(ns-repl/set-refresh-dirs "./src" "./dev")
+  (ns-repl/refresh)
+  (ns-repl/refresh :after 'user/go))
 
 ;;;; Useful additional utilities for the REPL

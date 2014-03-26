@@ -15,17 +15,20 @@
     {:system-name (second pr)
      :version (:version info)}))
 
-(defn load-config []
-  (->> "config.clj"
-       io/resource
-       slurp
-       read-string
-       (merge (load-project-info))))
+(defn load-config [env]
+  (let [conf ( ->> "config.clj"
+                   io/resource
+                   slurp
+                   read-string)]
+    (merge (env conf) (load-project-info))))
 
 (defn create
   "Create system instance"
-  []
-  (load-config))
+  ([] (create :dev))
+  ([env]
+   (let [system (load-config env)]
+     (merge system
+            {:handler (web/create-web-handler system)}))))
 
 (defn start
   "Performs side effects to initialize the system, acquire resources,
@@ -33,7 +36,7 @@
   [system]
   (assoc system :server
          (web/start-server
-           (web/create-web-handler system)
+           (:handler system)
            (:port system))))
 
 (defn stop

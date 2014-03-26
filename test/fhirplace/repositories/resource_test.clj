@@ -1,9 +1,8 @@
-(ns fhirplace.core-test
+(ns fhirplace.repositories.resource-test
   (:use midje.sweet)
-  (:require [fhirplace.core :refer :all]
-            [fhirplace.db :as db]))
+  (:require [fhirplace.repositories.resource :refer :all]))
 
-(fact "`resource-types` function returns sequence of all Resources availabe in FhirBase"
+#_(fact "`resource-types` function returns sequence of all Resources availabe in FhirBase"
   (def resources (resource-types (db/conn)))
 
   (contains? resources "Patient") => truthy
