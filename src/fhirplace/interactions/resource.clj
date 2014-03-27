@@ -1,7 +1,8 @@
 (ns fhirplace.interactions.resource
   (:use ring.util.response
         ring.util.request)
-  (:require [fhirplace.repositories.resource :as repo])
+  (:require [fhirplace.repositories.resource :as repo]
+            [fhirplace.util :as util])
   (:refer-clojure :exclude (read)))
 
 (defn construct-url
@@ -37,9 +38,9 @@
 (defn read
   "Handler for READ queries."
   [{ system :system params :params :as request }]
+
   (if-let [resource (repo/select (:db system) (:resource-type params) (:id params))]
-    (-> (response (str resource))
-        (content-type "text/json"))
+    (response resource)
     (-> (response "Not Found")
         (content-type "text/plain")
         (status 404))))

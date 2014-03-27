@@ -1,37 +1,18 @@
 (ns fhirplace.integration.web-test
   (:use midje.sweet)
-  (:require [fhirplace.system :as sys]
-            [ring.mock.request :as mock]
-            [clojure.data.json :as json]
-            [ring.util.request :as request]
+  (:require [ring.util.request :as request]
             [ring.util.response :as response]
-            [clojure.test :refer :all]
-            [clojure.string :as str]))
+            [clojure.data.json :as json]
+            [fhirplace.test-helper :refer :all]))
 
-(def test-system (sys/create :test))
 
 (defn make-uuid [] (str (java.util.UUID/randomUUID)))
 
 (defn json-body [response]
   (json/read-str (:body response) :key-fn keyword))
 
-(defn request [& args]
-  ((:handler test-system) (apply mock/request args)))
-
-(defn GET [& args]
-  (apply request :get args))
-
-(defn POST [& args]
-  (apply request :post args))
-
-(def patient-json-str (slurp "test/fixtures/patient.json"))
-(def patient-json (json/read-str patient-json-str :key-fn keyword))
-
-(defmacro deffacts [str & body]
-  (let [smbl (symbol (str/replace str #"[^a-zA-Z]" "_"))]
-    `(deftest ~smbl
-       (facts ~str
-         ~@body))))
+(def patient-json-str (fixture-str "patient"))
+(def patient-json (fixture "patient"))
 
 (deffacts "FHIRPlace respond to /info with debug info"
   (fact
@@ -66,24 +47,15 @@
 
     (fact "when requesting newly created resource"
       (:body read-response) =not=> nil
-      (:address (json-body read-response)) => (:address patient-json)
+      (:name (json-body read-response)) => (:name patient-json)
       (:status read-response) => 200)))
 
-#_(deffacts "About READ for existed resource"
-  (let [patient-id (insert-resource db-spec patient-json-str)
-        req (perform-request :get (str "/patient/" patient-id))
-        res (parse-body req)]
-
-    (get res "_id")          => patient-id
-    (get res "resourceType") => "Patient"
-    (:status req)            => 200)
-  (clear-resources db-spec))
+(deffacts "About READing non-existent resource"
+  (let [response (GET (str "/patient/" (make-uuid)))]
+    (:status response) => 404
+    (:body response) => "Not Found"))
 
 #_(
-   (facts "About READ for non-existed resource"
-          (:status (perform-request :get "/patient/blablabla"))     => 404
-          (:status (perform-request :get (str "/patient/" (uuid)))) => 404)
-
    (facts "About DELETE for existed resource"
           (let [patient-json-str (read-patient)
                 patient-id (insert-resource db-spec patient-json-str)
@@ -93,7 +65,7 @@
             (:status req-get) => 404)
           (clear-resources db-spec))
 
-   (facts  "About UPDATE"
+   (facts "About UPDATE"
           (let [patient-json-str (read-patient)
                 patient-json-str (json/read-str patient-json-str)
                 req (body (request :post "/patient") patient-json-str)
