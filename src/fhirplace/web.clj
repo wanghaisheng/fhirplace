@@ -28,10 +28,10 @@
     (handler (assoc request :system system))))
 
 (defn create-web-handler [system]
-  (-> (handler/site main-routes)
-      (wrap-with-system system)
-      (wrap-stacktrace)
-      (wrap-json-response {:pretty true})))
+  (let [stacktrace-fn (if (= :dev (:env system)) (wrap-stacktrace) identity)]
+    (stacktrace-fn (-> (handler/site main-routes)
+                     (wrap-with-system system)
+                     (wrap-json-response {:pretty true})))))
 
 (defn start-server
   [handler port]

@@ -20,6 +20,12 @@
 (defn POST [& args]
   (apply request :post args))
 
+(defn PUT [& args]
+  (apply request :put args))
+
+(defn DELETE [& args]
+  (apply request :delete args))
+
 (defmacro deffacts [str & body]
   (let [smbl (symbol (str/replace str #"[^a-zA-Z]" "_"))]
     `(deftest ~smbl

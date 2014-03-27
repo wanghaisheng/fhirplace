@@ -28,7 +28,8 @@
   ([env]
    (let [system (load-config env)]
      (merge system
-            {:handler (web/create-web-handler system)}))))
+            {:handler (web/create-web-handler system)
+             :env env}))))
 
 (defn start
   "Performs side effects to initialize the system, acquire resources,

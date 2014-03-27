@@ -34,47 +34,48 @@
     (fact "Conformance resource contains :rest key with all available resources"
       (get-in conf [:rest 0 :resources])=> #(< 0 (count %)))))
 
-(deffacts "About CREATEing new resource"
+(deffacts "About basic CRUD on resources"
   (let [create-response (POST "/Patient" patient-json-str)
-        redirect-location  (response/get-header create-response "Location")
-        read-response (GET redirect-location)]
+        resource-location (response/get-header create-response "Location")]
 
     (fact "returns location of newly created resource"
-      redirect-location => #"/Patient/.+")
+      resource-location => #"/Patient/.+")
 
     (fact "respond with 201 HTTP status"
       (:status create-response) => 201)
 
     (fact "when requesting newly created resource"
-      (:body read-response) =not=> nil
-      (:name (json-body read-response)) => (:name patient-json)
-      (:status read-response) => 200)))
+      (let [read-response (GET resource-location)]
+
+        (:body read-response) =not=> nil
+        (:name (json-body read-response)) => (:name patient-json)
+        (:status read-response) => 200))
+
+    (fact "when UPDATEing existent resource"
+      (let [update-body (json/write-str
+                          (update-in  patient-json [:telecom] conj
+                            {:system "phone"
+                             :value "+919191282"
+                             :use "home"} ))
+            update-response (PUT resource-location update-body)]
+
+        (fact "respond with 200"
+          (:status update-response) => 200)
+
+        (fact "respond with empty body"
+          (slurp (:body update-response)) => "")))
+
+    (fact "when DELETEing existent resource"
+      (let [delete-response (DELETE resource-location)
+            read-response (GET resource-location)]
+
+        (fact "respond with 204"
+          (:status delete-response) => 204)
+
+        (fact "resource was actually deleted"
+          (:status read-response) => 404)))))
 
 (deffacts "About READing non-existent resource"
   (let [response (GET (str "/patient/" (make-uuid)))]
     (:status response) => 404
     (:body response) => "Not Found"))
-
-#_(
-   (facts "About DELETE for existed resource"
-          (let [patient-json-str (read-patient)
-                patient-id (insert-resource db-spec patient-json-str)
-                req (perform-request :delete (str "/patient/" patient-id))
-                req-get (perform-request :get (str "/patient/" patient-id))]
-            (:status req) => 204
-            (:status req-get) => 404)
-          (clear-resources db-spec))
-
-   (facts "About UPDATE"
-          (let [patient-json-str (read-patient)
-                patient-json-str (json/read-str patient-json-str)
-                req (body (request :post "/patient") patient-json-str)
-                patient-url (response/get-header (app req) "Location")
-                patient-put-json (assoc patient-json-str "deceasedBoolean" true)
-                patient-put (json/write-str patient-put-json)
-                req-put (body (request :put patient-url) patient-put)
-                res (app req-put)
-                resource (parse-body (perform-request :get patient-url))]
-            (:status res) => 200
-            (get resource "deceasedBoolean") => true
-            (clear-resources db-spec))))
