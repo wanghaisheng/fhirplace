@@ -47,13 +47,12 @@
                           valid/parse-json           ;; 400
                           valid/check-type           ;; 404
                           valid/check-existence      ;; 405
-                          valid/update-resource      ;; 422
-                          )) ;; 200
+                          valid/update-resource))      ;; 422 or 200
 
 (defn update
   "Handler for DELETE queries."
   [request]
-  (update-with-checks request))
+  (update-with-checks (assoc {} :request request :response {})))
 
 (defn delete
   "Handler for DELETE queries."

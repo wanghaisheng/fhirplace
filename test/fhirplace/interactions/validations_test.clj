@@ -6,49 +6,56 @@
             [ring.mock.request :as mock]
             [midje.sweet :refer :all]))
 
-(defn mk-req-with-body [body-str]
-  (assoc (mock/request :get "some_uri") :body-str body-str))
+(defn mk-message [body-str]
+  {:request (assoc (mock/request :get "some_uri") :body-str body-str)
+   :response {}})
 
 (facts "About `parse-json'"
-  (parse-json (mk-req-with-body "{\"valid_json\": true}")) =not=> (contains {:status 400})
-  (parse-json (mk-req-with-body "Not valid json at all!")) => (contains {:status 400}))
+  (parse-json (mk-message "{\"valid_json\": true}")) =not=> (contains {:response {:status 400}})
+  (parse-json (mk-message "Not valid json at all!")) => (contains {:response {:status 400}}))
 
 (facts "About `check-existence'"
-  (check-existence {:params {:id ..existed-id..}}) =not=> (contains {:status 405})
+  (check-existence 
+    (assoc-in {} [:request :params :id] ..existed-id..)) =not=> (contains {:response {:status 405}})
   (provided
     (repo/exists? anything ..existed-id..) => true)
 
-  (check-existence {:params {:id ..non-existed-id..}}) => (contains {:status 405})
+  (check-existence 
+    (assoc-in {} [:request :params :id] ..non-existed-id..)) => (contains {:response {:status 405}})
   (provided
     (repo/exists? anything ..non-existed-id..) => false))
 
 (facts "About `update-resource'"
-  (update-resource {}) =not=> (contains {:status 422})
+
+  (update-resource (mk-message "")) =not=> (contains {:response {:status 422}})
   (provided
     (repo/update anything anything anything) => nil)
-  
-  (update-resource {}) => (contains {:status 422})
+
+  (update-resource (mk-message "")) => (contains {:response {:status 422}})
   (provided
-    (repo/update anything anything anything) =throws=> (java.sql.SQLException. "BOOM!")))
+    (repo/update anything anything anything) =throws=> (java.sql.SQLException. "BOOM!"))
 
-(facts "About `pack-update-result'"
-  (let [succ-req (pack-update-result (mk-req-with-body ""))]
-    (fact "Last-Modified should not be nill"
-      (get-header succ-req "Last-Modified") =not=> nil)
+  (facts "Headers"
+    (let [res (:response (update-resource (mk-message "")))]
+      (fact "Last-Modified should not be nill"
+        (get-header res "Last-Modified") =not=> nil)
 
-    (fact "Location should not be nill"
-      (get-header succ-req "Location") =not=> nil)
+      (fact "Location should not be nill"
+        (get-header res "Location") =not=> nil)
 
-    (fact "Content-Location should not be nill"
-      (get-header succ-req "Content-Location") =not=> nil)
+      (fact "Content-Location should not be nill"
+        (get-header res "Content-Location") =not=> nil)
 
-    (fact "Status should be 200 OK"
-      (:status succ-req) => 200)))
+      (fact "Status should be 200 OK"
+        (:status res) => 200))
 
+    (against-background
+      (repo/update anything anything anything) => nil)))
+ 
 (facts "About `check-type'. Should set 404 if type is unknown"
   (do
-    (check-type {:params {:resource-type ..known-type..}}) =not=> (contains {:status 404})
-    (check-type {:params {:resource-type ..not-known-type..}}) => (contains {:status 404})
+    (check-type (assoc-in {} [:request :params :resource-type] ..known-type..)) =not=> (contains {:response {:status 404}})
+    (check-type (assoc-in {} [:request :params :resource-type] ..non-known-type..)) => (contains {:response {:status 404}})
     (provided
       (repo/resource-types anything) => [..known-type..])))
 

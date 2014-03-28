@@ -10,34 +10,41 @@
   [{scheme :scheme, remote-addr :remote-addr, uri :uri}, id]
   (str (name scheme) "://" remote-addr uri "/" id))
 
-(defn parse-json [request]
+(defn parse-json
   "Trys to parse body to json. If success -
   set body-json value of req. Otherwise - 400"
+ [{request :request, response :response :as message}]
   (try
     (let [body-json (json/read-str (:body-str request))]
-      (assoc request :body-json body-json))
+      (assoc-in message [:request :body-json] body-json))
     (catch Throwable e
-      (status request 400))))
+      (assoc-in message [:response :status] 400))))
 
 (defn check-type
   "Check if type is known"
-  [{params :params system :system :as request}]
-  (let [resource-types (set (map
-                              str/lower-case
+
+  [{ {:keys [params system]} :request,
+    response :response :as message }]
+
+  (let [resource-types (set 
+                         (map str/lower-case
                               (repo/resource-types (:db system))))
 
         resource-type (str/lower-case (:resource-type params))]
     (if (contains? resource-types resource-type)
-      request
-      (status request 404))))
+      message
+      (assoc-in message [:response :status] 404))))
 
 (defn check-existence
   "Check for existing of resource by id.
   If resouce not found - returns 405."
-  [{params :params system :system :as request}]
+
+  [{ {:keys [params system]} :request,
+    response :response :as message }]
+
   (if (repo/exists? (:db system) (:id params))
-    request
-    (status request 405)))
+    message
+    (assoc-in message [:response :status] 405)))
 
 (defn create-resource
   "Creates new resource, if FHIRBase reports an error,
@@ -56,33 +63,27 @@
 (defn update-resource
   "Updates resource.
   TODO: if error occured, should return 422"
-  [{ system :system params :params :as request }]
-  (let [patient (:body-str request)]
-    (try
-      (repo/update (:db system) (:id params) patient)
-      (-> {}
+
+  [{ {:keys [params system body-str] :as request} :request,
+    response :response :as message }]
+
+  (try
+    (repo/update (:db system) (:id params) body-str)
+    (-> response
         (header "Last-Modified" (java.util.Date.))
         (header "Location" (construct-url request (:id params)))
         (header "Content-Location" (construct-url request (:id params)))
-        (status 200))
-      (catch java.sql.SQLException e
-        (status {} 422)))))
-
-(defn pack-update-result
-  "Pack update result as successfull."
-  [{params :params :as request}]
-  (-> request
-      (header "Last-Modified" (java.util.Date.))
-      (header "Location" (construct-url request (:id params)))
-      (header "Content-Location" (construct-url request (:id params)))
-      (status 200)))
+        (status 200)
+        (#(assoc message :response %)))
+    (catch java.sql.SQLException e
+      (assoc-in message [:response :status] 422))))
 
 (defmonad request-m
   [m-result identity
-   m-bind (fn [request f]
-            (if (nil? (:status request))
-              (f request)
-              request))])
+   m-bind (fn [message f]
+            (if (nil? (get-in message [:response :status]))
+              (f message)
+              message))])
 
 ;; (defmacro with-checks [& body]
 ;;   `(with-monad request-m
@@ -93,6 +94,6 @@
     (some
       (fn [f]
         (let [resp (f request)
-              status (:status resp)]
+              status (get-in resp [:response :status])]
           (if status response nil)))
       fns)))
