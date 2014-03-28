@@ -3,7 +3,8 @@
         ring.util.response
         ring.util.request)
   (:require [fhirplace.repositories.resource :as repo]
-            [clojure.data.json :as json]))
+            [clojure.data.json :as json]
+            [clojure.string :as str]))
 
 (defmonad request-m
   [m-result identity
@@ -13,7 +14,7 @@
               req))])
 
 (defn parse-json [req]
-  "Trys to parse body to json. If success - 
+  "Trys to parse body to json. If success -
   set body-json value of req. Otherwise - 400"
   (try
     (let [body-json (json/read-str (:body-str req))]
@@ -24,13 +25,16 @@
 (defn check-type
   "Check if type is known"
   [{params :params system :system :as req}]
-  (let [resource-types (repo/resource-types (:db system))
-        resource-type (:resource-type params)]
+  (let [resource-types (set (map
+                              str/lower-case
+                              (repo/resource-types (:db system))))
+
+        resource-type (str/lower-case (:resource-type params))]
     (if (contains? resource-types resource-type)
       req
       (status req 404))))
 
-(defn check-existence 
+(defn check-existence
   "Check for existing of resource by id.
   If resouce not found - returns 405."
   [{params :params system :system :as req}]
@@ -63,7 +67,5 @@
       (status 200)))
 
 (defmacro with-checks [& body]
-  `(with-monad request-m 
+  `(with-monad request-m
      (m-chain [~@body])))
-
-

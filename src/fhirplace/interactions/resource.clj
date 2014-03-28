@@ -29,7 +29,7 @@
 ;;                            or server business rules. This should be accompanied by
 ;;                            an OperationOutcome resource providing additional detail
 ;; TODO: OperationOutcome
-(def update-with-checks (valid/with-checks 
+(def update-with-checks (valid/with-checks
                           valid/parse-json           ;; 400
                           valid/check-type           ;; 404
                           valid/check-existence      ;; 405
