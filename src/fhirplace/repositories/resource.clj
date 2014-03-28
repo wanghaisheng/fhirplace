@@ -44,3 +44,11 @@
                         resource
                         "'::json)::varchar")]))
 
+(defn exists? [db-spec resource-id]
+  (let [count (:count 
+                (first 
+                  (sql/query db-spec 
+                             [(str "SELECT count(*) from fhir.resource where _id = '"
+                                   resource-id "'")])))]
+    (not (zero? count))))
+

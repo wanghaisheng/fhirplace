@@ -3,7 +3,7 @@
             [clojure.test :refer :all]
             [fhirplace.system :as sys]
             [ring.mock.request :as mock]
-            [clojure.string :as str]
+            [clojure.string :as string]
             [midje.sweet :refer :all]
             [clojure.data.json :as json]))
 
@@ -26,8 +26,10 @@
 (defn DELETE [& args]
   (apply request :delete args))
 
+(defn make-uuid [] (str (java.util.UUID/randomUUID)))
+
 (defmacro deffacts [str & body]
-  (let [smbl (symbol (str/replace str #"[^a-zA-Z]" "_"))]
+  (let [smbl (symbol (string/replace str #"[^a-zA-Z]" "_"))]
     `(deftest ~smbl
        (facts ~str
          ~@body))))

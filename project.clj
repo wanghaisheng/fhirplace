@@ -18,6 +18,7 @@
                  [org.postgresql/postgresql "9.3-1101-jdbc41"]
                  [ring-mock "0.1.5"]
                  [compojure "1.1.6"]
+                 [org.clojure/algo.monads "0.1.5"]
                  [ring "1.2.1"]
                  [ring/ring-json "0.3.0"]]
 

@@ -6,8 +6,6 @@
             [fhirplace.test-helper :refer :all]))
 
 
-(defn make-uuid [] (str (java.util.UUID/randomUUID)))
-
 (defn json-body [response]
   (json/read-str (:body response) :key-fn keyword))
 
@@ -79,3 +77,7 @@
   (let [response (GET (str "/patient/" (make-uuid)))]
     (:status response) => 404
     (:body response) => "Not Found"))
+
+(deffacts "About UPDATEing non-existent resource"
+  (let [response (PUT (str "/patient/" (make-uuid)) (json/write-str patient-json))]
+    (:status response) => 405))

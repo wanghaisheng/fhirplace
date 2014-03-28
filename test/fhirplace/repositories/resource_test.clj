@@ -20,3 +20,12 @@
       (:resourceType found-patient) => "Patient"
       (:name found-patient) => (:name patient))))
 
+(deffacts "`exists?' should return exitence of resource"
+  (fact "TRUE if resource exists"
+    (let [patient (fixture "patient")
+          patient-id (insert test-db patient)]
+      (exists? test-db patient-id) => true))
+
+  (fact "FALSE if resouce non-exists"
+    (exists? test-db (make-uuid)) => false))
+
