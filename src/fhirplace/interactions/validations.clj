@@ -21,6 +21,15 @@
     (catch Throwable e
       (status req 400))))
 
+(defn check-type
+  "Check if type is known"
+  [{params :params system :system :as req}]
+  (let [resource-types (repo/resource-types (:db system))
+        resource-type (:resource-type params)]
+    (if (contains? resource-types resource-type)
+      req
+      (status req 404))))
+
 (defn check-existence 
   "Check for existing of resource by id.
   If resouce not found - returns 405."

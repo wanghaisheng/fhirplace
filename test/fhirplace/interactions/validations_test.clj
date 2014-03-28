@@ -44,3 +44,11 @@
 
     (fact "Status should be 200 OK"
       (:status succ-req) => 200)))
+
+(facts "About `check-type'. Should set 404 if type is unknown"
+  (do
+    (check-type {:params {:resource-type ..known-type..}}) =not=> (contains {:status 404})
+    (check-type {:params {:resource-type ..not-known-type..}}) => (contains {:status 404})
+    (provided
+      (repo/resource-types anything) => [..known-type..])))
+
