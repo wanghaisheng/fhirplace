@@ -2,35 +2,49 @@
   (:use ring.util.response
         ring.util.request)
   (:require [fhirplace.repositories.resource :as repo]
-            [fhirplace.util :as util])
+            [fhirplace.util :as util]
+            [clojure.data.json :as json])
   (:refer-clojure :exclude (read)))
 
 (defn construct-url
   [{scheme :scheme, remote-addr :remote-addr, uri :uri}, id]
   (str (name scheme) "://" remote-addr uri "/" id))
 
+(defn- safely-parse-json [json-str]
+  (try
+    (json/read-str json-str :key-fn keyword)
+    (catch Exception e nil)))
+
 (defn create
   "Handler for CREATE queries."
   [{ system :system params :params :as request }]
-  (let [patient (body-string request)
-        patient-id (repo/insert (:db system) patient)]
-    (-> (redirect (str (:uri request) "/" patient-id))
-        (status 201))))
+
+  (let [resource (body-string request)
+        resource-json (safely-parse-json resource)]
+    (if resource-json
+      (-> (redirect (str (:uri request) "/" resource-id))
+        (status 201))
+      (status request 400))))
 
 (defn update
-  "Handler for DELETE queries."
+  "Handler for UPDATE queries."
   [{ system :system params :params :as request }]
-  (let [patient (body-string request)]
-    (repo/update (:db system) (:id params) patient)
-    (-> request
+  (let [resource (body-string request)
+        resource-json (safely-parse-json resource)]
+    (repo/update (:db system) (:id params) resource)
+
+    (if resource-json
+      (-> request
         (header "Last-Modified" (java.util.Date.))
-        (content-type "text/plain")
-        (status 200))))
+        (status 200))
+
+      (status request 422))))
 
 (defn delete
-  "Handler for CREATE queries."
+  "Handler for DELETE queries."
   [{ system :system params :params :as request }]
   (repo/delete (:db system) (:id params))
+
   (-> request
       (content-type "text/plain")
       (status 204)))
