@@ -12,6 +12,20 @@
   [{scheme :scheme, remote-addr :remote-addr, uri :uri}, id]
   (str (name scheme) "://" remote-addr uri "/" id))
 
+
+;; 400 Bad Request - resource could not be parsed or failed basic FHIR validation rules
+;; 404 Not Found - resource type not supported, or not a FHIR end
+;;                 point
+;; 422 Unprocessable Entity - the proposed resource violated
+;;              applicable FHIR profiles or server business rules. This should be
+;;              accompanied by an OperationOutcome resource providing additional
+;;              detail
+(def create-with-checks (valid/with-checks
+                          valid/parse-json           ;; 400
+                          valid/check-type           ;; 404
+                          valid/create-resource      ;; 422
+                          )) ;; 201
+
 (defn create
   "Handler for CREATE queries."
   [{ system :system params :params :as request }]
@@ -34,7 +48,7 @@
                           valid/check-type           ;; 404
                           valid/check-existence      ;; 405
                           valid/update-resource      ;; 422
-                          valid/pack-update-result)) ;; 200
+                          )) ;; 200
 
 (defn update
   "Handler for DELETE queries."

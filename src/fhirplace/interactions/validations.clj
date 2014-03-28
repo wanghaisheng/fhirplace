@@ -6,41 +6,52 @@
             [clojure.data.json :as json]
             [clojure.string :as str]))
 
-(defmonad request-m
-  [m-result identity
-   m-bind (fn [req f]
-            (if (nil? (:status req))
-              (f req)
-              req))])
+(defn- construct-url
+  [{scheme :scheme, remote-addr :remote-addr, uri :uri}, id]
+  (str (name scheme) "://" remote-addr uri "/" id))
 
-(defn parse-json [req]
+(defn parse-json [request]
   "Trys to parse body to json. If success -
   set body-json value of req. Otherwise - 400"
   (try
-    (let [body-json (json/read-str (:body-str req))]
-      (assoc req :body-json body-json))
+    (let [body-json (json/read-str (:body-str request))]
+      (assoc request :body-json body-json))
     (catch Throwable e
-      (status req 400))))
+      (status request 400))))
 
 (defn check-type
   "Check if type is known"
-  [{params :params system :system :as req}]
+  [{params :params system :system :as request}]
   (let [resource-types (set (map
                               str/lower-case
                               (repo/resource-types (:db system))))
 
         resource-type (str/lower-case (:resource-type params))]
     (if (contains? resource-types resource-type)
-      req
-      (status req 404))))
+      request
+      (status request 404))))
 
 (defn check-existence
   "Check for existing of resource by id.
   If resouce not found - returns 405."
-  [{params :params system :system :as req}]
+  [{params :params system :system :as request}]
   (if (repo/exists? (:db system) (:id params))
-    req
-    (status req 405)))
+    request
+    (status request 405)))
+
+(defn create-resource
+  "Creates new resource, if FHIRBase reports an error,
+   returns 422 HTTP status"
+  [{params :params system :system :as request}]
+  (let [resource (:body-str request)]
+    (try
+      (repo/insert (:db system) resource)
+      (-> request
+        (header "Location" (construct-url request (:id params)))
+        (status 200))
+
+      (catch java.sql.SQLException e
+        (status {} 422)))))
 
 (defn update-resource
   "Updates resource.
@@ -49,23 +60,39 @@
   (let [patient (:body-str request)]
     (try
       (repo/update (:db system) (:id params) patient)
-      request
+      (-> {}
+        (header "Last-Modified" (java.util.Date.))
+        (header "Location" (construct-url request (:id params)))
+        (header "Content-Location" (construct-url request (:id params)))
+        (status 200))
       (catch java.sql.SQLException e
-        (status request 422)))))
-
-(defn- construct-url
-  [{scheme :scheme, remote-addr :remote-addr, uri :uri}, id]
-  (str (name scheme) "://" remote-addr uri "/" id))
+        (status {} 422)))))
 
 (defn pack-update-result
   "Pack update result as successfull."
-  [{params :params :as req}]
-  (-> req
+  [{params :params :as request}]
+  (-> request
       (header "Last-Modified" (java.util.Date.))
-      (header "Location" (construct-url req (:id params)))
-      (header "Content-Location" (construct-url req (:id params)))
+      (header "Location" (construct-url request (:id params)))
+      (header "Content-Location" (construct-url request (:id params)))
       (status 200)))
 
-(defmacro with-checks [& body]
-  `(with-monad request-m
-     (m-chain [~@body])))
+(defmonad request-m
+  [m-result identity
+   m-bind (fn [request f]
+            (if (nil? (:status request))
+              (f request)
+              request))])
+
+;; (defmacro with-checks [& body]
+;;   `(with-monad request-m
+;;      (m-chain [~@body])))
+
+(defn with-checks [& fns]
+  (fn [request]
+    (some
+      (fn [f]
+        (let [resp (f request)
+              status (:status resp)]
+          (if status response nil)))
+      fns)))
