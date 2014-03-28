@@ -16,7 +16,7 @@
   "Trys to parse body to json. If success - 
   set body-json value of req. Otherwise - 400"
   (try
-    (let [body-json (json/read-str (body-string req))]
+    (let [body-json (json/read-str (:body-str req))]
       (assoc req :body-json body-json))
     (catch Throwable e
       (status req 400))))
@@ -33,7 +33,7 @@
   "Updates resource.
   TODO: if error occured, should return 422"
   [{ system :system params :params :as request }]
-  (let [patient (body-string request)]
+  (let [patient (:body-str request)]
     (try
       (repo/update (:db system) (:id params) patient)
       request

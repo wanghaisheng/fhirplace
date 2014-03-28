@@ -27,11 +27,21 @@
   (fn [request]
     (handler (assoc request :system system))))
 
+(defn copy-body
+  "Because of body can be read only once,
+  we should copy it for latter use."
+  [handler]
+  (fn [request]
+    (handler (if-let [body (:body request)]
+               (assoc request :body-str (slurp (:body request)))
+               request))))
+
 (defn create-web-handler [system]
   (let [stacktrace-fn (if (= :dev (:env system)) (wrap-stacktrace) identity)]
     (stacktrace-fn (-> (handler/site main-routes)
-                     (wrap-with-system system)
-                     (wrap-json-response {:pretty true})))))
+                       (wrap-with-system system)
+                       (copy-body)
+                       (wrap-json-response {:pretty true})))))
 
 (defn start-server
   [handler port]

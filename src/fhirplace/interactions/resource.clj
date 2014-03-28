@@ -15,7 +15,7 @@
 (defn create
   "Handler for CREATE queries."
   [{ system :system params :params :as request }]
-  (let [patient (body-string request)
+  (let [patient (:body-str request)
         patient-id (repo/insert (:db system) patient)]
     (-> (redirect (str (:uri request) "/" patient-id))
         (status 201))))

@@ -7,7 +7,7 @@
             [midje.sweet :refer :all]))
 
 (defn mk-req-with-body [body-str]
-  (mock/body (mock/request :get "some_uri") body-str))
+  (assoc (mock/request :get "some_uri") :body-str body-str))
 
 (facts "About `parse-json'"
   (parse-json (mk-req-with-body "{\"valid_json\": true}")) =not=> (contains {:status 400})
