@@ -61,7 +61,7 @@
           (:status update-response) => 200)
 
         (fact "respond with empty body"
-          (slurp (:body update-response)) => "")))
+          (:body update-response) => "")))
 
     (fact "when DELETEing existent resource"
       (let [delete-response (DELETE resource-location)

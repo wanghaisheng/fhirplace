@@ -49,16 +49,20 @@
 (defn create-resource
   "Creates new resource, if FHIRBase reports an error,
    returns 422 HTTP status"
-  [{params :params system :system :as request}]
-  (let [resource (:body-str request)]
+
+  [{ {:keys [params system body-str] :as request} :request,
+    response :response :as message }]
+
+  (let [resource body-str]
     (try
       (repo/insert (:db system) resource)
       (-> request
         (header "Location" (construct-url request (:id params)))
-        (status 200))
+        (status 200)
+        (#(assoc message :response %)))
 
       (catch java.sql.SQLException e
-        (status {} 422)))))
+        (assoc-in message [:response :status] 422)))))
 
 (defn update-resource
   "Updates resource.
@@ -85,15 +89,15 @@
               (f message)
               message))])
 
-;; (defmacro with-checks [& body]
-;;   `(with-monad request-m
-;;      (m-chain [~@body])))
+(defmacro with-checks [& body]
+  `(with-monad request-m
+     (m-chain [~@body])))
 
-(defn with-checks [& fns]
-  (fn [request]
-    (some
-      (fn [f]
-        (let [resp (f request)
-              status (get-in resp [:response :status])]
-          (if status response nil)))
-      fns)))
+;;(defn with-checks [& fns]
+;;  (fn [request]
+;;    (some
+;;      (fn [f]
+;;        (let [resp (f request)
+;;              status (get-in resp [:response :status])]
+;;          (if status response nil)))
+;;      fns)))

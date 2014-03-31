@@ -52,7 +52,7 @@
 (defn update
   "Handler for DELETE queries."
   [request]
-  (update-with-checks (assoc {} :request request :response {})))
+  (:response (update-with-checks (assoc {} :request request :response {}))))
 
 (defn delete
   "Handler for DELETE queries."
