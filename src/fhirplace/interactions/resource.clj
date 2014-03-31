@@ -28,11 +28,9 @@
 
 (defn create
   "Handler for CREATE queries."
-  [{ system :system params :params :as request }]
-  (let [patient (:body-str request)
-        patient-id (repo/insert (:db system) patient)]
-    (-> (redirect (str (:uri request) "/" patient-id))
-        (status 201))))
+  [request]
+  (:response
+    (create-with-checks (assoc {} :request request :response {}))))
 
 ;; 400 Bad Request - resource could not be parsed or failed basic FHIR validation rules
 ;; 404 Not Found - resource type not supported, or not a FHIR end point
@@ -50,9 +48,10 @@
                           valid/update-resource))      ;; 422 or 200
 
 (defn update
-  "Handler for DELETE queries."
+  "Handler for PUT queries."
   [request]
-  (:response (update-with-checks (assoc {} :request request :response {}))))
+  (:response
+    (update-with-checks (assoc {} :request request :response {}))))
 
 (defn delete
   "Handler for DELETE queries."

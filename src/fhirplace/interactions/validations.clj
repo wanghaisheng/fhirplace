@@ -55,11 +55,11 @@
 
   (let [resource body-str]
     (try
-      (repo/insert (:db system) resource)
-      (-> request
-        (header "Location" (construct-url request (:id params)))
-        (status 200)
-        (#(assoc message :response %)))
+      (let [id (repo/insert (:db system) resource)]
+        (-> response
+            (header "Location" (construct-url request id))
+            (status 201)
+            (#(assoc message :response %))))
 
       (catch java.sql.SQLException e
         (assoc-in message [:response :status] 422)))))

@@ -78,6 +78,6 @@
     (:status response) => 404
     (:body response) => "Not Found"))
 
-(deffacts "About UPDATEing non-existent resource"
+( (deffacts "About UPDATEing non-existent resource"
   (let [response (PUT (str "/patient/" (make-uuid)) (json/write-str patient-json))]
-    (:status response) => 405))
+    (:status response) => 405)))
