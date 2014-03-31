@@ -32,19 +32,17 @@
     (fact "Conformance resource contains :rest key with all available resources"
       (get-in conf [:rest 0 :resources])=> #(< 0 (count %)))))
 
-(deffacts "About basic CRUD on resources"
+((deffacts "About basic CRUD on resources"
   (let [create-response (POST "/Patient" patient-json-str)
         resource-location (response/get-header create-response "Location")]
 
     (fact "returns location of newly created resource"
       resource-location => #"/Patient/.+")
 
-    (fact "respond with 201 HTTP status"
-      (:status create-response) => 201)
+    create-response => (contains {:status 201})
 
     (fact "when requesting newly created resource"
       (let [read-response (GET resource-location)]
-
         (:body read-response) =not=> nil
         (:name (json-body read-response)) => (:name patient-json)
         (:status read-response) => 200))
@@ -57,27 +55,17 @@
                              :use "home"} ))
             update-response (PUT resource-location update-body)]
 
-        (fact "respond with 200"
-          (:status update-response) => 200)
-
-        (fact "respond with empty body"
-          (:body update-response) => "")))
+          (:status update-response) => 200
+          (:body update-response) => ""))
 
     (fact "when DELETEing existent resource"
-      (let [delete-response (DELETE resource-location)
-            read-response (GET resource-location)]
-
-        (fact "respond with 204"
-          (:status delete-response) => 204)
-
-        (fact "resource was actually deleted"
-          (:status read-response) => 404)))))
+      (DELETE resource-location) => #(= (:status %) 204)
+      (:status (GET resource-location)) => 404))))
 
 (deffacts "About READing non-existent resource"
   (let [response (GET (str "/patient/" (make-uuid)))]
-    (:status response) => 404
-    (:body response) => "Not Found"))
+    (:status response) => 404))
 
-( (deffacts "About UPDATEing non-existent resource"
+(deffacts "About UPDATEing non-existent resource"
   (let [response (PUT (str "/patient/" (make-uuid)) (json/write-str patient-json))]
-    (:status response) => 405)))
+    (:status response) => 405))

@@ -41,7 +41,7 @@
   (sql/query db-spec [(str "SELECT fhir.update_resource('"
                         resource-id
                         "','"
-                        resource
+                        (json-to-string resource)
                         "'::json)::varchar")]))
 
 (defn exists? [db-spec resource-id]

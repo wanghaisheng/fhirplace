@@ -2,10 +2,9 @@
   (:use ring.util.response
         ring.util.request)
   (:require [fhirplace.repositories.resource :as repo]
-            [fhirplace.interactions.validations :as valid]
             [fhirplace.util :as util]
             [clojure.data.json :as json]
-            [clojure.algo.monads :as m])
+            [clojure.string :as string])
   (:refer-clojure :exclude (read)))
 
 (defn construct-url
@@ -20,16 +19,47 @@
 ;;              applicable FHIR profiles or server business rules. This should be
 ;;              accompanied by an OperationOutcome resource providing additional
 ;;              detail
-(def create-with-checks (valid/with-checks
-                          valid/parse-json           ;; 400
-                          valid/check-type           ;; 404
-                          valid/create-resource))      ;; 422 or 201
+(defn wrap-with-json [h]
+  (fn [{body-str :body-str :as req}]
+    (try 
+      (let  [json-body  (json/read-str body-str)]
+        (h (assoc req :json-body json-body)))
+      (catch Exception e
+        {:status 400 :message (str e)}))))
 
-(defn create
-  "Handler for CREATE queries."
-  [request]
-  (:response
-    (create-with-checks (assoc {} :request request :response {}))))
+(defn check-type? [db type]
+  (let [resource-types (map string/lower-case
+                              (repo/resource-types db))]
+    (contains? (set resource-types) (string/lower-case type))))
+
+(defn wrap-with-check-type [h]
+  (fn [{{db :db} :system {resource-type :resource-type} :params :as req}]
+    (if (check-type? db resource-type)
+      (h req)
+      {:status 404 
+       :body (str "Type " resource-type " not supported")})))
+
+(defn create*
+  [{ {db :db} :system, json-body :json-body :as req}] 
+  (try
+    (let [id (repo/insert db json-body)]
+      (-> {}
+          (header "Location" (construct-url req id))
+          (status 201)))
+    (catch java.sql.SQLException e
+      {:status 422, :body (str e)})))
+
+(def create
+  (-> create*
+       wrap-with-check-type
+       wrap-with-json))
+
+(defn wrap-resource-not-exist [h status]
+  (fn [{{db :db} :system, {id :id} :params :as req}]
+    (if (repo/exists? db id)
+      (h req)
+      {:status status
+       :body "Resource with ?id not exist" })))
 
 ;; 400 Bad Request - resource could not be parsed or failed basic FHIR validation rules
 ;; 404 Not Found - resource type not supported, or not a FHIR end point
@@ -40,17 +70,24 @@
 ;;                            or server business rules. This should be accompanied by
 ;;                            an OperationOutcome resource providing additional detail
 ;; TODO: OperationOutcome
-(def update-with-checks (valid/with-checks
-                          valid/parse-json                        ;; 400
-                          valid/check-type                        ;; 404
-                          (valid/check-existence-with-status 405) ;; 405
-                          valid/update-resource))                 ;; 422 or 200
+(defn update*
+  [{{db :db} :system, {id :id} :params
+    body-str :body-str, :as req}]
+  (try
+    (repo/update db id body-str)
+    (-> {}
+        (header "Last-Modified" (java.util.Date.))
+        (header "Location" (construct-url req id))
+        (header "Content-Location" (construct-url req id))
+        (status 200))
+    (catch java.sql.SQLException e
+      {:status 422 :body (str "Error: " e)})))
 
-(defn update
-  "Handler for PUT queries."
-  [request]
-  (:response
-    (update-with-checks (assoc {} :request request :response {}))))
+(def update
+  (-> update*
+      (wrap-resource-not-exist 405) 
+      wrap-with-check-type
+      wrap-with-json))
 
 ;; DELETE
 ;; - (Done) Upon successful deletion the server should return 204  (No Content).
@@ -63,26 +100,24 @@
 ;;   the server SHALL return 404  (Not found))
 ;; - Performing this interaction on a resource that is already deleted has no effect,
 ;    and should return 204. 
-(def delete-with-checks (valid/with-checks
-                          valid/check-type                        ;; 404
-                          (valid/check-existence-with-status 404) ;; 404
-                          valid/delete-resource))                 ;; 204
+
 (defn delete
-  "Handler for DELETE queries."
-  [request]
-  (:response
-    (delete-with-checks (assoc {} :request request :response {}))))
+  [{{db :db} :system {:keys [id resource-type]} :params}]
+  (if (repo/exists? db id)
+    (->
+      (response (repo/delete db id))
+      (status 204))
+    {:status 404}))
 
 ;; 410 if resource was deleted.
 ;; If a request is made for a previous version of a resource,
-;; and the server does not support accessing previous versions,
+;;   and the server does not support accessing previous versions,
 ;; it should return a 405 Method Not Allowed error. 
-(defn read
-  "Handler for READ queries."
-  [{ system :system params :params :as request }]
+;; A GET for a deleted resource returns a 410 status code.
 
-  (if-let [resource (repo/select (:db system) (:resource-type params) (:id params))]
-    (response resource)
-    (-> (response "Not Found")
-        (content-type "text/plain")
-        (status 404))))
+(defn read
+  [{{db :db} :system {:keys [id resource-type]} :params}]
+  (if (repo/exists? db id)
+    (response 
+      (repo/select db resource-type id))
+    {:status 404}))
