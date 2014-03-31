@@ -39,7 +39,7 @@
   "Check for existing of resource by id.
   If resouce not found - returns 405."
 
-  [{ {:keys [params system]} :request,
+  [{ {:keys [params system request-method] :as request} :request,
     response :response :as message }]
 
   (if (repo/exists? (:db system) (:id params))
@@ -81,6 +81,20 @@
         (#(assoc message :response %)))
     (catch java.sql.SQLException e
       (assoc-in message [:response :status] 422))))
+
+(defn delete-resource
+  "Deletes resource and return 204.
+  If error occured - 500."
+
+  [{ {:keys [params system body-str] :as request} :request,
+    response :response :as message }]
+  
+  (try
+    (repo/delete (:db system) (:id params))
+    (assoc-in message [:response :status] 204)
+    
+    (catch java.sql.SQLException e
+      (assoc-in message [:response :status] 500))))
 
 (defmonad request-m
   [m-result identity

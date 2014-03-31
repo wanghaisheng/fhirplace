@@ -53,15 +53,31 @@
   (:response
     (update-with-checks (assoc {} :request request :response {}))))
 
+;; DELETE
+;; - (Done) Upon successful deletion the server should return 204  (No Content).
+;; - If the server refuses to delete resources of that type on principle,
+;;   then it should return the status code 405 method not allowed. 
+;; - If the server refuses to delete a resource because of reasons
+;;   specific to that resource, such as referential integrity,
+;;   it should return the status code 409 Conflict.
+;; - (Done) If the resource cannot be deleted because it does not exist on the server,
+;;   the server SHALL return 404  (Not found))
+;; - Performing this interaction on a resource that is already deleted has no effect,
+;    and should return 204. 
+(def delete-with-checks (valid/with-checks
+                          valid/check-type
+                          valid/check-existence
+                          valid/delete-resource))
 (defn delete
   "Handler for DELETE queries."
-  [{ system :system params :params :as request }]
-  (repo/delete (:db system) (:id params))
+  [request]
+  (:response
+    (delete-with-checks (assoc {} :request request :response {}))))
 
-  (-> request
-      (content-type "text/plain")
-      (status 204)))
-
+;; 410 if resource was deleted.
+;; If a request is made for a previous version of a resource,
+;; and the server does not support accessing previous versions,
+;; it should return a 405 Method Not Allowed error. 
 (defn read
   "Handler for READ queries."
   [{ system :system params :params :as request }]
