@@ -23,8 +23,7 @@
 (def create-with-checks (valid/with-checks
                           valid/parse-json           ;; 400
                           valid/check-type           ;; 404
-                          valid/create-resource      ;; 422
-                          )) ;; 201
+                          valid/create-resource))      ;; 422 or 201
 
 (defn create
   "Handler for CREATE queries."
@@ -42,10 +41,10 @@
 ;;                            an OperationOutcome resource providing additional detail
 ;; TODO: OperationOutcome
 (def update-with-checks (valid/with-checks
-                          valid/parse-json           ;; 400
-                          valid/check-type           ;; 404
-                          valid/check-existence      ;; 405
-                          valid/update-resource))      ;; 422 or 200
+                          valid/parse-json                        ;; 400
+                          valid/check-type                        ;; 404
+                          (valid/check-existence-with-status 405) ;; 405
+                          valid/update-resource))                 ;; 422 or 200
 
 (defn update
   "Handler for PUT queries."
@@ -65,9 +64,9 @@
 ;; - Performing this interaction on a resource that is already deleted has no effect,
 ;    and should return 204. 
 (def delete-with-checks (valid/with-checks
-                          valid/check-type
-                          valid/check-existence
-                          valid/delete-resource))
+                          valid/check-type                        ;; 404
+                          (valid/check-existence-with-status 404) ;; 404
+                          valid/delete-resource))                 ;; 204
 (defn delete
   "Handler for DELETE queries."
   [request]

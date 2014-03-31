@@ -46,6 +46,18 @@
     message
     (assoc-in message [:response :status] 405)))
 
+(defn check-existence-with-status [status]
+  "Check for existing of resource by id.
+  If resouce not found - returns 405."
+
+  (fn 
+    [{ {:keys [params system request-method] :as request} :request,
+    response :response :as message }]
+
+    (if (repo/exists? (:db system) (:id params))
+      message
+      (assoc-in message [:response :status] status))))
+
 (defn create-resource
   "Creates new resource, if FHIRBase reports an error,
    returns 422 HTTP status"
@@ -96,7 +108,7 @@
     (catch java.sql.SQLException e
       (assoc-in message [:response :status] 500))))
 
-(defmonad request-m
+(defmonad response-m
   [m-result identity
    m-bind (fn [message f]
             (if (nil? (get-in message [:response :status]))
@@ -104,7 +116,7 @@
               message))])
 
 (defmacro with-checks [& body]
-  `(with-monad request-m
+  `(with-monad response-m
      (m-chain [~@body])))
 
 ;;(defn with-checks [& fns]
