@@ -8,6 +8,7 @@
 (defn conformance
   "Handler for CONFORMANCE interaction."
   [{ system :system params :params :as request }]
+
   {:body (conf/build-conformance
            (repo/resource-types (:db system))
            system)})
