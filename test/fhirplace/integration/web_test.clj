@@ -34,7 +34,8 @@
 
 ((deffacts "About basic CRUD on resources"
   (let [create-response (POST "/Patient" patient-json-str)
-        resource-location (response/get-header create-response "Location")]
+        resource-location-with-history (response/get-header create-response "Location")
+        resource-location (first (clojure.string/split resource-location-with-history #"/_history/"))]
 
     (fact "returns location of newly created resource"
       resource-location => #"/Patient/.+")

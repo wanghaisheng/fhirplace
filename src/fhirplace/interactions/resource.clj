@@ -9,8 +9,10 @@
   (:refer-clojure :exclude (read)))
 
 (defn construct-url
-  [{scheme :scheme, remote-addr :remote-addr, uri :uri}, id]
-  (str (name scheme) "://" remote-addr uri "/" id))
+  ([{scheme :scheme remote-addr :remote-addr uri :uri} id]
+   (str (name scheme) "://" remote-addr uri "/" id))
+  ([req id vid]
+   (str (construct-url req id) "/_history/" vid)))
 
 
 ;; 400 Bad Request - resource could not be parsed or failed basic FHIR validation rules
@@ -43,11 +45,13 @@
                (str "Resource type " resource-type " isn't supported"))})))
 
 (defn create*
-  [{ {db :db} :system, json-body :json-body :as req}]
+  [{ {db :db} :system, json-body :json-body,
+    {resource-type :resource-type} :params :as req}]
   (try
-    (let [id (repo/insert db json-body)]
+    (let [id (repo/insert db json-body)
+          vid (first (repo/select-history db resource-type id))]
       (-> {}
-          (header "Location" (construct-url req id))
+          (header "Location" (construct-url req id vid))
           (status 201)))
     (catch java.sql.SQLException e
       {:status 422
