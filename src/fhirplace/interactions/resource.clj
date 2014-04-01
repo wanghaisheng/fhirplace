@@ -8,11 +8,9 @@
             [clojure.string :as string])
   (:refer-clojure :exclude (read)))
 
-(defn construct-url
-  ([{scheme :scheme remote-addr :remote-addr uri :uri} id]
-   (str (name scheme) "://" remote-addr uri "/" id))
-  ([req id vid]
-   (str (construct-url req id) "/_history/" vid)))
+(defn server-url
+  [{scheme :scheme remote-addr :remote-addr}]
+  (str (name scheme) "://" remote-addr))
 
 
 ;; 400 Bad Request - resource could not be parsed or failed basic FHIR validation rules
@@ -45,13 +43,13 @@
                (str "Resource type " resource-type " isn't supported"))})))
 
 (defn create*
-  [{ {db :db} :system, json-body :json-body,
+  [{ {db :db} :system, json-body :json-body, uri :uri
     {resource-type :resource-type} :params :as req}]
   (try
     (let [id (repo/insert db json-body)
           vid (first (repo/select-history db resource-type id))]
       (-> {}
-          (header "Location" (construct-url req id vid))
+          (header "Location" (str (server-url req) uri "/" id "/_history/" vid))
           (status 201)))
     (catch java.sql.SQLException e
       {:status 422
@@ -83,15 +81,17 @@
 ;;                            an OperationOutcome resource providing additional detail
 ;; TODO: OperationOutcome
 (defn update*
-  [{{db :db} :system, {id :id} :params
-    body-str :body-str, :as req}]
+  [{{db :db} :system {:keys [id resource-type]} :params
+    body-str :body-str uri :uri :as req}]
   (try
     (repo/update db id body-str)
-    (-> {}
-        (header "Last-Modified" (java.util.Date.))
-        (header "Location" (construct-url req id))
-        (header "Content-Location" (construct-url req id))
-        (status 200))
+    (let [vid (first (repo/select-history db resource-type id))
+          resource-url (str (server-url req) uri "/_history/" vid)]
+      (-> {}
+          (header "Last-Modified" (java.util.Date.))
+          (header "Location" resource-url)
+          (header "Content-Location" resource-url)
+          (status 200))) 
     (catch java.sql.SQLException e
       {:status 422
        :body (oo/build-operation-outcome
@@ -127,17 +127,20 @@
              "fatal"
              (str "Resource with ID " id " doesn't exist"))}))
 
-;; 410 if resource was deleted.
-;; If a request is made for a previous version of a resource,
-;;   and the server does not support accessing previous versions,
-;; it should return a 405 Method Not Allowed error.
 ;; A GET for a deleted resource returns a 410 status code.
+;; Servers are required to return a Content-location header
+;;  with the response which is the full version specific url
+;;  (see vread below) and a Last-Modified header.)
 
 (defn read
-  [{{db :db} :system {:keys [id resource-type]} :params}]
+  [{{db :db} :system {:keys [id resource-type]} :params uri :uri :as req}]
   (if (repo/exists? db id)
-    (response
-      (repo/select db resource-type id))
+      (let [resource (repo/select db resource-type id)
+            vid (first (repo/select-history db resource-type id))
+            resource-url (str (server-url req) uri "/_history/" vid)]
+        {:status 200
+         :headers {"Content-Location" resource-url}
+         :body resource})
     {:status 404
      :body (oo/build-operation-outcome
              "fatal"

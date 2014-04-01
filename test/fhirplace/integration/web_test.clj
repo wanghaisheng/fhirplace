@@ -44,6 +44,7 @@
 
     (fact "when requesting newly created resource"
       (let [read-response (GET resource-location)]
+        (response/get-header read-response "Content-Location") => #"/Patient/.+/_history/.+"
         (:body read-response) =not=> nil
         (:name (json-body read-response)) => (:name patient-json)
         (:status read-response) => 200))
@@ -60,10 +61,14 @@
                             {:system "phone"
                              :value "+919191282"
                              :use "home"} ))
-            update-response (PUT resource-location update-body)]
+            update-response (PUT resource-location update-body)
+            update-location (response/get-header update-response "Location")]
 
-          (:status update-response) => 200
-          (:body update-response) => ""))
+        (:telecom (json-body (GET update-location))) => (contains [{:system "phone"
+                                                                    :value "+919191282"
+                                                                    :use "home"}])
+        (:status update-response) => 200
+        (:body update-response) => ""))
 
     (fact "when DELETEing existent resource"
       (DELETE resource-location) => #(= (:status %) 204)
