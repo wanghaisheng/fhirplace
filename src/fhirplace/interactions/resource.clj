@@ -47,7 +47,7 @@
     {resource-type :resource-type} :params :as req}]
   (try
     (let [id (repo/insert db json-body)
-          vid (first (repo/select-history db resource-type id))]
+          {vid :version_id} (first (repo/select-history db resource-type id))]
       (-> {}
           (header "Location" (str (server-url req) uri "/" id "/_history/" vid))
           (status 201)))
@@ -85,7 +85,7 @@
     body-str :body-str uri :uri :as req}]
   (try
     (repo/update db id body-str)
-    (let [vid (first (repo/select-history db resource-type id))
+    (let [{vid :version_id} (first (repo/select-history db resource-type id))
           resource-url (str (server-url req) uri "/_history/" vid)]
       (-> {}
           (header "Last-Modified" (java.util.Date.))
@@ -136,10 +136,10 @@
   [{{db :db} :system {:keys [id resource-type]} :params uri :uri :as req}]
   (if (repo/exists? db id)
       (let [resource (repo/select db resource-type id)
-            vid (first (repo/select-history db resource-type id))
+            {vid :version_id lmd :last_modified_date} (first (repo/select-history db resource-type id))
             resource-url (str (server-url req) uri "/_history/" vid)]
         {:status 200
-         :headers {"Content-Location" resource-url}
+         :headers {"Content-Location" resource-url "Last-Modified" lmd}
          :body resource})
     {:status 404
      :body (oo/build-operation-outcome

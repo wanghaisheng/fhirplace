@@ -45,6 +45,7 @@
     (fact "when requesting newly created resource"
       (let [read-response (GET resource-location)]
         (response/get-header read-response "Content-Location") => #"/Patient/.+/_history/.+"
+        (response/get-header read-response "Last-Modified") => #"....-..-.. .+"
         (:body read-response) =not=> nil
         (:name (json-body read-response)) => (:name patient-json)
         (:status read-response) => 200))

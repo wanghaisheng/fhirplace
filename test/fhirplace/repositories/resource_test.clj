@@ -44,7 +44,7 @@
 (deffacts "`select-version'"
   (let [patient (fixture "patient")
         patient-id (repo/insert test-db patient)
-        version-id (first (repo/select-history test-db "Patient" patient-id))]
+        {version-id :version_id} (first (repo/select-history test-db "Patient" patient-id))]
 
       (repo/select-version test-db "Patient" patient-id version-id) => (contains 
                                                                          (select-keys patient 

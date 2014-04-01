@@ -51,12 +51,10 @@
         util/discard-nils)))
 
 (defn select-history [db-spec resource-type id]
-  (let [versions (sql/query db-spec [(str "SELECT _version_id::varchar"
-                                           " FROM fhir.view_" (.toLowerCase resource-type) "_history"
-                                           " WHERE _logical_id = '" id "'"
-                                           " ORDER BY _last_modified_date DESC")])]
-
-    (map :_version_id versions)))
+  (sql/query db-spec [(str "SELECT _version_id::varchar as version_id, _last_modified_date::varchar as last_modified_date"
+                           " FROM fhir.view_" (.toLowerCase resource-type) "_history"
+                           " WHERE _logical_id = '" id "'"
+                           " ORDER BY _last_modified_date DESC")]))
 
 (defn delete [db-spec resource-id]
   (sql/execute! db-spec [(str "DELETE FROM fhir.resource WHERE _logical_id = '" resource-id "'")]))
