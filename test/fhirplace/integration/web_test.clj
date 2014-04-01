@@ -48,6 +48,12 @@
         (:name (json-body read-response)) => (:name patient-json)
         (:status read-response) => 200))
 
+    (fact "when requesting newly created resource by version"
+      (let [read-response (GET resource-location-with-history)]
+        (:body read-response) =not=> nil
+        (:name (json-body read-response)) => (:name patient-json)
+        (:status read-response) => 200))
+
     (fact "when UPDATEing existent resource"
       (let [update-body (json/write-str
                           (update-in  patient-json [:telecom] conj
