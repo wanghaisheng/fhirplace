@@ -37,6 +37,27 @@
         util/discard-indexes
         util/discard-nils)))
 
+(defn select-version [db-spec resource-type id vid]
+  (if-let [json-str (-> (sql/query db-spec [(str "SELECT json::text"
+                                           " FROM fhir.view_" (.toLowerCase resource-type) "_history"
+                                           " WHERE _logical_id = '" id "' and _version_id = '" vid "'"
+                                           " LIMIT 1")])
+                   first
+                   :json)]
+
+    (-> json-str
+        (json/read-str :key-fn keyword)
+        util/discard-indexes
+        util/discard-nils)))
+
+(defn select-history [db-spec resource-type id]
+  (let [versions (sql/query db-spec [(str "SELECT _version_id::varchar"
+                                           " FROM fhir.view_" (.toLowerCase resource-type) "_history"
+                                           " WHERE _logical_id = '" id "'"
+                                           " ORDER BY _last_modified_date DESC")])]
+
+    (map :_version_id versions)))
+
 (defn delete [db-spec resource-id]
   (sql/execute! db-spec [(str "DELETE FROM fhir.resource WHERE _logical_id = '" resource-id "'")]))
 

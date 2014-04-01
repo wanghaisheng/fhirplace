@@ -138,3 +138,7 @@
      :body (oo/build-operation-outcome
              "fatal"
              (str "Resource with ID " id " doesn't exist"))}))
+
+(defn vread
+    [{{db :db} :system {:keys [resource-type id vid]} :params}]
+     (response (repo/select-version db resource-type id vid)))

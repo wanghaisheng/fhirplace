@@ -25,5 +25,6 @@
                                                x))
                                            v))
               (= :_index k) acc
+              (= :_version_id k) acc
               :else (assoc acc k v)))
           {} m))

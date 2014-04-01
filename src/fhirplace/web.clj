@@ -18,8 +18,10 @@
   (GET    "/metadata"                              []                 sys-int/conformance)
   (POST   "/:resource-type"                        [resource-type]    res-int/create)
   (GET    ["/:resource-type/:id", :id uuid-regexp] [resource-type id] res-int/read)
+  (GET    ["/:resource-type/:id/_history/:vid", :id uuid-regexp, :vid uuid-regexp]  [resource-type id vid] res-int/vread)
   (DELETE "/:resource-type/:id"                    [resource-type id] res-int/delete)
   (PUT    "/:resource-type/:id"                    [resource-type id] res-int/update)
+
   (route/not-found "Not Found"))
 
 (defn wrap-with-system
