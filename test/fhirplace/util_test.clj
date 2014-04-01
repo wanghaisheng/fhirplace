@@ -14,5 +14,9 @@
 (def patient-data (fixture "patient"))
 
 (fact "`discard-nils' function discards nil values from hashmap"
-  (first (:name (discard-nils some-data))) =not=> (contains {:period nil})
-  (discard-nils patient-data) => patient-data)
+      (first (:name (discard-nils some-data))) =not=> (contains {:period nil})
+      (discard-nils patient-data) => patient-data)
+
+(fact "`discard-indexes' function discards _index values from hashmap"
+      (let [some-data {:_index 0 :name [{:_index 3 :family ["Pedro"]}]}]
+        (discard-indexes some-data) => {:name [{:family ["Pedro"]}]}))

@@ -27,15 +27,18 @@
 (defn select [db-spec resource-type id]
   (if-let [json-str (-> (sql/query db-spec [(str "SELECT json::text"
                                            " FROM fhir.view_" (.toLowerCase resource-type)
-                                           " WHERE _id = '" id "'"
+                                           " WHERE _logical_id = '" id "'"
                                            " LIMIT 1")])
                    first
                    :json)]
 
-    (util/discard-nils (json/read-str json-str :key-fn keyword))))
+    (-> json-str
+        (json/read-str :key-fn keyword)
+        util/discard-indexes
+        util/discard-nils)))
 
 (defn delete [db-spec resource-id]
-  (sql/execute! db-spec [(str "DELETE FROM fhir.resource WHERE _id = '" resource-id "'")]))
+  (sql/execute! db-spec [(str "DELETE FROM fhir.resource WHERE _logical_id = '" resource-id "'")]))
 
 (defn update [db-spec resource-id resource]
   (sql/query db-spec [(str "SELECT fhir.update_resource('"
@@ -48,7 +51,7 @@
   (let [count (:count 
                 (first 
                   (sql/query db-spec 
-                             [(str "SELECT count(*) from fhir.resource where _id = '"
+                             [(str "SELECT count(*) from fhir.resource where _logical_id = '"
                                    resource-id "'")])))]
     (not (zero? count))))
 
