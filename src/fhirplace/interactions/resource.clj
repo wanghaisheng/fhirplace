@@ -88,10 +88,10 @@
 ;; TODO: OperationOutcome
 (defn update*
   [{{db :db} :system {:keys [id resource-type]} :params
-    body-str :body-str uri :uri :as req}]
+    body-str :body-str :as req}]
   (try
     (repo/update db id body-str)
-    (let [{vid :version_id} (first (repo/select-history db resource-type id))
+    (let [[{vid :version_id}] (repo/select-history db resource-type id)
           resource-loc (resource-url req id vid)]
       (-> {}
           (header "Last-Modified" (java.util.Date.))
@@ -125,9 +125,8 @@
 (defn delete
   [{{db :db} :system {:keys [id resource-type]} :params}]
   (if (repo/exists? db id)
-    (->
-      (response (repo/delete db id))
-      (status 204))
+    (-> (response (repo/delete db id))
+        (status 204))
     {:status 404
      :body (oo/build-operation-outcome
              "fatal"
@@ -152,13 +151,12 @@
                (str "Resource with ID " id " was deleted"))})))
 
 (defn read*
-  [{{db :db} :system {:keys [id resource-type]} :params uri :uri :as req}]
+  [{{db :db} :system {:keys [id resource-type]} :params :as req}]
   (let [resource (repo/select db resource-type id)
-        {vid :version_id 
-         lmd :last_modified_date} (first (repo/select-history db resource-type id))
-        resource-loc (resource-url req id vid)]
+        [{vid :version_id lmd :last_modified_date}] (repo/select-history db resource-type id)]
       {:status 200
-       :headers {"Content-Location" resource-loc "Last-Modified" lmd}
+       :headers {"Content-Location" (resource-url req id vid) 
+                 "Last-Modified" lmd}
        :body resource}))
 
 (def read
@@ -169,8 +167,7 @@
 (defn vread*
   [{{db :db} :system {:keys [resource-type id vid]} :params :as req}]
   (let [resource (repo/select-version db resource-type id vid)
-        {vid :version_id 
-         lmd :last_modified_date} (first (repo/select-history db resource-type id))]
+        [{lmd :last_modified_date}] (repo/select-history db resource-type id)]
       {:status 200
        :headers {"Last-Modified" lmd}
        :body resource}))
