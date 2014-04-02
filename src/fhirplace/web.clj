@@ -19,6 +19,7 @@
   (POST   "/:resource-type"                        [resource-type]    res-int/create)
   (GET    ["/:resource-type/:id", :id uuid-regexp] [resource-type id] res-int/read)
   (GET    "/:resource-type/:id/_history/:vid"      [resource-type id vid] res-int/vread)
+  (GET    "/:resource-type/:id/_history"           [resource-type id] sys-int/history)
   (DELETE "/:resource-type/:id"                    [resource-type id] res-int/delete)
   (PUT    "/:resource-type/:id"                    [resource-type id] res-int/update)
 

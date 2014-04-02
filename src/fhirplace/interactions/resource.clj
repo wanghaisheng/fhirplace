@@ -19,13 +19,6 @@
     (str base uri history)))
 
 
-;; 400 Bad Request - resource could not be parsed or failed basic FHIR validation rules
-;; 404 Not Found - resource type not supported, or not a FHIR end
-;;                 point
-;; 422 Unprocessable Entity - the proposed resource violated
-;;              applicable FHIR profiles or server business rules. This should be
-;;              accompanied by an OperationOutcome resource providing additional
-;;              detail
 (defn wrap-with-json [h]
   (fn [{body-str :body-str :as req}]
     (try
@@ -77,15 +70,7 @@
                "fatal"
                (str "Resource with ID " id " doesn't exist"))})))
 
-;; 400 Bad Request - resource could not be parsed or failed basic FHIR validation rules
-;; 404 Not Found - resource type not supported, or not a FHIR end point
-;; 405 Method Not allowed - the resource did not exist prior to the update,
-;;                          and the serer does not allow client defined ids
 ;; 409/412 - version conflict management - see above
-;; 422 Unprocessable Entity - the proposed resource violated applicable FHIR profiles
-;;                            or server business rules. This should be accompanied by
-;;                            an OperationOutcome resource providing additional detail
-;; TODO: OperationOutcome
 (defn update*
   [{{db :db} :system {:keys [id resource-type]} :params
     body-str :body-str :as req}]
@@ -110,17 +95,14 @@
       wrap-with-check-type
       wrap-with-json))
 
-;; DELETE
-;; - (Done) Upon successful deletion the server should return 204  (No Content).
+;;   DELETE
 ;; - If the server refuses to delete resources of that type on principle,
 ;;   then it should return the status code 405 method not allowed.
 ;; - If the server refuses to delete a resource because of reasons
 ;;   specific to that resource, such as referential integrity,
 ;;   it should return the status code 409 Conflict.
-;; - (Done) If the resource cannot be deleted because it does not exist on the server,
-;;   the server SHALL return 404  (Not found))
 ;; - Performing this interaction on a resource that is already deleted has no effect,
-;    and should return 204.
+;;   and should return 204.
 
 (defn delete
   [{{db :db} :system {:keys [id resource-type]} :params}]

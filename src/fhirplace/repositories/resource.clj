@@ -32,10 +32,13 @@
                    first
                    :json)]
 
-    (-> json-str
-        (json/read-str :key-fn keyword)
-        util/discard-indexes
-        util/discard-nils)))
+    (clean-json json-str)))
+
+(defn clean-json [json]
+  (-> json
+      (json/read-str :key-fn keyword)
+      util/discard-indexes
+      util/discard-nils))
 
 (defn select-version [db-spec resource-type id vid]
   (if-let [json-str (-> (sql/query db-spec [(str "SELECT json::text"
@@ -45,16 +48,15 @@
                    first
                    :json)]
 
-    (-> json-str
-        (json/read-str :key-fn keyword)
-        util/discard-indexes
-        util/discard-nils)))
+    (clean-json json-str)))
 
 (defn select-history [db-spec resource-type id]
-  (sql/query db-spec [(str "SELECT _version_id::varchar as version_id, _last_modified_date::varchar as last_modified_date"
-                           " FROM fhir.view_" (.toLowerCase resource-type) "_history"
-                           " WHERE _logical_id = '" id "'"
-                           " ORDER BY _last_modified_date DESC")]))
+  (let  [history 
+         (sql/query db-spec [(str "SELECT _version_id::varchar as version_id, _last_modified_date::varchar as last_modified_date, _state as state, _logical_id as id, json::text"
+                                  " FROM fhir.view_" (.toLowerCase resource-type) "_history"
+                                  " WHERE _logical_id = '" id "'"
+                                  " ORDER BY _last_modified_date DESC")])]
+    (map #(update-in % [:json] clean-json) history)))
 
 (defn delete [db-spec resource-id]
   (sql/query db-spec [(str "SELECT fhir.delete_resource('" resource-id "')")]))

@@ -2,6 +2,7 @@
   (:use midje.sweet)
   (:require [ring.util.request :as request]
             [ring.util.response :as response]
+            [clojure.string :as string]
             [clojure.data.json :as json]
             [fhirplace.test-helper :refer :all]))
 
@@ -82,3 +83,11 @@
 (deffacts "About UPDATEing non-existent resource"
   (let [response (PUT (str "/patient/" (make-uuid)) (json/write-str patient-json))]
     (:status response) => 405))
+
+(deffacts "About HISTORY"
+  (let [create-response (POST "/Patient" patient-json-str)
+        resource-loc-with-history (response/get-header create-response "Location")
+        resource-loc (string/replace resource-loc-with-history #"_history/.+" "_history")]
+
+    (GET resource-loc) => (contains {:status 200})))
+
