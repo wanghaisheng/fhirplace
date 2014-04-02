@@ -73,7 +73,7 @@
 
     (fact "when DELETEing existent resource"
       (DELETE resource-location) => #(= (:status %) 204)
-      (:status (GET resource-location)) => 404))))
+      (:status (GET resource-location)) => 410))))
 
 (deffacts "About READing non-existent resource"
   (let [response (GET (str "/patient/" (make-uuid)))]

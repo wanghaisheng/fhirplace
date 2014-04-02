@@ -30,7 +30,7 @@
 
 (defn check-type? [db type]
   (let [resource-types (map string/lower-case
-                              (repo/resource-types db))]
+                            (repo/resource-types db))]
     (contains? (set resource-types) (string/lower-case type))))
 
 (defn wrap-with-check-type [h]
@@ -59,8 +59,8 @@
 
 (def create
   (-> create*
-       wrap-with-check-type
-       wrap-with-json))
+      wrap-with-check-type
+      wrap-with-json))
 
 (defn wrap-resource-not-exist [h status]
   (fn [{{db :db} :system, {id :id} :params :as req}]
@@ -127,25 +127,42 @@
              "fatal"
              (str "Resource with ID " id " doesn't exist"))}))
 
-;; A GET for a deleted resource returns a 410 status code.
-;; Servers are required to return a Content-location header
-;;  with the response which is the full version specific url
-;;  (see vread below) and a Last-Modified header.)
+(defn wrap-with-existence-check [h]
+  (fn [{{db :db} :system {id :id} :params :as req}]
+    (if (repo/exists? db id)
+      (h req)
+      {:status 404
+       :body (oo/build-operation-outcome
+               "fatal"
+               (str "Resource with ID " id " doesn't exist"))})))
 
-(defn read
+(defn wrap-with-deleted-check [h]
+  (fn [{{db :db} :system {id :id} :params :as req}]
+    (if-not (repo/deleted? db id)
+      (h req)
+      {:status 410
+       :body (oo/build-operation-outcome
+               "warning"
+               (str "Resource with ID " id " was deleted"))})))
+
+
+(defn read*
   [{{db :db} :system {:keys [id resource-type]} :params uri :uri :as req}]
-  (if (repo/exists? db id)
-      (let [resource (repo/select db resource-type id)
-            {vid :version_id lmd :last_modified_date} (first (repo/select-history db resource-type id))
-            resource-url (str (server-url req) uri "/_history/" vid)]
-        {:status 200
-         :headers {"Content-Location" resource-url "Last-Modified" lmd}
-         :body resource})
-    {:status 404
-     :body (oo/build-operation-outcome
-             "fatal"
-             (str "Resource with ID " id " doesn't exist"))}))
+  (let [resource (repo/select db resource-type id)
+        {vid :version_id 
+         lmd :last_modified_date} (first (repo/select-history db resource-type id))
+        resource-url (str (server-url req) uri "/_history/" vid)]
+      {:status 200
+       :headers {"Content-Location" resource-url "Last-Modified" lmd}
+       :body resource}))
 
+(def read
+  (-> read*
+      wrap-with-existence-check
+      wrap-with-deleted-check))
+
+
+;; TODO: add checks!!
 (defn vread
-    [{{db :db} :system {:keys [resource-type id vid]} :params}]
-     (response (repo/select-version db resource-type id vid)))
+  [{{db :db} :system {:keys [resource-type id vid]} :params}]
+  (response (repo/select-version db resource-type id vid)))
