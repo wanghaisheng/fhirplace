@@ -14,6 +14,4 @@
 
   (pt-sch
     (slurp "test/fixtures/patient-invalid-schematron.xml"))
-  => #(= 1 (count %))
-
-  )
+  => (one-of map?))

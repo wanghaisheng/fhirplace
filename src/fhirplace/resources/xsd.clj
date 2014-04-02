@@ -1,4 +1,4 @@
-(ns fhirplace.resources.xml
+(ns fhirplace.resources.xsd
   (:require
     [clojure.java.io :as io]))
 
@@ -9,7 +9,7 @@
 (import 'java.io.StringReader)
 (import 'javax.xml.transform.stream.StreamSource)
 
-(defn create-validator
+(defn mk-validator
   "create validation fn [xml-str]
    which return nil if all is ok and error message else
    schema - path to xsd schema"

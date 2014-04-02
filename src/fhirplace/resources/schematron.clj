@@ -5,7 +5,8 @@
 
 (import 'java.io.File)
 
-(defn- to-file [path]
+(defn- to-file
+  [path] {:pre [(not (nil? (io/resource path)))]}
   (-> (io/resource path)
       (.toURI)
       (File.)))
@@ -19,8 +20,8 @@
   {:svrl "http://purl.oclc.org/dsdl/svrl"})
 
 (defn- extract-error [nd]
-  {:location (xml/query "distinct-values(./@location)" nd)
-   :text (xml/query "./svrl:text/string()" name-spaces nd) })
+  {:trace (xml/query "distinct-values(./@location)" nd)
+   :message (xml/query "./svrl:text/string()" name-spaces nd) })
 
 (defn parse-errors [result]
   (let [failed-asserts (xml/query "//svrl:failed-assert" name-spaces result)
