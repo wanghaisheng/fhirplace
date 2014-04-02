@@ -8,9 +8,15 @@
             [clojure.string :as string])
   (:refer-clojure :exclude (read)))
 
-(defn server-url
-  [{scheme :scheme remote-addr :remote-addr}]
-  (str (name scheme) "://" remote-addr))
+
+(defn resource-url
+  [{s :scheme r :remote-addr u :uri} id vid]
+  (let [base (str (name s) "://" r)
+        uri (if (re-find (re-pattern id) u)
+              u
+              (str u "/" id))
+        history (str "/_history/" vid)]
+    (str base uri history)))
 
 
 ;; 400 Bad Request - resource could not be parsed or failed basic FHIR validation rules
@@ -47,9 +53,9 @@
     {resource-type :resource-type} :params :as req}]
   (try
     (let [id (repo/insert db json-body)
-          {vid :version_id} (first (repo/select-history db resource-type id))]
+          [{vid :version_id}] (repo/select-history db resource-type id)]
       (-> {}
-          (header "Location" (str (server-url req) uri "/" id "/_history/" vid))
+          (header "Location" (resource-url req id vid))
           (status 201)))
     (catch java.sql.SQLException e
       {:status 422
@@ -82,15 +88,15 @@
 ;; TODO: OperationOutcome
 (defn update*
   [{{db :db} :system {:keys [id resource-type]} :params
-    body-str :body-str uri :uri :as req}]
+    body-str :body-str :as req}]
   (try
     (repo/update db id body-str)
-    (let [{vid :version_id} (first (repo/select-history db resource-type id))
-          resource-url (str (server-url req) uri "/_history/" vid)]
+    (let [[{vid :version_id}] (repo/select-history db resource-type id)
+          resource-loc (resource-url req id vid)]
       (-> {}
           (header "Last-Modified" (java.util.Date.))
-          (header "Location" resource-url)
-          (header "Content-Location" resource-url)
+          (header "Location" resource-loc)
+          (header "Content-Location" resource-loc)
           (status 200))) 
     (catch java.sql.SQLException e
       {:status 422
@@ -119,9 +125,8 @@
 (defn delete
   [{{db :db} :system {:keys [id resource-type]} :params}]
   (if (repo/exists? db id)
-    (->
-      (response (repo/delete db id))
-      (status 204))
+    (-> (response (repo/delete db id))
+        (status 204))
     {:status 404
      :body (oo/build-operation-outcome
              "fatal"
@@ -145,15 +150,13 @@
                "warning"
                (str "Resource with ID " id " was deleted"))})))
 
-
 (defn read*
-  [{{db :db} :system {:keys [id resource-type]} :params uri :uri :as req}]
+  [{{db :db} :system {:keys [id resource-type]} :params :as req}]
   (let [resource (repo/select db resource-type id)
-        {vid :version_id 
-         lmd :last_modified_date} (first (repo/select-history db resource-type id))
-        resource-url (str (server-url req) uri "/_history/" vid)]
+        [{vid :version_id lmd :last_modified_date}] (repo/select-history db resource-type id)]
       {:status 200
-       :headers {"Content-Location" resource-url "Last-Modified" lmd}
+       :headers {"Content-Location" (resource-url req id vid) 
+                 "Last-Modified" lmd}
        :body resource}))
 
 (def read
@@ -161,8 +164,15 @@
       wrap-with-existence-check
       wrap-with-deleted-check))
 
+(defn vread*
+  [{{db :db} :system {:keys [resource-type id vid]} :params :as req}]
+  (let [resource (repo/select-version db resource-type id vid)
+        [{lmd :last_modified_date}] (repo/select-history db resource-type id)]
+      {:status 200
+       :headers {"Last-Modified" lmd}
+       :body resource}))
 
-;; TODO: add checks!!
-(defn vread
-  [{{db :db} :system {:keys [resource-type id vid]} :params}]
-  (response (repo/select-version db resource-type id vid)))
+(def vread
+  (-> vread*
+      wrap-with-existence-check
+      wrap-with-deleted-check))

@@ -32,7 +32,7 @@
     (fact "Conformance resource contains :rest key with all available resources"
       (get-in conf [:rest 0 :resources])=> #(< 0 (count %)))))
 
-((deffacts "About basic CRUD on resources"
+(deffacts "About basic CRUD on resources"
   (let [create-response (POST "/Patient" patient-json-str)
         resource-location-with-history (response/get-header create-response "Location")
         resource-location (first (clojure.string/split resource-location-with-history #"/_history/"))]
@@ -59,9 +59,9 @@
     (fact "when UPDATEing existent resource"
       (let [update-body (json/write-str
                           (update-in  patient-json [:telecom] conj
-                            {:system "phone"
-                             :value "+919191282"
-                             :use "home"} ))
+                                     {:system "phone"
+                                      :value "+919191282"
+                                      :use "home"} ))
             update-response (PUT resource-location update-body)
             update-location (response/get-header update-response "Location")]
 
@@ -73,7 +73,7 @@
 
     (fact "when DELETEing existent resource"
       (DELETE resource-location) => #(= (:status %) 204)
-      (:status (GET resource-location)) => 410))))
+      (:status (GET resource-location)) => 410)))
 
 (deffacts "About READing non-existent resource"
   (let [response (GET (str "/patient/" (make-uuid)))]
