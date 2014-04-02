@@ -128,9 +128,6 @@
              (str "Resource with ID " id " doesn't exist"))}))
 
 ;; A GET for a deleted resource returns a 410 status code.
-;; Servers are required to return a Content-location header
-;;  with the response which is the full version specific url
-;;  (see vread below) and a Last-Modified header.)
 
 (defn read
   [{{db :db} :system {:keys [id resource-type]} :params uri :uri :as req}]
