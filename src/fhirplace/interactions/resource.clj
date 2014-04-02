@@ -127,21 +127,40 @@
              "fatal"
              (str "Resource with ID " id " doesn't exist"))}))
 
-;; A GET for a deleted resource returns a 410 status code.
+(defn wrap-with-existence-check [h]
+  (fn [{{db :db} :system {id :id} :params :as req}]
+    (if (repo/exists? db id)
+      (h req)
+      {:status 404
+       :body (oo/build-operation-outcome
+               "fatal"
+               (str "Resource with ID " id " doesn't exist"))})))
 
-(defn read
+(defn wrap-with-deleted-check [h]
+  (fn [{{db :db} :system {id :id} :params :as req}]
+    (if-not (repo/deleted? db id)
+      (h req)
+      {:status 410
+       :body (oo/build-operation-outcome
+               "warning"
+               (str "Resource with ID " id " was deleted"))})))
+
+
+(defn read*
   [{{db :db} :system {:keys [id resource-type]} :params uri :uri :as req}]
-  (if (repo/exists? db id)
-    (let [resource (repo/select db resource-type id)
-          {vid :version_id lmd :last_modified_date} (first (repo/select-history db resource-type id))
-          resource-url (str (server-url req) uri "/_history/" vid)]
+  (let [resource (repo/select db resource-type id)
+        {vid :version_id 
+         lmd :last_modified_date} (first (repo/select-history db resource-type id))
+        resource-url (str (server-url req) uri "/_history/" vid)]
       {:status 200
        :headers {"Content-Location" resource-url "Last-Modified" lmd}
-       :body resource})
-    {:status 404
-     :body (oo/build-operation-outcome
-             "fatal"
-             (str "Resource with ID " id " doesn't exist"))}))
+       :body resource}))
+
+(def read
+  (-> read*
+      wrap-with-existence-check
+      wrap-with-deleted-check))
+
 
 ;; TODO: add checks!!
 (defn vread
