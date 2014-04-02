@@ -57,7 +57,7 @@
                            " ORDER BY _last_modified_date DESC")]))
 
 (defn delete [db-spec resource-id]
-  (sql/execute! db-spec [(str "DELETE FROM fhir.resource WHERE _logical_id = '" resource-id "'")]))
+  (sql/query db-spec [(str "SELECT fhir.delete_resource('" resource-id "')")]))
 
 (defn update [db-spec resource-id resource]
   (sql/query db-spec [(str "SELECT fhir.update_resource('"
@@ -66,11 +66,18 @@
                         (json-to-string resource)
                         "'::json)::varchar")]))
 
+(defn deleted? [db-spec resource-id]
+  (-> (sql/query db-spec [(str "SELECT count(*) FROM fhir.resource"
+                           " WHERE _logical_id = '" resource-id "'"
+                           " AND _state = 'deleted'")])
+      first :count zero? not))
+
 (defn exists? [db-spec resource-id]
   (let [count (:count 
                 (first 
                   (sql/query db-spec 
-                             [(str "SELECT count(*) from fhir.resource where _logical_id = '"
-                                   resource-id "'")])))]
+                             [(str "SELECT count(*) FROM fhir.resource"
+                                  " WHERE _logical_id = '" resource-id "'"
+                                  " AND _state = 'current'")])))]
     (not (zero? count))))
 

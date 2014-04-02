@@ -39,7 +39,21 @@
       (repo/exists? test-db patient-id) => true))
 
   (fact "FALSE if resouce non-exists"
-    (repo/exists? test-db (make-uuid)) => false))
+    (repo/exists? test-db (make-uuid)) => false)
+
+  (fact "FALSE if resouce was deleted"
+    (let [patient-id (repo/insert test-db (fixture "patient"))]
+      (repo/delete test-db patient-id)
+      (repo/exists? test-db (make-uuid)) => false)))
+
+(deffacts "`deleted?'"
+  (fact "FALSE if resource not deleted"
+    (let [patient-id (repo/insert test-db (fixture "patient"))]
+      (repo/deleted? test-db patient-id) => false
+
+    (fact "TRUE if resource was deleted"
+      (repo/delete test-db patient-id)
+      (repo/deleted? test-db patient-id) => true))))
 
 (deffacts "`select-version'"
   (let [patient (fixture "patient")

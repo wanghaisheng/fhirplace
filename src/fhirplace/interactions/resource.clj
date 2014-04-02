@@ -30,7 +30,7 @@
 
 (defn check-type? [db type]
   (let [resource-types (map string/lower-case
-                              (repo/resource-types db))]
+                            (repo/resource-types db))]
     (contains? (set resource-types) (string/lower-case type))))
 
 (defn wrap-with-check-type [h]
@@ -59,8 +59,8 @@
 
 (def create
   (-> create*
-       wrap-with-check-type
-       wrap-with-json))
+      wrap-with-check-type
+      wrap-with-json))
 
 (defn wrap-resource-not-exist [h status]
   (fn [{{db :db} :system, {id :id} :params :as req}]
@@ -132,17 +132,18 @@
 (defn read
   [{{db :db} :system {:keys [id resource-type]} :params uri :uri :as req}]
   (if (repo/exists? db id)
-      (let [resource (repo/select db resource-type id)
-            {vid :version_id lmd :last_modified_date} (first (repo/select-history db resource-type id))
-            resource-url (str (server-url req) uri "/_history/" vid)]
-        {:status 200
-         :headers {"Content-Location" resource-url "Last-Modified" lmd}
-         :body resource})
+    (let [resource (repo/select db resource-type id)
+          {vid :version_id lmd :last_modified_date} (first (repo/select-history db resource-type id))
+          resource-url (str (server-url req) uri "/_history/" vid)]
+      {:status 200
+       :headers {"Content-Location" resource-url "Last-Modified" lmd}
+       :body resource})
     {:status 404
      :body (oo/build-operation-outcome
              "fatal"
              (str "Resource with ID " id " doesn't exist"))}))
 
+;; TODO: add checks!!
 (defn vread
-    [{{db :db} :system {:keys [resource-type id vid]} :params}]
-     (response (repo/select-version db resource-type id vid)))
+  [{{db :db} :system {:keys [resource-type id vid]} :params}]
+  (response (repo/select-version db resource-type id vid)))
