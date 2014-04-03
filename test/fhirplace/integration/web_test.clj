@@ -89,5 +89,7 @@
         resource-loc-with-history (response/get-header create-response "Location")
         resource-loc (string/replace resource-loc-with-history #"_history/.+" "_history")]
 
-    (GET resource-loc) => (contains {:status 200})))
+    (GET resource-loc) => (contains {:status 200})
+    (json-body (GET resource-loc)) => (contains {:resourceType "Bundle"
+                                                 :entry anything})))
 

@@ -9,46 +9,66 @@
   (:refer-clojure :exclude (read)))
 
 
-(defn resource-url
-  [{s :scheme r :remote-addr u :uri} id vid]
-  (let [base (str (name s) "://" r)
-        uri (if (re-find (re-pattern id) u)
-              u
-              (str u "/" id))
-        history (str "/_history/" vid)]
-    (str base uri history)))
-
-
 (defn wrap-with-json [h]
   (fn [{body-str :body-str :as req}]
     (try
       (let  [json-body  (json/read-str body-str)]
         (h (assoc req :json-body json-body)))
       (catch Exception e
-        {:status 400 :message (str e)}))))
+        {:status 400 
+         :body (oo/build-operation-outcome
+               "fatal"
+               (str "Resource cannot be parsed"))}))))
 
-(defn check-type? [db type]
+(defn- check-type [db type]
   (let [resource-types (map string/lower-case
                             (repo/resource-types db))]
     (contains? (set resource-types) (string/lower-case type))))
 
 (defn wrap-with-check-type [h]
   (fn [{{db :db} :system {resource-type :resource-type} :params :as req}]
-    (if (check-type? db resource-type)
+    (if (check-type db resource-type)
       (h req)
       {:status 404
        :body (oo/build-operation-outcome
                "fatal"
                (str "Resource type " resource-type " isn't supported"))})))
 
+(defn wrap-resource-not-exist [h status]
+  (fn [{{db :db} :system, {id :id} :params :as req}]
+    (if (repo/exists? db id)
+      (h req)
+      {:status status
+       :body (oo/build-operation-outcome
+               "fatal"
+               (str "Resource with ID " id " doesn't exist"))})))
+
+(defn wrap-with-existence-check [h]
+  (fn [{{db :db} :system {id :id} :params :as req}]
+    (if (repo/exists? db id)
+      (h req)
+      {:status 404
+       :body (oo/build-operation-outcome
+               "fatal"
+               (str "Resource with ID " id " doesn't exist"))})))
+
+(defn wrap-with-deleted-check [h]
+  (fn [{{db :db} :system {id :id} :params :as req}]
+    (if-not (repo/deleted? db id)
+      (h req)
+      {:status 410
+       :body (oo/build-operation-outcome
+               "warning"
+               (str "Resource with ID " id " was deleted"))})))
+
 (defn create*
-  [{ {db :db} :system, json-body :json-body, uri :uri
+  [{ {db :db :as system} :system, json-body :json-body, uri :uri
     {resource-type :resource-type} :params :as req}]
   (try
     (let [id (repo/insert db json-body)
-          [{vid :version_id}] (repo/select-history db resource-type id)]
+          vid (repo/select-latest-version-id db resource-type id)]
       (-> {}
-          (header "Location" (resource-url req id vid))
+          (header "Location" (util/cons-url system resource-type id vid))
           (status 201)))
     (catch java.sql.SQLException e
       {:status 422
@@ -61,23 +81,15 @@
       wrap-with-check-type
       wrap-with-json))
 
-(defn wrap-resource-not-exist [h status]
-  (fn [{{db :db} :system, {id :id} :params :as req}]
-    (if (repo/exists? db id)
-      (h req)
-      {:status status
-       :body (oo/build-operation-outcome
-               "fatal"
-               (str "Resource with ID " id " doesn't exist"))})))
 
 ;; 409/412 - version conflict management - see above
 (defn update*
-  [{{db :db} :system {:keys [id resource-type]} :params
+  [{{db :db :as system} :system {:keys [id resource-type]} :params
     body-str :body-str :as req}]
   (try
     (repo/update db id body-str)
-    (let [[{vid :version_id}] (repo/select-history db resource-type id)
-          resource-loc (resource-url req id vid)]
+    (let [vid (repo/select-latest-version-id db resource-type id)
+          resource-loc (util/cons-url system resource-type id vid)]
       (-> {}
           (header "Last-Modified" (java.util.Date.))
           (header "Location" resource-loc)
@@ -114,30 +126,13 @@
              "fatal"
              (str "Resource with ID " id " doesn't exist"))}))
 
-(defn wrap-with-existence-check [h]
-  (fn [{{db :db} :system {id :id} :params :as req}]
-    (if (repo/exists? db id)
-      (h req)
-      {:status 404
-       :body (oo/build-operation-outcome
-               "fatal"
-               (str "Resource with ID " id " doesn't exist"))})))
-
-(defn wrap-with-deleted-check [h]
-  (fn [{{db :db} :system {id :id} :params :as req}]
-    (if-not (repo/deleted? db id)
-      (h req)
-      {:status 410
-       :body (oo/build-operation-outcome
-               "warning"
-               (str "Resource with ID " id " was deleted"))})))
-
 (defn read*
-  [{{db :db} :system {:keys [id resource-type]} :params :as req}]
-  (let [resource (repo/select db resource-type id)
-        [{vid :version_id lmd :last_modified_date}] (repo/select-history db resource-type id)]
+  [{{db :db :as system} :system {:keys [id resource-type]} :params :as req}]
+  (let [{vid :version_id
+         lmd :last_modified_date
+         resource :json} (repo/select-latest-version db resource-type id)]
       {:status 200
-       :headers {"Content-Location" (resource-url req id vid) 
+       :headers {"Content-Location" (util/cons-url system resource-type id vid) 
                  "Last-Modified" lmd}
        :body resource}))
 
@@ -148,8 +143,8 @@
 
 (defn vread*
   [{{db :db} :system {:keys [resource-type id vid]} :params :as req}]
-  (let [resource (repo/select-version db resource-type id vid)
-        [{lmd :last_modified_date}] (repo/select-history db resource-type id)]
+  (let [{lmd :last_modified_date
+         resource :json} (repo/select-version db resource-type id vid)]
       {:status 200
        :headers {"Last-Modified" lmd}
        :body resource}))
