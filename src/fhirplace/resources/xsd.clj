@@ -25,4 +25,5 @@
              (.validate validator))
         nil
         (catch SAXException e
-          (.getMessage e))))))
+          (.getMessage e)
+          (str e))))))

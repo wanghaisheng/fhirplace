@@ -1,118 +1,120 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <Patient xmlns='http://hl7.org/fhir'>
-  <contained>
-    <Organization id='#org1'>
-      <name value='ACME'/>
-      <telecom id=''>
-        <system value='phone'/>
-        <value value='+31612234322'/>
-        <use value='mobile'/>
-      </telecom>
-    </Organization>
-    <Organization id='#org2'>
-      <name value='Foobar'/>
-      <telecom id=''>
-        <system value='phone'/>
-        <value value='+31612234000'/>
-        <use value='mobile'/>
-      </telecom>
-    </Organization>
-  </contained>
-  <identifier id=''>
-    <use value='official'/>
-    <label value='BSN'/>
-    <system value='urn:oid:2.16.840.1.113883.2.4.6.3'/>
-    <value value='123456789'/>
-  </identifier>
-  <identifier id=''>
-    <use value='official'/>
-    <label value='SSN'/>
-    <system value='urn:oid:2.16.840.1.113883.2.4.6.7'/>
-    <value value='123456789'/>
-  </identifier>
-  <name id=''>
-    <use value='official'/>
-    <family value='Bor'/>
-    <given value='Roelof Olaf'/>
-    <prefix value='Drs.'/>
-    <suffix value='PDEng.'/>
-  </name>
-  <telecom id=''>
-    <system value='phone'/>
-    <value value='+31612345678'/>
-    <use value='mobile'/>
-  </telecom>
-  <telecom id=''>
-    <system value='phone'/>
-    <value value='+31201234567'/>
-    <use value='home'/>
-  </telecom>
-  <gender id=''>
-    <coding id=''>
-      <system value='http://snomed.info/sct'/>
-      <code value='248153007'/>
-      <display value='Male'/>
-    </coding>
-    <coding id=''>
-      <system value='http://hl7.org/fhir/v3/AdministrativeGender'/>
-      <code value='M'/>
-      <display value='Male'/>
-    </coding>
-  </gender>
-  <birthDate value='1960-03-13'/>
-  <address id=''>
-    <use value='home'/>
-    <line value='Bos en Lommerplein 280'/>
-    <city value='Amsterdam'/>
-    <zip value='1055RW'/>
-    <country value='NLD'/>
-  </address>
-  <maritalStatus id=''>
-    <coding id=''>
-      <system value='http://snomed.info/sct'/>
-      <code value='36629006'/>
-      <display value='Legally married'/>
-    </coding>
-    <coding id=''>
-      <system value='http://hl7.org/fhir/v3/MaritalStatus'/>
-      <code value='M'/>
-    </coding>
-  </maritalStatus>
-  <photo id=''>
-    <contentType value='image/jpeg'/>
-    <url value='binary/@f006'/>
-  </photo>
-  <contact id=''>
-    <relationship id=''>
-      <coding id=''>
-        <system value='http://snomed.info/sct'/>
-        <code value='127850001'/>
-        <display value='Wife'/>
-      </coding>
-      <coding id=''>
-        <system value='http://hl7.org/fhir/patient-contact-relationship'/>
-        <code value='partner'/>
-      </coding>
-    </relationship>
-    <name id=''>
-      <use value='usual'/>
-    </name>
-    <telecom id=''>
-      <system value='phone'/>
-      <value value='+31201234567'/>
-      <use value='home'/>
-    </telecom>
-  </contact>
-  <communication id=''>
-    <coding id=''>
-      <system value='urn:std:iso:639-1'/>
-      <code value='nl-NL'/>
-      <display value='Dutch'/>
-    </coding>
-  </communication>
-  <managingOrganization id=''>
-    <reference value='#org1'/>
-    <display value='AUMC'/>
-  </managingOrganization>
-  <active value='true'/>
+<contained>
+<Organization id='org1'>
+<name value='ACME'/>
+<telecom>
+<system value='phone'/>
+<value value='+31612234322'/>
+<use value='mobile'/>
+</telecom>
+</Organization>
+</contained>
+<contained>
+<Organization id='org2'>
+<name value='Foobar'/>
+<telecom>
+<system value='phone'/>
+<value value='+31612234000'/>
+<use value='mobile'/>
+</telecom>
+</Organization>
+</contained>
+<identifier>
+<use value='official'/>
+<label value='BSN'/>
+<system value='urn:oid:2.16.840.1.113883.2.4.6.3'/>
+<value value='123456789'/>
+</identifier>
+<identifier>
+<use value='official'/>
+<label value='SSN'/>
+<system value='urn:oid:2.16.840.1.113883.2.4.6.7'/>
+<value value='123456789'/>
+</identifier>
+<name>
+<use value='official'/>
+<family value='Bor'/>
+<given value='Roelof Olaf'/>
+<prefix value='Drs.'/>
+<suffix value='PDEng.'/>
+</name>
+<telecom>
+<system value='phone'/>
+<value value='+31612345678'/>
+<use value='mobile'/>
+</telecom>
+<telecom>
+<system value='phone'/>
+<value value='+31201234567'/>
+<use value='home'/>
+</telecom>
+<gender>
+<coding>
+<system value='http://snomed.info/sct'/>
+<code value='248153007'/>
+<display value='Male'/>
+</coding>
+<coding>
+<system value='http://hl7.org/fhir/v3/AdministrativeGender'/>
+<code value='M'/>
+<display value='Male'/>
+</coding>
+</gender>
+<birthDate value='1960-03-13'/>
+<address>
+<use value='home'/>
+<line value='Bos en Lommerplein 280'/>
+<city value='Amsterdam'/>
+<zip value='1055RW'/>
+<country value='NLD'/>
+</address>
+<maritalStatus>
+<coding>
+<system value='http://snomed.info/sct'/>
+<code value='36629006'/>
+<display value='Legally married'/>
+</coding>
+<coding>
+<system value='http://hl7.org/fhir/v3/MaritalStatus'/>
+<code value='M'/>
+</coding>
+</maritalStatus>
+<photo>
+<contentType value='image/jpeg'/>
+<url value='binary/@f006'/>
+</photo>
+<contact>
+<relationship>
+<coding>
+<system value='http://snomed.info/sct'/>
+<code value='127850001'/>
+<display value='Wife'/>
+</coding>
+<coding>
+<system value='http://hl7.org/fhir/patient-contact-relationship'/>
+<code value='partner'/>
+</coding>
+</relationship>
+<name>
+<use value='usual'/>
+</name>
+<telecom>
+<system value='phone'/>
+<value value='+31201234567'/>
+<use value='home'/>
+</telecom>
+</contact>
+<communication>
+<coding>
+<system value='urn:std:iso:639-1'/>
+<code value='nl-NL'/>
+<display value='Dutch'/>
+</coding>
+</communication>
+<managingOrganization>
+<reference value='#org1'/>
+<display value='AUMC'/>
+</managingOrganization>
+<active value='true'/>
 </Patient>
