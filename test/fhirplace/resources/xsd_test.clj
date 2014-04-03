@@ -1,7 +1,6 @@
 (ns fhirplace.resources.xsd-test
   (:use midje.sweet)
-  (:require [fhirplace.resources.xsd :as x]
-            [clojure.java.io :as io]))
+  (:require [fhirplace.resources.xsd :as x]))
 
 
 (def pt-validator

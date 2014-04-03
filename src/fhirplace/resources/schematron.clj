@@ -26,7 +26,7 @@
 (defn parse-errors [result]
   (let [failed-asserts (xml/query "//svrl:failed-assert" name-spaces result)
         errors (mapv extract-error failed-asserts)]
-    (if (empty? errors) nil errors)))
+    (when-not (empty? errors) errors)))
 
 (defn compile-sch
   "return schematron validation function

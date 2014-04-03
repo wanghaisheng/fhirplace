@@ -24,6 +24,12 @@
 (defn clears [db-spec]
   (sql/execute! db-spec ["DELETE FROM fhir.resource"]))
 
+(defn clean-json [json]
+  (-> json
+      (json/read-str :key-fn keyword)
+      util/discard-indexes
+      util/discard-nils))
+
 (defn select [db-spec resource-type id]
   (if-let [json-str (-> (sql/query db-spec [(str "SELECT json::text"
                                            " FROM fhir.view_" (.toLowerCase resource-type)
@@ -34,11 +40,6 @@
 
     (clean-json json-str)))
 
-(defn clean-json [json]
-  (-> json
-      (json/read-str :key-fn keyword)
-      util/discard-indexes
-      util/discard-nils))
 
 (defn select-version [db-spec resource-type id vid]
   (if-let [json-str (-> (sql/query db-spec [(str "SELECT json::text"
@@ -51,7 +52,7 @@
     (clean-json json-str)))
 
 (defn select-history [db-spec resource-type id]
-  (let  [history 
+  (let  [history
          (sql/query db-spec [(str "SELECT _version_id::varchar as version_id, _last_modified_date::varchar as last_modified_date, _state as state, _logical_id as id, json::text"
                                   " FROM fhir.view_" (.toLowerCase resource-type) "_history"
                                   " WHERE _logical_id = '" id "'"
@@ -75,9 +76,9 @@
       first :count zero? not))
 
 (defn exists? [db-spec resource-id]
-  (let [count (:count 
-                (first 
-                  (sql/query db-spec 
+  (let [count (:count
+                (first
+                  (sql/query db-spec
                              [(str "SELECT count(*) FROM fhir.resource"
                                   " WHERE _logical_id = '" resource-id "'"
                                   " AND _state = 'current'")])))]
