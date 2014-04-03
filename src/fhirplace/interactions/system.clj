@@ -23,11 +23,11 @@
   (-> (response [(str request)])))
 
 (defn history
-  [{{db :db} :system {:keys [id resource-type]} :params}]
+  [{{db :db :as system} :system {:keys [id resource-type]} :params}]
   (if (repo/exists? db id)
     {:body (hist/build-history
              (repo/select-history db resource-type id)
-             "Dummy url")}
+             system)}
     {:status 404
      :body (oo/build-operation-outcome
              "fatal"

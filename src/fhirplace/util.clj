@@ -29,3 +29,10 @@
               :else (assoc acc k v)))
           {} m))
 
+(defn cons-url
+  ([{:keys [host protocol port]} resource-type id]
+    (-> (str protocol "://" host ":" port)
+        (str "/" resource-type "/" id)))
+  ([system resource-type id vid]
+    (-> (cons-url system resource-type id)
+        (str "/_history/" vid))))

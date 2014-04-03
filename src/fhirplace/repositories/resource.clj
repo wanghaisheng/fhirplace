@@ -40,7 +40,6 @@
 
     (clean-json json-str)))
 
-
 (defn select-version [db-spec resource-type id vid]
   (if-let [json-str (-> (sql/query db-spec [(str "SELECT json::text"
                                            " FROM fhir.view_" (.toLowerCase resource-type) "_history"
