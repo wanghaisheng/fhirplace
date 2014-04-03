@@ -30,15 +30,3 @@
     (check-type {:params {:resource-type ..not-known-type..}}) => (contains {:status 404})
     (provided
       (repo/resource-types anything) => [..known-type..])))
-
-(facts "`resource-url'"
-  (let [args {:scheme "http" :remote-addr "a.com" :uri "/patient"}
-        id "1232"
-        vid "4556"]
-
-  (res/resource-url args id vid) => "http://a.com/patient/1232/_history/4556"
-
-  (res/resource-url
-    (assoc args :uri "/patient/1232") id vid) => "http://a.com/patient/1232/_history/4556"))
-
-

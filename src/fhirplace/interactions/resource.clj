@@ -9,16 +9,6 @@
   (:refer-clojure :exclude (read)))
 
 
-(defn resource-url
-  [{s :scheme r :remote-addr u :uri} id vid]
-  (let [base (str (name s) "://" r)
-        uri (if (re-find (re-pattern id) u)
-              u
-              (str u "/" id))
-        history (str "/_history/" vid)]
-    (str base uri history)))
-
-
 (defn wrap-with-json [h]
   (fn [{body-str :body-str :as req}]
     (try
@@ -42,13 +32,13 @@
                (str "Resource type " resource-type " isn't supported"))})))
 
 (defn create*
-  [{ {db :db} :system, json-body :json-body, uri :uri
+  [{ {db :db :as system} :system, json-body :json-body, uri :uri
     {resource-type :resource-type} :params :as req}]
   (try
     (let [id (repo/insert db json-body)
           [{vid :version_id}] (repo/select-history db resource-type id)]
       (-> {}
-          (header "Location" (resource-url req id vid))
+          (header "Location" (util/cons-url system resource-type id vid))
           (status 201)))
     (catch java.sql.SQLException e
       {:status 422
@@ -72,12 +62,12 @@
 
 ;; 409/412 - version conflict management - see above
 (defn update*
-  [{{db :db} :system {:keys [id resource-type]} :params
+  [{{db :db :as system} :system {:keys [id resource-type]} :params
     body-str :body-str :as req}]
   (try
     (repo/update db id body-str)
     (let [[{vid :version_id}] (repo/select-history db resource-type id)
-          resource-loc (resource-url req id vid)]
+          resource-loc (util/cons-url system resource-type id vid)]
       (-> {}
           (header "Last-Modified" (java.util.Date.))
           (header "Location" resource-loc)
@@ -133,11 +123,11 @@
                (str "Resource with ID " id " was deleted"))})))
 
 (defn read*
-  [{{db :db} :system {:keys [id resource-type]} :params :as req}]
+  [{{db :db :as system} :system {:keys [id resource-type]} :params :as req}]
   (let [resource (repo/select db resource-type id)
         [{vid :version_id lmd :last_modified_date}] (repo/select-history db resource-type id)]
       {:status 200
-       :headers {"Content-Location" (resource-url req id vid) 
+       :headers {"Content-Location" (util/cons-url system resource-type id vid) 
                  "Last-Modified" lmd}
        :body resource}))
 
