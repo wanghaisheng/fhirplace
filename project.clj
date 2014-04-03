@@ -22,6 +22,7 @@
                  [ring "1.2.1"]
                  [ring/ring-json "0.3.0"]
                  [clojure-saxon "0.9.3"]
+                 [honeysql "0.4.3"]
                  [org.clojure/data.zip "0.1.1"]]
 
   :profiles {:dev {:source-paths ["dev"]
@@ -42,7 +43,7 @@
                                               [vinyasa.pull pull]
                                               [vinyasa.lein lein]
                                               [vinyasa.reimport reimport]
-                                              [midje.repl load-facts]])
+                                              [midje.repl load-facts autotest]])
 
                                 (require 'io.aviso.repl
                                          'clojure.repl

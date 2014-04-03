@@ -16,7 +16,7 @@
         patient-id (repo/insert test-db patient)]
     patient-id =not=> nil
 
-    (let [found-patient (repo/select test-db "Patient" patient-id)]
+    (let [{found-patient :json} (repo/select-latest-version test-db "Patient" patient-id)]
       (:resourceType found-patient) => "Patient"
       (:name found-patient) => (:name patient))))
 
@@ -24,13 +24,14 @@
   (let [patient (fixture "patient")
         patient-id (repo/insert test-db patient)]
     (repo/delete test-db patient-id)
-    (repo/select test-db "Patient" patient-id) => nil))
+    (repo/select-latest-version test-db "Patient" patient-id) => nil))
 
 (deffacts "`update'"
   (let [patient (fixture "patient")
         patient-id (repo/insert test-db patient)]
     (repo/update test-db patient-id (assoc patient :active false))
-    (repo/select test-db "Patient" patient-id) => (contains {:active false})))
+    (repo/select-latest-version test-db "Patient" patient-id) => (contains {:json
+                                                                            (contains {:active false})})))
 
 (deffacts "`exists?' should return exitence of resource"
   (fact "TRUE if resource exists"
@@ -55,11 +56,21 @@
       (repo/delete test-db patient-id)
       (repo/deleted? test-db patient-id) => true))))
 
-(deffacts "`select-version'"
+(deffacts "`select-latest'"
   (let [patient (fixture "patient")
-        patient-id (repo/insert test-db patient)
-        {version-id :version_id} (first (repo/select-history test-db "Patient" patient-id))]
+        id (repo/insert test-db patient)
+        vid (repo/select-latest-version-id test-db "Patient" id)]
 
-      (repo/select-version test-db "Patient" patient-id version-id) => (contains 
-                                                                         (select-keys patient 
-                                                                                      [:name :active :resourceType :organization]))))
+    (:json 
+      (repo/select-version test-db "Patient" id vid)) => (contains 
+                                                           (select-keys patient 
+                                                                        [:name :active :resourceType :organization]))))
+
+(deffacts "`select-latest-version'"
+  (let [patient (fixture "patient")
+        id (repo/insert test-db patient)]
+
+    (:json 
+      (repo/select-latest-version test-db "Patient" id)) => (contains 
+                                                              (select-keys patient 
+                                                                           [:name :active :resourceType :organization]))))

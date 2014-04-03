@@ -43,21 +43,6 @@
                "fatal"
                (str "Resource with ID " id " doesn't exist"))})))
 
-(defn create*
-  [{ {db :db :as system} :system, json-body :json-body, uri :uri
-    {resource-type :resource-type} :params :as req}]
-  (try
-    (let [id (repo/insert db json-body)
-          [{vid :version_id}] (repo/select-history db resource-type id)]
-      (-> {}
-          (header "Location" (util/cons-url system resource-type id vid))
-          (status 201)))
-    (catch java.sql.SQLException e
-      {:status 422
-       :body (oo/build-operation-outcome
-               "fatal"
-               "Insertion of resource has failed on DB server")})))
-
 (defn wrap-with-existence-check [h]
   (fn [{{db :db} :system {id :id} :params :as req}]
     (if (repo/exists? db id)
@@ -76,6 +61,21 @@
                "warning"
                (str "Resource with ID " id " was deleted"))})))
 
+(defn create*
+  [{ {db :db :as system} :system, json-body :json-body, uri :uri
+    {resource-type :resource-type} :params :as req}]
+  (try
+    (let [id (repo/insert db json-body)
+          vid (repo/select-latest-version-id db resource-type id)]
+      (-> {}
+          (header "Location" (util/cons-url system resource-type id vid))
+          (status 201)))
+    (catch java.sql.SQLException e
+      {:status 422
+       :body (oo/build-operation-outcome
+               "fatal"
+               "Insertion of resource has failed on DB server")})))
+
 (def create
   (-> create*
       wrap-with-check-type
@@ -88,7 +88,7 @@
     body-str :body-str :as req}]
   (try
     (repo/update db id body-str)
-    (let [[{vid :version_id}] (repo/select-history db resource-type id)
+    (let [vid (repo/select-latest-version-id db resource-type id)
           resource-loc (util/cons-url system resource-type id vid)]
       (-> {}
           (header "Last-Modified" (java.util.Date.))
@@ -128,8 +128,9 @@
 
 (defn read*
   [{{db :db :as system} :system {:keys [id resource-type]} :params :as req}]
-  (let [resource (repo/select db resource-type id)
-        [{vid :version_id lmd :last_modified_date}] (repo/select-history db resource-type id)]
+  (let [{vid :version_id
+         lmd :last_modified_date
+         resource :json} (repo/select-latest-version db resource-type id)]
       {:status 200
        :headers {"Content-Location" (util/cons-url system resource-type id vid) 
                  "Last-Modified" lmd}
@@ -142,8 +143,8 @@
 
 (defn vread*
   [{{db :db} :system {:keys [resource-type id vid]} :params :as req}]
-  (let [resource (repo/select-version db resource-type id vid)
-        [{lmd :last_modified_date}] (repo/select-history db resource-type id)]
+  (let [{lmd :last_modified_date
+         resource :json} (repo/select-version db resource-type id vid)]
       {:status 200
        :headers {"Last-Modified" lmd}
        :body resource}))
