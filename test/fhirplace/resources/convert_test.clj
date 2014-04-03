@@ -7,5 +7,7 @@
 (def pt-json
   (slurp "test/fixtures/patient.json"))
 
-; (spit "tmp/res.xml" (c/json->xml pt-json))
-; (v/errors "Patient" (c/json->xml pt-json))
+(spit "tmp/res.xml" (c/json->xml pt-json))
+(v/errors "Patient" (c/json->xml pt-json))
+
+;(c/mk-children "Patient" {})
