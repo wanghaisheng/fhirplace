@@ -25,27 +25,3 @@
   (-> json-str
       (json/read-str :key-fn keyword)
       json->xml*))
-
-(defn- to-file
-  [path] {:pre [(not (nil? (io/resource path)))]}
-  (-> (io/resource path)
-      (.toURI)
-      (slurp)))
-
-(require '[clojure.zip :as z])
-(require '[clojure.data.zip.xml :as dzx])
-
-
-
-(import 'java.io.File)
-(def resources-meta
-  (->
-    (io/resource "fhir/profiles-resources.xml")
-    (.toURI)
-    (File.)
-    (xml/parse)
-    (z/xml-zip)))
-
-(map z/node (dzx/xml-> resources-meta :entry :content :Profile :structure :type))
-
-
