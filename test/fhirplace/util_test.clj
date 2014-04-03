@@ -20,3 +20,13 @@
 (fact "`discard-indexes' function discards _index values from hashmap"
       (let [some-data {:_index 0 :name [{:_index 3 :family ["Pedro"]}]}]
         (discard-indexes some-data) => {:name [{:family ["Pedro"]}]}))
+
+(facts "`cons-url'"
+  (cons-url {:host "superhost" :protocol "http" :port 1234}
+            "Patient"
+            "123"
+            "234") => "http://superhost:1234/Patient/123/_history/234"
+  
+  (cons-url {:host "superhost" :protocol "http" :port 1234}
+            "Patient"
+            "123") => "http://superhost:1234/Patient/123")
