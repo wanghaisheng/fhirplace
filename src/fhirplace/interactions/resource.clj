@@ -15,21 +15,33 @@
       (let  [json-body  (json/read-str body-str)]
         (h (assoc req :json-body json-body)))
       (catch Exception e
-        {:status 400 :message (str e)}))))
+        {:status 400 
+         :body (oo/build-operation-outcome
+               "fatal"
+               (str "Resource cannot be parsed"))}))))
 
-(defn check-type? [db type]
+(defn- check-type [db type]
   (let [resource-types (map string/lower-case
                             (repo/resource-types db))]
     (contains? (set resource-types) (string/lower-case type))))
 
 (defn wrap-with-check-type [h]
   (fn [{{db :db} :system {resource-type :resource-type} :params :as req}]
-    (if (check-type? db resource-type)
+    (if (check-type db resource-type)
       (h req)
       {:status 404
        :body (oo/build-operation-outcome
                "fatal"
                (str "Resource type " resource-type " isn't supported"))})))
+
+(defn wrap-resource-not-exist [h status]
+  (fn [{{db :db} :system, {id :id} :params :as req}]
+    (if (repo/exists? db id)
+      (h req)
+      {:status status
+       :body (oo/build-operation-outcome
+               "fatal"
+               (str "Resource with ID " id " doesn't exist"))})))
 
 (defn create*
   [{ {db :db :as system} :system, json-body :json-body, uri :uri
@@ -46,19 +58,29 @@
                "fatal"
                "Insertion of resource has failed on DB server")})))
 
+(defn wrap-with-existence-check [h]
+  (fn [{{db :db} :system {id :id} :params :as req}]
+    (if (repo/exists? db id)
+      (h req)
+      {:status 404
+       :body (oo/build-operation-outcome
+               "fatal"
+               (str "Resource with ID " id " doesn't exist"))})))
+
+(defn wrap-with-deleted-check [h]
+  (fn [{{db :db} :system {id :id} :params :as req}]
+    (if-not (repo/deleted? db id)
+      (h req)
+      {:status 410
+       :body (oo/build-operation-outcome
+               "warning"
+               (str "Resource with ID " id " was deleted"))})))
+
 (def create
   (-> create*
       wrap-with-check-type
       wrap-with-json))
 
-(defn wrap-resource-not-exist [h status]
-  (fn [{{db :db} :system, {id :id} :params :as req}]
-    (if (repo/exists? db id)
-      (h req)
-      {:status status
-       :body (oo/build-operation-outcome
-               "fatal"
-               (str "Resource with ID " id " doesn't exist"))})))
 
 ;; 409/412 - version conflict management - see above
 (defn update*
@@ -103,24 +125,6 @@
      :body (oo/build-operation-outcome
              "fatal"
              (str "Resource with ID " id " doesn't exist"))}))
-
-(defn wrap-with-existence-check [h]
-  (fn [{{db :db} :system {id :id} :params :as req}]
-    (if (repo/exists? db id)
-      (h req)
-      {:status 404
-       :body (oo/build-operation-outcome
-               "fatal"
-               (str "Resource with ID " id " doesn't exist"))})))
-
-(defn wrap-with-deleted-check [h]
-  (fn [{{db :db} :system {id :id} :params :as req}]
-    (if-not (repo/deleted? db id)
-      (h req)
-      {:status 410
-       :body (oo/build-operation-outcome
-               "warning"
-               (str "Resource with ID " id " was deleted"))})))
 
 (defn read*
   [{{db :db :as system} :system {:keys [id resource-type]} :params :as req}]

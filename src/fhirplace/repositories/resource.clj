@@ -4,15 +4,16 @@
             [fhirplace.util :as util])
   (:refer-clojure :exclude (delete)))
 
-(defn resource-types [db-spec]
-  (set
-    (map :path
-      (sql/query db-spec ["SELECT DISTINCT(path[1]) FROM meta.resource_elements"]))))
-
 (defn- json-to-string [json-or-string]
   (if (string? json-or-string)
     json-or-string
     (json/write-str json-or-string)))
+
+(defn clean-json [json]
+  (-> json
+      (json/read-str :key-fn keyword)
+      util/discard-indexes
+      util/discard-nils))
 
 (defn insert [db-spec resource]
   (:insert_resource
@@ -21,14 +22,10 @@
                            (json-to-string resource)
                            "'::json)::varchar")]))))
 
-(defn clears [db-spec]
-  (sql/execute! db-spec ["DELETE FROM fhir.resource"]))
-
-(defn clean-json [json]
-  (-> json
-      (json/read-str :key-fn keyword)
-      util/discard-indexes
-      util/discard-nils))
+(defn resource-types [db-spec]
+  (set
+    (map :path
+      (sql/query db-spec ["SELECT DISTINCT(path[1]) FROM meta.resource_elements"]))))
 
 (defn select [db-spec resource-type id]
   (if-let [json-str (-> (sql/query db-spec [(str "SELECT json::text"
@@ -52,7 +49,9 @@
 
 (defn select-history [db-spec resource-type id]
   (let  [history
-         (sql/query db-spec [(str "SELECT _version_id::varchar as version_id, _last_modified_date::varchar as last_modified_date, _state as state, _logical_id as id, json::text"
+         (sql/query db-spec [(str "SELECT _version_id::varchar as version_id,"
+                                  " _last_modified_date::varchar as last_modified_date,"
+                                  " _state as state, _logical_id as id, json::text"
                                   " FROM fhir.view_" (.toLowerCase resource-type) "_history"
                                   " WHERE _logical_id = '" id "'"
                                   " ORDER BY _last_modified_date DESC")])]
