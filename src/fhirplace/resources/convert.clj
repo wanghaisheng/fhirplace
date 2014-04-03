@@ -9,12 +9,12 @@
 (declare mk-node)
 
 (defn next-path
-  "make switch on complex types"
+  "make switch on complex types "
   [path {nm :name tp :type} {res-type :resourceType}]
   (cond
     res-type res-type
     (and tp (meta/is-complex? tp)) tp
-    :else (meta/path->cons path nm)))
+    :else (meta/join path nm)))
 
 (def ^{:private true} norm-vec #(if (vector? %) % [%]))
 
@@ -56,7 +56,8 @@
 
 (defn mk-node [tag-name path v]
   (cond
-    (= (keyword tag-name) :text) nil ; [{:tag :text :content (xml/parse v)}]
+    ;; TODO: [{:tag :text :content (xml/parse v)}]
+    (= (keyword tag-name) :text) nil
 
     (map? v) {:tag tag-name
               :attrs (node-attrs v)

@@ -10,74 +10,58 @@
 
 (import 'java.io.File)
 
-
-(defn to-nodes
-  [coll]
-  (map zip/node coll))
-
-(defn xml->nodes [& args]
-  (to-nodes (apply xx/xml-> args)))
-
-(defn attr
+(defn- attr
   "get attr"
   [n attr]
   (get-in n [:attrs attr]))
 
-(defn mattr
-  "construct get attr function"
-  [attr]
-  (fn [n] (attr n attr)))
-
-(defn zattr
+(defn- zattr
   "construct get attr function"
   [loc a]
   (attr (zip/node loc) a))
 
-(defn xml->val [loc & path]
+(defn- xml->val [loc & path]
   (if-let [node (apply xx/xml1-> loc path)]
     (zattr node :value)))
 
-(defn resource
+(defn- resource
   "return zipper loc"
   [db res-type]
   (xx/xml1-> db :entry :content :Profile :structure
              #(= (xml->val % :type) res-type)))
 
-
-
 (defprotocol FHIRPath
-  (child? [p1 p2]))
-
+  (child? [parent child] "test if p1 is child of p2")
+  (basename [path] "get last item in path")
+  (root [path] "get first item in path")
+  (join [path item] "add new item to path"))
 
 (extend-type String
   FHIRPath
   (child? [p c]
     (let [p (string/split p #"\.")
           c (string/split c #"\.")]
-      (= p (butlast c)))))
+      (= p (butlast c))))
+  (basename [path]
+    (last (string/split path #"\.")))
+  (root [path]
+    (first (string/split path #"\.")))
+  (join [path item]
+    (str path "." (name next))))
 
-(defn path->cons [path next]
-  (str path "." (name next)))
-
-(defn path->leaf [path]
-  (last (string/split path #"\.")))
-
-(defn path->resource [path]
-  (first (string/split path #"\.")))
-
-(defn mk-elem [loc]
+(defn- mk-elem [loc]
   (let [path (xml->val loc :path)]
-    {:path path
-     :name (path->leaf path)
-     :min (xml->val loc :definition :min)
-     :max (xml->val loc :definition :max)
+    {:path  path
+     :name (basename path)
+     :min  (xml->val loc :definition :min)
+     :max  (xml->val loc :definition :max)
      :type (xml->val loc :definition :type :code) }))
 
-(defn elem-children* [res-loc path]
+(defn- elem-children* [res-loc path]
   (xx/xml-> res-loc :element
             #(child? path (xml->val % :path))))
 
-(defn load-profile [path]
+(defn- load-profile [path]
   (->
     (io/resource path)
     (.toURI)
@@ -85,10 +69,10 @@
     (xml/parse)
     (zip/xml-zip)))
 
-(def res-profile
+(def ^{:private true} res-profile
   (load-profile "fhir/profiles-resources.xml"))
 
-(def dt-profile
+(def ^{:private true} dt-profile
   (load-profile "fhir/profiles-types.xml"))
 
 (defn is-complex? [type-name]
@@ -96,7 +80,7 @@
 
 (defn elem-children
   [path]
-  (let [res-type (path->resource path)
+  (let [res-type (root path)
         res-loc  (or (resource res-profile res-type)
                      (resource dt-profile res-type))]
     (if res-loc
