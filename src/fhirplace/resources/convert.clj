@@ -8,7 +8,7 @@
 
 (declare mk-node)
 
-(defn next-path
+(defn- next-path
   "make switch on complex types "
   [path {nm :name tp :type} {res-type :resourceType}]
   (cond
@@ -23,11 +23,10 @@
         (filter identity
                 (map f seq))))
 
-(defn mk-child
+(defn- mk-child
   "function used in reduce
-  dirty FHIR logic is here"
-  [path data {name :name :as info}]
-  {:post [(vector? %)]}
+  corner cases of FHIR logic is here"
+  [path data {name :name :as info}] {:post [(vector? %)]}
   (map-no-nils
     (fn [d]
       (if (= name "contained") ;; specail case if contained
@@ -36,8 +35,9 @@
         (mk-node name (next-path path info d) d)))
     (norm-vec data)))
 
-(defn mk-children
-  "build children xml nodes in right order"
+(defn- mk-children
+  "build children xml nodes in right order
+  going trou meta & building data"
   [path json]
   (reduce (fn [acc {name :name :as info}]
             (if-let [data (get json (keyword name))]
@@ -49,12 +49,12 @@
 (defn- fix-id [id]
   (string/replace id #"^#" ""))
 
-(defn node-attrs [json]
+(defn- node-attrs [json]
   (if-let [id (:id json)]
     {:id (fix-id id)}
     {}))
 
-(defn mk-node [tag-name path v]
+(defn- mk-node [tag-name path v]
   (cond
     ;; TODO: [{:tag :text :content (xml/parse v)}]
     (= (keyword tag-name) :text) nil
@@ -66,7 +66,7 @@
     :else    {:tag tag-name
               :attrs {:value (str v)}}))
 
-(defn json->xml* [json]
+(defn- json->xml* [json]
   (let [res-type (:resourceType json)]
     (with-out-str
       (xml/emit

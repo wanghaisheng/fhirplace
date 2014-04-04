@@ -47,7 +47,7 @@
   (root [path]
     (first (string/split path #"\.")))
   (join [path item]
-    (str path "." (name next))))
+    (str path "." (name item))))
 
 (defn- mk-elem [loc]
   (let [path (xml->val loc :path)]
