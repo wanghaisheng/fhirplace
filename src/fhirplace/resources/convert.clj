@@ -8,6 +8,27 @@
 
 (declare mk-node)
 
+(defn match-polimorph-keys [key attr-name]
+  (let [prefix (string/replace (name key) #"\[x\]$" "")
+        key-re  (re-pattern (str "^" prefix))]
+    (not (nil? (re-find key-re (name attr-name))))))
+
+(defn polymorph-key? [name]
+  (not (nil? (re-find #"\[x\]$" (str name)))))
+
+(defn get-tag-name
+  "calculate attribute name
+  handle [x] attributes"
+  [json name]
+  (let [kw (keyword name)]
+    (cond
+      (contains? json kw) kw
+      (polymorph-key? name) (first
+                              (filter
+                                #(match-polimorph-keys name %)
+                                (keys json)))
+      :else nil)))
+
 (defn- next-path
   "make switch on complex types "
   [path {nm :name tp :type} {res-type :resourceType}]
@@ -20,29 +41,32 @@
 
 (defn- map-no-nils [f seq]
   (into []
-        (filter identity
+        (filter (complement nil?)
                 (map f seq))))
 
 (defn- mk-child
   "function used in reduce
   corner cases of FHIR logic is here"
-  [path data {name :name :as info}] {:post [(vector? %)]}
+  [tag-name path data {name :name :as info}] {:post [(vector? %)]}
   (map-no-nils
     (fn [d]
       (if (= name "contained") ;; specail case if contained
         {:tag :contained
          :content [(mk-node (:resourceType d) (next-path path info d) d)]}
-        (mk-node name (next-path path info d) d)))
+        (mk-node tag-name (next-path path info d) d)))
     (norm-vec data)))
+
 
 (defn- mk-children
   "build children xml nodes in right order
   going trou meta & building data"
   [path json]
   (reduce (fn [acc {name :name :as info}]
-            (if-let [data (get json (keyword name))]
-              (into acc (mk-child path data info))
-              acc))
+            (let [tag-name (get-tag-name json name)
+                  data (get json tag-name)]
+              (if (not (nil? data))
+                (into acc (mk-child tag-name path data info))
+                acc)))
           []
           (meta/elem-children path)))
 
@@ -70,7 +94,6 @@
 
 (defn- mk-node [tag-name path v]
   (cond
-    ;; TODO: [{:tag :text :content (xml/parse v)}]
     (= (keyword tag-name) :text) (mk-text-node v)
 
     (map? v) {:tag tag-name

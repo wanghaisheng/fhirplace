@@ -225,6 +225,7 @@ active
 </coding>
 </gender>
 <birthDate value='1960-03-13'/>
+<deceasedBoolean value='false'/>
 <address>
 <use value='home'/>
 <line value='Bos en Lommerplein 280'/>
@@ -243,6 +244,7 @@ active
 <code value='M'/>
 </coding>
 </maritalStatus>
+<multipleBirthInteger value='3'/>
 <photo>
 <contentType value='image/jpeg'/>
 <url value='binary/@f006'/>
