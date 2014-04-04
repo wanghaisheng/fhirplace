@@ -128,8 +128,8 @@
 
 (defn read*
   [{{db :db :as system} :system {:keys [id resource-type]} :params :as req}]
-  (let [{vid :version_id
-         lmd :last_modified_date
+  (let [{vid :version-id
+         lmd :last-modified-date
          resource :json} (repo/select-latest-version db resource-type id)]
       {:status 200
        :headers {"Content-Location" (util/cons-url system resource-type id vid) 
@@ -143,7 +143,7 @@
 
 (defn vread*
   [{{db :db} :system {:keys [resource-type id vid]} :params :as req}]
-  (let [{lmd :last_modified_date
+  (let [{lmd :last-modified-date
          resource :json} (repo/select-version db resource-type id vid)]
       {:status 200
        :headers {"Last-Modified" lmd}

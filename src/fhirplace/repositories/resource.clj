@@ -33,7 +33,7 @@
 (defn select-version [db-spec resource-type id vid]
   (let [[version] 
         (run-query db-spec
-                   (str "SELECT _last_modified_date as last_modified_date,"
+                   (str "SELECT _last_modified_date as \"last-modified-date\","
                         " json::text"
                         " FROM fhir.view_" (.toLowerCase resource-type) "_history"
                         " WHERE _logical_id = '" id "' and _version_id = '" vid "'"
@@ -45,8 +45,8 @@
 
 (defn select-latest-version [db-spec resource-type id]
   (let [[version]
-        (run-query db-spec (str "SELECT _version_id::varchar as version_id,"
-                                " _last_modified_date::varchar as last_modified_date,"
+        (run-query db-spec (str "SELECT _version_id::varchar as \"version-id\","
+                                " _last_modified_date::varchar as \"last-modified-date\","
                                 " json::text"
                                 " FROM fhir.view_" (.toLowerCase resource-type) "_history"
                                 " WHERE _logical_id = '" id "'"
@@ -57,8 +57,8 @@
       (update-in version [:json] clean-json))))
 
 (defn select-latest-version-id [db-spec resource-type id]
-  (let [[{vid :version_id}]
-        (run-query db-spec (str "SELECT _version_id::varchar as version_id"
+  (let [[{vid :version-id}]
+        (run-query db-spec (str "SELECT _version_id::varchar as \"version-id\""
                                 " FROM fhir.view_" (.toLowerCase resource-type) "_history"
                                 " WHERE _logical_id = '" id "'"
                                 " and _state <> 'deleted'"
@@ -68,8 +68,8 @@
 
 (defn select-history [db-spec resource-type id]
   (let [history
-        (run-query db-spec (str "SELECT _version_id::varchar as version_id,"
-                                " _last_modified_date::varchar as last_modified_date,"
+        (run-query db-spec (str "SELECT _version_id::varchar as \"version-id\","
+                                " _last_modified_date::varchar as \"last-modified-date\","
                                 " _state as state, _logical_id as id, json::text"
                                 " FROM fhir.view_" (.toLowerCase resource-type) "_history"
                                 " WHERE _logical_id = '" id "'"
