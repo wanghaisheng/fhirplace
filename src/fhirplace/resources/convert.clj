@@ -54,10 +54,24 @@
     {:id (fix-id id)}
     {}))
 
+(defn- to-inp-stream [s]
+  (java.io.ByteArrayInputStream.
+    (.getBytes s)))
+
+(defn- mk-text-node
+  "handle corner case for text (Narrative)"
+  [{status :status div :div :as json}]
+  (when div
+    {:tag :text
+     :content [{:tag :status :attrs {:value status}}
+               (assoc
+                 (xml/parse (to-inp-stream (str div)))
+                 :attrs {:xmlns "http://www.w3.org/1999/xhtml"})]}))
+
 (defn- mk-node [tag-name path v]
   (cond
     ;; TODO: [{:tag :text :content (xml/parse v)}]
-    (= (keyword tag-name) :text) nil
+    (= (keyword tag-name) :text) (mk-text-node v)
 
     (map? v) {:tag tag-name
               :attrs (node-attrs v)
@@ -67,12 +81,11 @@
               :attrs {:value (str v)}}))
 
 (defn- json->xml* [json]
-  (let [res-type (:resourceType json)]
-    (with-out-str
-      (xml/emit
-        {:tag (keyword res-type)
-         :attrs {:xmlns "http://hl7.org/fhir"}
-         :content (mk-children res-type json)}))))
+  (let [res-type (:resourceType json)
+        res {:tag (keyword res-type)
+             :attrs {:xmlns "http://hl7.org/fhir"}
+             :content (mk-children res-type json)}]
+    (with-out-str (xml/emit res))))
 
 (defn json->xml
   "convert json string to xml string"
