@@ -11,3 +11,12 @@
 (fact
   (count (m/elem-children "Address")) => 10
   (count (m/elem-children "CodeableConcept")) => 4)
+
+(fact
+  (m/poly-attr? "deceased[x]") => true
+  (m/poly-attr? "deceased") => false)
+
+(fact
+  (m/poly-keys-match?
+    (keyword "deceased[x]")
+    :deceasedBoolean) => true)

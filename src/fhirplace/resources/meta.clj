@@ -78,6 +78,14 @@
 (defn is-complex? [type-name]
   (Character/isUpperCase (first type-name)))
 
+(defn polymorphic-attr? [attr-name]
+  (not (nil? (re-find #"\[x\]$" (str attr-name)))))
+
+(defn polymorphic-keys-match? [key attr-name]
+  (let [prefix (string/replace (name key) #"\[x\]$" "")
+        key-re  (re-pattern (str "^" prefix))]
+    (not (nil? (re-find key-re (name attr-name))))))
+
 (defn elem-children
   [path]
   (let [res-type (root path)

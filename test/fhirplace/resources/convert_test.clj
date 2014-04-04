@@ -17,19 +17,15 @@
   (xml/compile-xml pt-xml))
 
 (fact
-  (c/polymorph-key? "deceased[x]") => true
-  (c/polymorph-key? "deceased") => false)
-
-(fact
-  (c/match-polimorph-keys
-    (keyword "deceased[x]")
-    :deceasedBoolean) => true)
-
-(fact
   (c/get-real-key
     {:deceasedBoolean false}
     (keyword "deceased[x]"))
   => :deceasedBoolean)
+
+(fact "handling resource text (Narrative)"
+      (xml/query "count(/f:Patient/node())"
+                 {:f "http://hl7.org/fhir"}
+                 pt-dom) =not=> 0)
 
 (fact "handling resource text (Narrative)"
       (xml/query "/f:Patient/f:text"
