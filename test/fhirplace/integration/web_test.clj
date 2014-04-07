@@ -105,9 +105,21 @@
 (deffacts "About HISTORY"
   (let [create-response (POST "/Patient" patient-json-str)
         resource-loc-with-history (response/get-header create-response "Location")
-        resource-loc (string/replace resource-loc-with-history #"_history/.+" "_history")]
+        resource-loc (string/replace resource-loc-with-history #"_history/.+" "_history")
+        resource-loc-simple (string/replace resource-loc-with-history #"/_history/.+" "")]
 
-    (GET resource-loc) => (contains {:status 200})
-    (json-body (GET resource-loc)) => (contains {:resourceType "Bundle"
-                                                 :entry anything})))
+    (fact "get history"
+          (GET resource-loc) => (contains {:status 200})
+          (json-body (GET resource-loc)) => (contains {:resourceType "Bundle"
+                                                       :entry anything}))
 
+    (fact "get history with _count"
+          (let [update-body (json/write-str
+                              (update-in  patient-json [:telecom] conj
+                                         {:system "phone"
+                                          :value "+919191282"
+                                          :use "home"} ))
+                update-response (PUT-LONG resource-loc-simple update-body {"Content-Location" resource-loc-with-history})]
+            (:status update-response) => 200
+            (count (:entry (json-body (GET resource-loc)))) => 2
+            (count (:entry (json-body (GET (str resource-loc "?_count=1"))))) => 1))))

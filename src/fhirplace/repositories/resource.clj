@@ -66,14 +66,15 @@
                                 " LIMIT 1"))]
     vid))
 
-(defn select-history [db-spec resource-type id]
+(defn select-history [db-spec resource-type id cnt]
   (let [history
         (run-query db-spec (str "SELECT _version_id::varchar as \"version-id\","
                                 " _last_modified_date::varchar as \"last-modified-date\","
                                 " _state as state, _logical_id as id, json::text"
                                 " FROM fhir.view_" (.toLowerCase resource-type) "_history"
                                 " WHERE _logical_id = '" id "'"
-                                " ORDER BY _last_modified_date DESC"))]
+                                " ORDER BY _last_modified_date DESC"
+                                (when cnt (str " LIMIT " cnt))))]
     (map #(update-in % [:json] clean-json) history)))
 
 (defn delete [db-spec resource-id]
