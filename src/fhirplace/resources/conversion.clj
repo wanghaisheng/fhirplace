@@ -1,6 +1,7 @@
-(ns fhirplace.resources.convert
+(ns fhirplace.resources.conversion
   (:require
     [fhirplace.resources.meta :as meta]
+    [fhirplace.resources.conversion.xml2json :as xml2json]
     [clojure.xml :as xml]
     [clojure.string :as string]
     [clojure.java.io :as io]
@@ -31,9 +32,9 @@
       (contains? json kw) kw
       ;; if polymorphic - find matching
       (meta/polymorphic-attr? name) (first
-                               (filter
-                                 #(meta/polymorphic-keys-match? name %)
-                                 (keys json)))
+                                      (filter
+                                        #(meta/polymorphic-keys-match? name %)
+                                        (keys json)))
       :else nil)))
 
 (defn- next-path
@@ -130,6 +131,7 @@
 ;; * fix contained resource id
 ;; * polymorphic attributes [x]
 ;; * TODO: name references
+;; * xml namespaces
 
 (defn- mk-root-node [json]
   (let [res-type (:resourceType json)
@@ -142,3 +144,8 @@
   (-> json-str
       (json/read-str :key-fn keyword)
       mk-root-node))
+
+(defn xml->json
+  "Converts XML string with FHIR resource into JSON representation"
+  [xml-str]
+  (xml2json/perform xml-str))

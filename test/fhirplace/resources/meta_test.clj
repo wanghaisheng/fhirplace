@@ -20,3 +20,4 @@
   (m/polymorphic-keys-match?
     (keyword "deceased[x]")
     :deceasedBoolean) => true)
+

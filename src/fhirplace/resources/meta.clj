@@ -78,14 +78,16 @@
 (defn is-complex? [type-name]
   (Character/isUpperCase (first type-name)))
 
-(defn polymorphic-attr? [attr-name]
+(defn poly-attr? [attr-name]
   (not (nil? (re-find #"\[x\]$" (str attr-name)))))
 
-(defn polymorphic-keys-match? [key attr-name]
+;; bad function
+(defn poly-keys-match? [key attr-name]
   (let [prefix (string/replace (name key) #"\[x\]$" "")
         key-re  (re-pattern (str "^" prefix))]
     (not (nil? (re-find key-re (name attr-name))))))
 
+;;TODO: rename into emels
 (defn elem-children
   [path]
   (let [res-type (root path)

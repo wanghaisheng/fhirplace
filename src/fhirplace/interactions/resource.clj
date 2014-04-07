@@ -15,7 +15,7 @@
       (let  [json-body  (json/read-str body-str)]
         (h (assoc req :json-body json-body)))
       (catch Exception e
-        {:status 400 
+        {:status 400
          :body (oo/build-operation-outcome
                "fatal"
                (str "Resource cannot be parsed"))}))))
@@ -116,7 +116,7 @@
           (header "Last-Modified" (java.util.Date.))
           (header "Location" resource-loc)
           (header "Content-Location" resource-loc)
-          (status 200))) 
+          (status 200)))
     (catch java.sql.SQLException e
       {:status 422
        :body (oo/build-operation-outcome
@@ -156,7 +156,7 @@
          lmd :last-modified-date
          resource :json} (repo/select-latest-version db resource-type id)]
       {:status 200
-       :headers {"Content-Location" (util/cons-url system resource-type id vid) 
+       :headers {"Content-Location" (util/cons-url system resource-type id vid)
                  "Last-Modified" lmd}
        :body resource}))
 
