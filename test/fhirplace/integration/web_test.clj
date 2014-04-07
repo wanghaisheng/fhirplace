@@ -94,7 +94,8 @@
         (:status update-response) => 409))
 
     (fact "when DELETEing existent resource"
-      (DELETE resource-location) => #(= (:status %) 204)
+      (DELETE resource-location) => (contains {:status 204})
+      (DELETE resource-location) => (contains {:status 204})
       (:status (GET resource-location)) => 410)))
 
 (deffacts "About READing non-existent resource"

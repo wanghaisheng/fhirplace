@@ -74,11 +74,11 @@
                "fatal"
                (str "Resource with ID " id " doesn't exist"))})))
 
-(defn wrap-with-deleted-check [h]
+(defn wrap-with-deleted-check [h status]
   (fn [{{db :db} :system {id :id} :params :as req}]
     (if-not (repo/deleted? db id)
       (h req)
-      {:status 410
+      {:status status
        :body (oo/build-operation-outcome
                "warning"
                (str "Resource with ID " id " was deleted"))})))
@@ -140,7 +140,7 @@
 ;; - Performing this interaction on a resource that is already deleted has no effect,
 ;;   and should return 204.
 
-(defn delete
+(defn delete*
   [{{db :db} :system {:keys [id resource-type]} :params}]
   (if (repo/exists? db id)
     (-> (response (repo/delete db id))
@@ -149,6 +149,9 @@
      :body (oo/build-operation-outcome
              "fatal"
              (str "Resource with ID " id " doesn't exist"))}))
+(def delete
+  (-> delete*
+      (wrap-with-deleted-check 204)))
 
 (defn read*
   [{{db :db :as system} :system {:keys [id resource-type]} :params :as req}]
@@ -163,7 +166,7 @@
 (def read
   (-> read*
       wrap-with-existence-check
-      wrap-with-deleted-check))
+      (wrap-with-deleted-check 410)))
 
 (defn vread*
   [{{db :db} :system {:keys [resource-type id vid]} :params :as req}]
@@ -176,4 +179,4 @@
 (def vread
   (-> vread*
       wrap-with-existence-check
-      wrap-with-deleted-check))
+      (wrap-with-deleted-check 410)))
