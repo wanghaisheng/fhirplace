@@ -30,9 +30,9 @@
       ;; if json has such key return it
       (contains? json kw) kw
       ;; if polymorphic - find matching
-      (meta/poly-attr? name) (first
+      (meta/polymorphic-attr? name) (first
                                (filter
-                                 #(meta/poly-keys-match? name %)
+                                 #(meta/polymorphic-keys-match? name %)
                                  (keys json)))
       :else nil)))
 

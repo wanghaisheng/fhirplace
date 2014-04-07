@@ -12,7 +12,7 @@
 (def test-db (:db test-system))
 
 (defn request [& args]
-  ((:handler test-system) (apply mock/request args)))
+  ((:handler test-system) #spy/p (apply mock/request args)))
 
 (defn GET [& args]
   (apply request :get args))

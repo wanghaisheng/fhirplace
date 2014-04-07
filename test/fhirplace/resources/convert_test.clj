@@ -16,11 +16,11 @@
 (def pt-dom
   (xml/compile-xml pt-xml))
 
-(fact
+(comment (fact
   (c/get-real-key
     {:deceasedBoolean false}
     (keyword "deceased[x]"))
-  => :deceasedBoolean)
+  => :deceasedBoolean))
 
 (fact "handling resource text (Narrative)"
       (xml/query "count(/f:Patient/node())"
