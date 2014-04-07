@@ -24,7 +24,7 @@
   (apply request :put args))
 
 (defn PUT-LONG [uri body headers]
-  ((:handler test-system) #spy/p (update-in (mock/request :put uri body)
+  ((:handler test-system) (update-in (mock/request :put uri body)
                                             [:headers]
                                             merge
                                             headers)))

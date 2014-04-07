@@ -57,20 +57,15 @@
         (:name (json-body read-response)) => (:name patient-json)
         (:status read-response) => 200))
 
-    (fact "when UPDATEing existent resource"
+    (fact "when UPDATEing without specified version"
       (let [update-body (json/write-str
                           (update-in  patient-json [:telecom] conj
                                      {:system "phone"
                                       :value "+919191282"
                                       :use "home"} ))
-            update-response (PUT resource-location update-body)
-            update-location (response/get-header update-response "Location")]
+            update-response (PUT resource-location update-body)]
 
-        (:telecom (json-body (GET update-location))) => (contains [{:system "phone"
-                                                                    :value "+919191282"
-                                                                    :use "home"}])
-        (:status update-response) => 200
-        (:body update-response) => ""))
+        (:status update-response) => 412))
 
     (fact "when UPDATEing with specified last resource version"
           (let [update-body (json/write-str
@@ -87,7 +82,16 @@
         (:status update-response) => 200
         (:body update-response) => ""))
 
-    (fact "when UPDATEing with specified previous resource version")
+    (fact "when UPDATEing with specified previous resource version"
+          (let [update-body (json/write-str
+                          (update-in  patient-json [:telecom] conj
+                                     {:system "phone"
+                                      :value "+919191282"
+                                      :use "home"} ))
+            update-response-first (PUT-LONG resource-location update-body {"Content-Location" resource-location-with-history})
+            update-response (PUT-LONG resource-location update-body {"Content-Location" resource-location-with-history})]
+
+        (:status update-response) => 409))
 
     (fact "when DELETEing existent resource"
       (DELETE resource-location) => #(= (:status %) 204)
@@ -96,10 +100,6 @@
 (deffacts "About READing non-existent resource"
   (let [response (GET (str "/patient/" (make-uuid)))]
     (:status response) => 404))
-
-(deffacts "About UPDATEing non-existent resource"
-  (let [response (PUT (str "/patient/" (make-uuid)) (json/write-str patient-json))]
-    (:status response) => 405))
 
 (deffacts "About HISTORY"
   (let [create-response (POST "/Patient" patient-json-str)
