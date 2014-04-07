@@ -113,13 +113,15 @@
           (json-body (GET resource-loc)) => (contains {:resourceType "Bundle"
                                                        :entry anything}))
 
-    (fact "get history with _count"
+    (fact "get history with _count and _since"
           (let [update-body (json/write-str
                               (update-in  patient-json [:telecom] conj
                                          {:system "phone"
                                           :value "+919191282"
                                           :use "home"} ))
-                update-response (PUT-LONG resource-loc-simple update-body {"Content-Location" resource-loc-with-history})]
+                update-response (PUT-LONG resource-loc-simple update-body {"Content-Location" resource-loc-with-history})
+                update-last-modified (response/get-header update-response "Last-Modified")]
             (:status update-response) => 200
             (count (:entry (json-body (GET resource-loc)))) => 2
-            (count (:entry (json-body (GET (str resource-loc "?_count=1"))))) => 1))))
+            (count (:entry (json-body (GET (str resource-loc "?_count=1"))))) => 1
+            (count (:entry (json-body (GET (str resource-loc (str "?_since=" (ring.util.codec/url-encode update-last-modified))))))) => 1))))

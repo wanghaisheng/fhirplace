@@ -23,10 +23,10 @@
   (-> (response [(str request)])))
 
 (defn history
-  [{{db :db :as system} :system {:keys [id resource-type _count]} :params}]
+  [{{db :db :as system} :system {:keys [id resource-type _count _since]} :params}]
   (if (repo/exists? db id)
     {:body (hist/build-history
-             (repo/select-history db resource-type id _count)
+             (repo/select-history db resource-type id _count _since)
              system)}
     {:status 404
      :body (oo/build-operation-outcome
