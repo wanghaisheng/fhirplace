@@ -103,7 +103,6 @@
       wrap-with-check-type
       wrap-with-json))
 
-
 ;; 409/412 - version conflict management - see above
 (defn update*
   [{{db :db :as system} :system {:keys [id resource-type]} :params

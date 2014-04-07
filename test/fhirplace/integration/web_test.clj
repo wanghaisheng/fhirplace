@@ -125,3 +125,23 @@
             (count (:entry (json-body (GET resource-loc)))) => 2
             (count (:entry (json-body (GET (str resource-loc "?_count=1"))))) => 1
             (count (:entry (json-body (GET (str resource-loc (str "?_since=" (ring.util.codec/url-encode update-last-modified))))))) => 1))))
+
+(deffacts "About VALIDATE"
+  (let [valid-response (POST "/Patient/_validate" patient-json-str)
+        invalid-response (POST "/Patient/_validate" (fixture-str "invalid-patient"))
+        broken-response (POST "/Patient/_validate" "hi there i'm invalid json lol")]
+
+    (fact "when validating valid resource should respond with 200"
+      (:body valid-response) => ""
+      (:status valid-response) => 200)
+
+    (fact "when validating invalid resource should respond with 422"
+      (:body invalid-response) => nil
+      (:status invalid-response) => 422)
+
+    (fact "when received request with broken body should respond with 400"
+      (get-in
+        (json-body broken-response)
+        [:issue 0 :details]) => #"Request body"
+
+        (:status broken-response) => 400)))

@@ -22,6 +22,8 @@
   (GET    "/:resource-type/:id/_history"           [resource-type id] sys-int/history)
   (DELETE "/:resource-type/:id"                    [resource-type id] res-int/delete)
   (PUT    "/:resource-type/:id"                    [resource-type id] res-int/update)
+  (POST   "/:resource-type/_validate"              [resource-type id] sys-int/validate)
+
 
   (route/not-found "Not Found"))
 
