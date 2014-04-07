@@ -72,6 +72,23 @@
         (:status update-response) => 200
         (:body update-response) => ""))
 
+    (fact "when UPDATEing with specified last resource version"
+          (let [update-body (json/write-str
+                          (update-in  patient-json [:telecom] conj
+                                     {:system "phone"
+                                      :value "+919191282"
+                                      :use "home"} ))
+            update-response (PUT-LONG resource-location update-body {"Content-Location" resource-location-with-history})
+            update-location (response/get-header update-response "Location")]
+
+        (:telecom (json-body (GET update-location))) => (contains [{:system "phone"
+                                                                    :value "+919191282"
+                                                                    :use "home"}])
+        (:status update-response) => 200
+        (:body update-response) => ""))
+
+    (fact "when UPDATEing with specified previous resource version")
+
     (fact "when DELETEing existent resource"
       (DELETE resource-location) => #(= (:status %) 204)
       (:status (GET resource-location)) => 410)))

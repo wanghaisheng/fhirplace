@@ -1,7 +1,7 @@
-(ns fhirplace.resources.convert-test
+(ns fhirplace.resources.conversion-test
   (:use midje.sweet)
   (:require
-    [fhirplace.resources.convert :as c]
+    [fhirplace.resources.conversion :as c]
     [fhirplace.resources.validation :as v]
     [saxon :as xml]))
 
@@ -16,11 +16,11 @@
 (def pt-dom
   (xml/compile-xml pt-xml))
 
-(fact
+(comment (fact
   (c/get-real-key
     {:deceasedBoolean false}
     (keyword "deceased[x]"))
-  => :deceasedBoolean)
+  => :deceasedBoolean))
 
 (fact "handling resource text (Narrative)"
       (xml/query "count(/f:Patient/node())"
