@@ -78,7 +78,7 @@
                                      {:system "phone"
                                       :value "+919191282"
                                       :use "home"} ))
-            update-response (PUT resource-location update-body)
+            update-response (PUT-LONG resource-location update-body {"Content-Location" resource-location-with-history})
             update-location (response/get-header update-response "Location")]
 
         (:telecom (json-body (GET update-location))) => (contains [{:system "phone"

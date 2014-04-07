@@ -12,7 +12,7 @@
 (def test-db (:db test-system))
 
 (defn request [& args]
-  ((:handler test-system) #spy/p (apply mock/request args)))
+  ((:handler test-system) (apply mock/request args)))
 
 (defn GET [& args]
   (apply request :get args))
@@ -22,6 +22,12 @@
 
 (defn PUT [& args]
   (apply request :put args))
+
+(defn PUT-LONG [uri body headers]
+  ((:handler test-system) #spy/p (update-in (mock/request :put uri body)
+                                            [:headers]
+                                            merge
+                                            headers)))
 
 (defn DELETE [& args]
   (apply request :delete args))
