@@ -1,4 +1,8 @@
-(ns fhirplace.util)
+(ns fhirplace.util
+  (:require
+   [clojure.java.io :as io]))
+
+(import 'java.io.File)
 
 (defn discard-nils [m]
   (reduce (fn [acc [k v]]
@@ -36,3 +40,12 @@
   ([system resource-type id vid]
     (-> (cons-url system resource-type id)
         (str "/_history/" vid))))
+
+(defn resource-to-file
+  "Makes instance of File class for something
+   located in `resources' directory. Mainly
+   used in schematron validations and XSLT processing."
+  [path] {:pre [(not (nil? (io/resource path)))]}
+  (-> (io/resource path)
+    (.toURI)
+    (File.)))

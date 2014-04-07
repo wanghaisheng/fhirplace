@@ -1,7 +1,7 @@
-(ns fhirplace.resources.convert-test
+(ns fhirplace.resources.conversion-test
   (:use midje.sweet)
   (:require
-    [fhirplace.resources.convert :as c]
+    [fhirplace.resources.conversion :as c]
     [fhirplace.resources.validation :as v]
     [saxon :as xml]))
 
