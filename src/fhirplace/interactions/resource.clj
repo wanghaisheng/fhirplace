@@ -141,16 +141,13 @@
 ;;   and should return 204.
 
 (defn delete*
-  [{{db :db} :system {:keys [id resource-type]} :params}]
-  (if (repo/exists? db id)
-    (-> (response (repo/delete db id))
-        (status 204))
-    {:status 404
-     :body (oo/build-operation-outcome
-             "fatal"
-             (str "Resource with ID " id " doesn't exist"))}))
+  [{{db :db} :system {id :id} :params}]
+  (-> (response (repo/delete db id))
+      (status 204)))
+
 (def delete
   (-> delete*
+      (wrap-with-deleted-check 404)
       (wrap-with-deleted-check 204)))
 
 (defn read*
