@@ -43,6 +43,28 @@
                "fatal"
                (str "Resource with ID " id " doesn't exist"))})))
 
+(defn wrap-resource-has-content-location [h]
+  (fn [{{content-location "Content-Location"} :headers :as req}]
+    (if content-location
+      (h req)
+      {:status 412
+       :body (oo/build-operation-outcome
+               "fatal"
+               (str "Version id is missing in content location header"))})))
+
+(defn wrap-resource-has-latest-version [h]
+  (fn [{{db :db} :system
+        {id :id resource-type :resource-type} :params
+        {content-location "Content-Location"} :headers :as req}]
+    (let [version-id (last (string/split content-location #"_history/"))
+          last-version-id (repo/select-latest-version-id db resource-type id)]
+      (if (= version-id last-version-id)
+        (h req)
+        {:status 409
+         :body (oo/build-operation-outcome
+                 "fatal"
+                 (str "Version id is not equal to latest version '" last-version-id "'"))}))))
+
 (defn wrap-with-existence-check [h]
   (fn [{{db :db} :system {id :id} :params :as req}]
     (if (repo/exists? db id)
@@ -105,7 +127,9 @@
   (-> update*
       (wrap-resource-not-exist 405)
       wrap-with-check-type
-      wrap-with-json))
+      wrap-with-json
+      wrap-resource-has-latest-version
+      wrap-resource-has-content-location))
 
 ;;   DELETE
 ;; - If the server refuses to delete resources of that type on principle,
