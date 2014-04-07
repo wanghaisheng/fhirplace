@@ -7,9 +7,9 @@
 (def ^{:private true} fhir-xml2json-xsl
   (delay
     (xslt/compile-xslt
-      (util/resource-to-file "schematron/xml2json/fhir-xml2json.xsl"))))
+      (util/resource-to-file "xml2json/fhir-xml2json.xsl"))))
 
 (defn perform
-  "Performs XML2JSON conversion of FHIR resource"
+  "Performs XML => JSON conversion of FHIR resource"
   [xml-str]
-  xml-str)
+  (.getStringValue (@fhir-xml2json-xsl (xslt/compile-xml xml-str))))

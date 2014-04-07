@@ -1,6 +1,7 @@
 (ns fhirplace.resources.conversion
   (:require
     [fhirplace.resources.meta :as meta]
+    [fhirplace.resources.conversion.xml2json :as xml2json]
     [clojure.xml :as xml]
     [clojure.string :as string]
     [clojure.java.io :as io]
@@ -146,4 +147,5 @@
 
 (defn xml->json
   "Converts XML string with FHIR resource into JSON representation"
-  [xml-str])
+  [xml-str]
+  (xml2json/perform xml-str))
