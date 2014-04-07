@@ -20,3 +20,4 @@
   (m/poly-keys-match?
     (keyword "deceased[x]")
     :deceasedBoolean) => true)
+

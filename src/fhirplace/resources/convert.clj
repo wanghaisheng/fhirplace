@@ -130,6 +130,7 @@
 ;; * fix contained resource id
 ;; * polymorphic attributes [x]
 ;; * TODO: name references
+;; * xml namespaces
 
 (defn- mk-root-node [json]
   (let [res-type (:resourceType json)
