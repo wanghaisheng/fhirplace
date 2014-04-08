@@ -22,6 +22,7 @@
                  [ring "1.2.1"]
                  [ring/ring-json "0.3.0"]
                  [clojure-saxon "0.9.3"]
+                 [org.clojure/core.match  "0.2.1"]
                  [honeysql "0.4.3"]
                  [org.clojure/data.zip "0.1.1"]]
 
