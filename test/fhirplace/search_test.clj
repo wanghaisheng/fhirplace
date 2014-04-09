@@ -194,3 +194,5 @@
 ; >       join  (res path) j where j. (last path) > value
 ; >=      join  (res path) j where j. (last path) >= value
 ; missing join  (res path) j on j. (last path) is not null where j._id is not? null
+
+; need to pass which parameters where processed to form valid outcome
