@@ -20,7 +20,7 @@
                  [compojure "1.1.6"]
                  [org.clojure/algo.monads "0.1.5"]
                  [ring "1.2.1"]
-                 [ring/ring-json "0.3.0"]
+                 [cheshire "5.3.1"]
                  [clojure-saxon "0.9.3"]
                  [org.clojure/core.match  "0.2.1"]
                  [honeysql "0.4.3"]

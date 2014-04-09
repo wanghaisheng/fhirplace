@@ -30,6 +30,9 @@
     (fact "returns Conformance resource"
       (:resourceType conf) => "Conformance")
 
+    (fact "when requesting with mime-type=application/xml returns resource as XML"
+      (:body (GET "/metadata" {:_format "application/xml"})) => #"\<\?xml version='1\.0' encoding='UTF-8'\?\>")
+
     (fact "Conformance resource contains :rest key with all available resources"
       (get-in conf [:rest 0 :resources])=> #(< 0 (count %)))))
 

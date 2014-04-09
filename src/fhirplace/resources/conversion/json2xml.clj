@@ -104,7 +104,9 @@
                      #(not (contains? (into (set (map :tag res-xml)) skip-keys) %))
                      (keys json))]
     (and (not-empty extra-keys)
-      (throw (Exception. (str "There are extra keys: " extra-keys))))
+      ;; (throw (Exception. (str "There are extra keys: "
+      ;; extra-keys)))
+      (println "WARNING: remaining keys are" extra-keys))
     res-xml))
 
 (defn- mk-children

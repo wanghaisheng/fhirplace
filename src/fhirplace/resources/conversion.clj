@@ -13,6 +13,6 @@
     (json2xml/perform json)))
 
 (defn xml->json
-  "Converts XML string with FHIR resource into JSON representation."
-  [xml-str]
-  (xml2json/perform xml-str))
+  "Converts XML with FHIR resource into JSON representation."
+  [xml]
+  (xml2json/perform xml))
