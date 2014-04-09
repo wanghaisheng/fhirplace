@@ -1,114 +1,189 @@
 (ns fhirplace.search-test
-  (use [clojure.core.match :only (match)]
-       [clojure.pprint :only (pprint)])
   (require [clojure.string :as string]
-           [honeysql.core :as sql]
-           [honeysql.helpers :refer :all]))
-;; Type            R-value                  Modifiers   JOIN                                    Where
-;[ number       [true | false]            [:missing]   left join table_name                    table_name._id is null | table_name._id is not null
-;               [    num]                 []           join table_name                         table_name.field = num
-;               [:<  num]                 []           join table_name                         table_name.field < num
-;               [:>  num]                 []           join table_name                         table_name.field > num
-;               [:<= num]                 []           join talbe_name                         table_naem.field <= num
-;               [:>= num]                 []           join talbe_name                         table_name.field >= num
-;
-;  date         [true | false]            [:missing]   left join table_name                    table_name._id is null | table_name._id is not null
-;               [    datetime]            []           join table_name                         table_name.field = datetime with handling precision
-;               [:<  datetime]            []           join table_name                         table_name.field < datetime with handling precision
-;               [:>  datetime]            []           join table_name                         table_name.field > datetime with handling precision
-;               [:<= datetime]            []           join table_name                         table_name.field <= datetime with handling precision
-;               [:>= datetime]            []           join table_name                         table_name.field >= datetime with handling precision
-;
-;  string       [true | false]            [:missing]   left join table_name                    table_name._id is null | table_name._id is not null
-;               [string]                  []           join table_name                         table_name.field ilike '%string%' (should be opensearch ranking)
-;               [string]                  [:exact]     join table_name                         table_name.field = 'string'
-;
-;  token        [true | false]            [:missing]   left join table_name                    table_name._id is null | table_name._id is not null
-;               [string]                  [:text]      join table_name                         table_name.(coding=display | codable_concept=text | identifier=label) ilike '%string%'
-;               [code]                    []           join table_name                         table_name.code = code or table_name.value = code
-;               [ns :| code]              []           join table_name                         table_name.namespace (= ns or is null) and table_name.code = code
-;
-;  reference    [true | false]            [:missing]   left join table_name                    table_name._id is null | table_name._id is not null
-;               [id]                      [:type]      join table_name                         table_name.reference = id and check type
-;               [id]                      []           join table_name                         table_name.reference = id
-;               [url]                     []           join table_name                         table_name.reference = extract id from url
-;
-;  composite    [op :, op]                []           join table_name                         table_name.field in (op, op ...)
-;               [prop-1 :$ op :,            
-;                prop2 :$ op]             []           need recursive call for every part of value
-;
-;  quantity     [true | false]            [:missing]   left join table_name                    table_name._id is null | table_name._id is not null
-;               [comp num :| ns :| code]  []           join table_name                         table_name.field comp need to convert quantities
+           [honeysql.core :as h]
+           [clojure.core.match :as m]
+           [clojure.pprint :as p]
+           [honeysql.helpers :as hh]))
+;; Type            R-value                  Modifiers   JOIN                               Where
+;select v.* from fhir.view_patient_full v
+;+[ number       [true | false]            [:missing]   left join table_name        table_name._id is null | table_name._id is not null
+;+               [    num]                 []           join table_name             table_name.field = num
+;+               [:<  num]                 []           join table_name             table_name.field < num
+;+               [:>  num]                 []           join table_name             table_name.field > num
+;+               [:<= num]                 []           join talbe_name             table_naem.field <= num
+;+               [:>= num]                 []           join talbe_name             table_name.field >= num
+; 
+;+  date         [true | false]            [:missing]   left join table_name        table_name._id is null | table_name._id is not null
+;+               [    datetime]            []           join table_name             table_name.field = datetime with handling precision
+;                [:<  datetime]            []           join table_name             table_name.field < datetime with handling precision
+;                [:>  datetime]            []           join table_name             table_name.field > datetime with handling precision
+;                [:<= datetime]            []           join table_name             table_name.field <= datetime with handling precision
+;                [:>= datetime]            []           join table_name             table_name.field >= datetime with handling precision
+; 
+;+  string       [true | false]            [:missing]   left join table_name        table_name._id is null | table_name._id is not null
+;                [string]                  []           join table_name             table_name.field ilike '%string%' (should be opensearch ranking)
+;+               [string]                  [:exact]     join table_name             table_name.field = 'string'
+; 
+;+  token        [true | false]            [:missing]   join fhir.patient_gender(full path) j1 on j1._version_id = v._version_id where v._state = 'current' and j1._id is (not) null;
+;                [string]                  [:text]      join fhir.patient_gender(full path)  table_name.(coding=display | codable_concept=text | identifier=label) ilike '%string%'
+; resource-type, search param full path, fhir path type (Coding, CodableConcept, Identifier)
+;                [code]                    []           join fhir.patient_gender(full path)  table_name.code = code or table_name.value = code
+;                [ns :| code]              []           join table_name             table_name.namespace (= ns or is null) and table_name.code = code
+; 
+;+  reference    [true | false]            [:missing]   left join table_name        table_name._id is null | table_name._id is not null
+;                [id]                      [:type]      join table_name             table_name.reference = id and check type
+;                [id]                      []           join table_name             table_name.reference = id
+;                [url]                     []           join table_name             table_name.reference = extract id from url
+; 
+;   composite    [op :, op]                []           join table_name             table_name.field in (op, op ...)
+;                [prop-1 :$ op :,            
+;                 prop2 :$ op]             []           
+; 
+;+  quantity     [true | false]            [:missing]   left join table_name        table_name._id is null | table_name._id is not null
+;                [comp num :| ns :| code]  []           join table_name             table_name.field comp need to convert quantities
 ; ]
 
-(def number-query "subject:Patient.name:exact=Peter")
-(def quantity-query "value:exact=5.4|http://unitsofmeasure.org|mg")
-
-(defn tokenize [query]
-  (let [[l-value r-value] (string/split query #"=")
-        [field & modifier] (string/split l-value #":")]
-    [field (string/join ":" modifier) r-value]))
-
-(defn field-type [resource-type field]
-  :string)
-
-(defn gen-matching-seq [tokenized-query resource-type]
-  (let [[field modifier r-value] tokenized-query
-        the-field-type (field-type resource-type field)]
-    [resource-type field the-field-type modifier r-value]))
-
-(tokenize number-query)
-(tokenize quantity-query)
-
-; ("Patient" "value" :number :exact "5.4|http://unitsofmeasure.org|mg") )
 
 (defn ++ [& keywords]
   (keyword (apply str (map name keywords))))
 
 
-(defn left-join* [alias & parts]
+(defn left-join* [alias parts]
   (let [parts (map string/lower-case parts)]
-    (left-join [(++ :fhir. (string/join "_" parts)) alias]
+    (hh/left-join [(++ :fhir. (string/join "_" parts)) alias]
                [:= (++ alias :._logical_id) :_root._logical_id])))
 
-(defn join* [alias & parts]
+(defn join* [alias parts]
   (let [parts (map string/lower-case parts)]
-    (join [(++ :fhir. (string/join "_" parts)) alias]
-          [:= (++ alias :._version_id) :_root._version_id])))
+    (hh/join [(++ :fhir. (string/join "_" parts)) alias]
+             [:= (++ alias :._version_id) :_root._version_id])))
 
-(left-join* :t "Patient" "name")
+(defn search-using [op res-type field r-value]
+  (-> (join* :t res-type field)
+      (hh/where [op (++ :t. field) r-value])))
 
-(++ :k :l :w :c "_sdasda")
-
-(defn gen-search-sql [[res-type field field-type modifier r-value :as tks]]
-  (match [field field-type modifier r-value]
-
-    [field _        "missing" r-value] (-> (left-join* :t res-type field)
-                                           (where [(if (= "false" r-value) :not= :=)
-                                                   :t._id :null]))
-    [field :number  _         r-value] (-> (join* :t res-type field)
-                                           (where [:= (++ :t. field) r-value]))
-    [field :string  _         r-value] (-> (join* :t res-type "name")
-                                           (where [:= (str "%" r-value "%") (++ :%any.t. field)]))
-         
-    ))
-
-(pprint (map (fn [x] (-> x
-                 tokenize
-                 (gen-matching-seq "Patient")
-                 gen-search-sql))
-     ["value:missing=true"
-      "family=john"]))
-
-(-> "family=john"
-    tokenize
-    (gen-matching-seq "Patient")
-    gen-search-sql
-    (select :a1.family :_root._logical_id)
-    (from [:fhir.view_patient_full :_root])
-    sql/format)
+;#_(defn gen-search-sql [[res-type field field-type modifier r-value :as tks]]
+;  (m/match [field field-type modifier (vec r-value)]
+;
+;    [field _          :missing [nil value & _]] (-> (left-join* :t res-type field)
+;                                                    (hh/where [(if (= "false" value) :not= :=)
+;                                                               :t._id :null]))
+;    [field :number    _        [nil value & _]] (search-using := res-type field value)
+;
+;    [field :number    _        [op value & _]]  (search-using op res-type field value)
+;
+;    [field :datetime  _        [nil value & _]] (search-using := res-type field value)
+;
+;    [field :string    :exact   [nil value & _]] (search-using :=  res-type field value)
+;
+;    [field :string    _        [nil value & _]] (-> (join* :t res-type "name")
+;                                                   (hh/where [:= (str "%" value "%") (++ :%any.t. field)]))
+;    ))
+;
+;
+;
+;(p/pprint (map (fn [x] (-> x
+;                 tokenize
+;                 (gen-matching-seq "Patient")
+;                 gen-search-sql))
+;     ["value:missing=true"
+;      "family=john"]))
+;
+;(string/split "family=<=2012" #"=" 2)
+;
+;(-> "family=<=2012"
+;    tokenize
+;    (gen-matching-seq "Patient")
+;    gen-search-sql
+;    (hh/select :a1.family :_root._logical_id)
+;    (hh/from [:fhir.view_patient_full :_root])
+;    h/format)
 
 ;[ number       [true | false]            [:missing]   left join table_name                    table_name._id is null | table_name._id is not null
 ;               [    num]                 []           join table_name                         table_name.field = num
 ;               [string]                  []           join table_name                         table_name.field ilike '%string%' (should be opensearch ranking)
+; (count (second (clojure.string/split (str x) #"\."))))
+
+(defn split-r-value [r-value]
+  (rest
+    (re-find #"([^\|]+(?=\|))?(\|)?([^\|]+)"
+             r-value)))
+
+(defn sql-path [search-path]
+  (string/split
+    (string/lower-case search-path)
+    #"\."))
+
+(defn token-to-sql
+  [resource-type search-path fhir-type modifier r-value]
+  (let [r-value (vec (split-r-value r-value))
+        search-path (sql-path search-path)]
+
+    (m/match
+      [fhir-type modifier r-value]
+
+      ["Coding"                 nil              [uri sep value]]   (-> (join* :t1 search-path)
+                                                                        (hh/where (if sep
+                                                                                    [:and
+                                                                                     [:= :t1.code value]
+                                                                                     [:= :t1.system uri]]
+                                                                                    [:= :t1.code value])))
+
+      ["Coding"                 :text            [_ _ value]]       (-> (join* :t1 search-path)
+                                                                        (hh/where [:= :t1.display value]))
+
+      [(:or "Coding"
+            "Identifier"
+            "CodeableConcept")  :missing         [_ _ value]]       (-> (left-join* :t1 search-path)
+                                                                        (hh/where [(if (= value "true") := :not=) 
+                                                                                   :t1._id nil]))
+
+      ["Identifier"             nil              [uri sep value]]   (-> (join* :t1 search-path)
+                                                                        (hh/where (if sep
+                                                                                    [:and
+                                                                                     [:= :t1.value value]
+                                                                                     [:= :t1.system uri]]
+                                                                                    [:= :t1.value value])))
+
+      ["Identifier"             :text            [_ _ value]]       (-> (join* :t1 search-path)
+                                                                        (hh/where [:= :t1.label value]))
+
+      ["CodeableConcept"        nil              [uri sep value]]   (-> (join* :t1 (concat search-path :coding))
+                                                                        (hh/where (if sep
+                                                                                    [:and
+                                                                                     [:= :t1.code value]
+                                                                                     [:= :t1.system uri]]
+                                                                                    [:= :t1.code value])))
+
+      ["CodeableConcept"        :text            [_ _ value]]       (-> (join* :t1 search-path)
+                                                                        (hh/where [:= :t1.text value]))
+
+      [_                        (:or nil
+                                     :text)      [_ _ value]]       (-> (join* :t1 (butlast search-path))
+                                                                        (hh/where [:= 
+                                                                                   (h/raw
+                                                                                     (str "t1." (last search-path) "::varchar"))
+                                                                                   value]))
+
+      [_                        :missing         [_ _ value]]       (-> (join* [:t1 (butlast search-path)]
+                                                                              [:not= (keyword (last search-path)) nil])
+                                                                        (hh/where [(if (= "true" value) := :not=)
+                                                                                   :t1._id nil])))))
+
+
+(-> (token-to-sql
+      "Patient" "Patient.gender" "Coding" :text "M")
+    (hh/select :*)
+    (hh/from :table )
+    (h/format))
+      
+(defn uncertain
+  [value]
+  (let  [number  (Double/parseDouble (str value))
+         precision  (count  (second  (clojure.string/split  (str value) #"\.")))
+         delta  (* 5  (/ 1  (Math/pow 10  (+ precision 1))))]
+    [number (- number delta) (+ number delta)]))
+
+    ;;(hh/join [(++ :fhir. (string/join "_" parts)) alias]
+    ;;         [:= (++ alias :._version_id) :_root._version_id])))
 
