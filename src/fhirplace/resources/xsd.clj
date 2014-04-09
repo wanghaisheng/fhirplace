@@ -20,7 +20,10 @@
         validator      (.newValidator schema)]
     (fn [xmldoc]
       (try
-        (->> (StringReader. xmldoc)
+        (println "validating" xmldoc)
+        (->> (StringReader. (if (string? xmldoc)
+                              xmldoc
+                              (.toString xmldoc)))
              (StreamSource.)
              (.validate validator))
         nil

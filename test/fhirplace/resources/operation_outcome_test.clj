@@ -15,6 +15,6 @@
 
     (count (:issue opout)) => 2
     (:issue opout) => issues
-    (keys opout) => [:issue])
+    (keys opout) => [:issue :resourceType])
 
   (:issue (opout/build-operation-outcome "fatal" "World is broken")) => (contains {:severity "fatal" :details "World is broken"}))
