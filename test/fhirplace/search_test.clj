@@ -186,4 +186,11 @@
 
     ;;(hh/join [(++ :fhir. (string/join "_" parts)) alias]
     ;;         [:= (++ alias :._version_id) :_root._version_id])))
-
+; number:
+; (let [value low high (uncertain parameter)])
+; =       join  (res path) j where j. (last path) >= low and j. (last path) < high
+; <       join  (res path) j where j. (last path) < value
+; <=      join  (res path) j where j. (last path) <= value
+; >       join  (res path) j where j. (last path) > value
+; >=      join  (res path) j where j. (last path) >= value
+; missing join  (res path) j on j. (last path) is not null where j._id is not? null
