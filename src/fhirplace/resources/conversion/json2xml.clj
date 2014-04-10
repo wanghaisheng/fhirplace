@@ -1,144 +1,78 @@
 (ns fhirplace.resources.conversion.json2xml
   (:require
    [fhirplace.resources.meta :as meta]
-   [clojure.xml :as xml]
-   [clojure.string :as string]
-   [clojure.java.io :as io]
-   [clojure.data.json :as json]))
+   [clojure.data.xml :as xml]))
 
-(def ^{:private true} norm-vec #(if (vector? %) % [%]))
+(defn convert-json-data-to-xml
+  [path value]
 
-(defn- map-no-nils [f seq]
-  (into [] (filter (complement nil?) (map f seq))))
+  (list                                 ; wrap return value into a list
+    (xml/element (keyword (first path))
+      {:value (str value)})))
 
-(defn- mk-tag
-  "helper function"
-  ([tag attrs-or-content]
-     (cond
-       (map? attrs-or-content)  {:tag tag :attrs attrs-or-content}
-       (vector? attrs-or-content)  {:tag tag :content attrs-or-content}))
-  ([tag attrs content]
-     {:tag tag :attrs attrs :content content}))
+(declare convert-json-value-to-xml)
+(defn convert-json-array-to-xml
+  [path value]
 
+  ;; cause `convert-json-value-to-xml' may return more than one element
+  ;; we use reduce to accumulate them in flat list
+  (reduce
+    (fn [acc item]
+      (concat acc (convert-json-value-to-xml path item)))
+    '() value))
 
-(defn get-tag-name
-  "calculate attribute name
-  handle [x] attributes"
-  [json name]
-  (let [kw (keyword name)]
-    (cond
-      ;; if json has such key return it
-      (contains? json kw) kw
-      ;; if polymorphic - find matching
-      (meta/polymorphic-attr? name) (first
-                                      (filter
-                                        #(meta/polymorphic-keys-match? name %)
-                                        (keys json)))
-      :else nil)))
+(defn json-attributes-comparator
+  [path key1 key2]
+  (let [path1 (conj path (name key1))
+        path2 (conj path (name key2))
+        el1 (meta/smart-lookup (reverse path1))
+        el2 (meta/smart-lookup (reverse path2))]
+    (compare (:weight el1) (:weight el2))))
 
-(defn- next-path
-  "make switch on complex types"
-  [path {nm :name tp :type} {res-type :resourceType}]
+(defn convert-json-object-to-xml
+  [path value]
+
+  (let [root? (= 1 (count path)) ; do we converting resource root?
+        special-keys (if root?   ; when we converting resource root,
+                                 ; we want to ignore those special keys
+                       '(:resourceType :text :contained)
+                       '())
+
+        keys-to-dissoc (concat special-keys ; also we want to discard
+                         (filter            ; keys starting with '_'
+                           #(.startsWith (name %) "_")
+                           (keys value)))
+
+        cleaned-value (apply dissoc value keys-to-dissoc) ; discard keys
+        sorted-value (into
+                       (sorted-map-by
+                         (partial json-attributes-comparator path))
+                       cleaned-value)]
+
+    (list ; wrap return value in a list
+      (apply
+        xml/element
+        (keyword (first path))                       ; tag name
+        (if root? {:xmlns "http://hl7.org/fhir"} {}) ; tag attrs
+        (reduce                                      ; inner xml
+          (fn [acc [k v]]
+            (concat acc
+              (convert-json-value-to-xml (conj path (name k)) v)))
+          '() sorted-value)))))
+
+(defn convert-json-value-to-xml
+  "Recursive function to call on each JSON value. Outputs XML node."
+  [path value]
+  (println "converting" (reverse path))
+
   (cond
-    ;; if contained resource
-    res-type res-type
-    ;; if complex type switch path
-    (and tp (meta/is-complex? tp)) tp
-    ;; else just concat
-    :else (meta/join path nm)))
-
-(defn- fix-id [id]
-  (string/replace id #"^#" ""))
-
-(defn- node-attrs [json]
-  (if-let [id (:id json)]
-    {:id (fix-id id)}
-    {}))
-
-(defn- to-inp-stream [s]
-  (java.io.ByteArrayInputStream.
-    (.getBytes s)))
-
-(defn- add-xhtml-ns [m]
-  (assoc m :attrs {:xmlns "http://www.w3.org/1999/xhtml"}))
-
-(defn- mk-text-node
-  "handle corner case for text (Narrative)"
-  [{status :status div :div :as json}]
-  (when div
-    (mk-tag :text
-      [(mk-tag :status {:value status})
-       (-> (str div)
-         to-inp-stream
-         xml/parse
-         add-xhtml-ns)])))
-
-(declare mk-children)
-
-(defn- mk-node [tag-name path v]
-  (cond
-    ;; text is corner case
-    (= (keyword tag-name) :text) (mk-text-node v)
-    ;; nested compound element
-    (map? v) (mk-tag tag-name (node-attrs v) (mk-children path v) )
-    ;; value node
-    :else    (mk-tag tag-name {:value (str v)})))
-
-(defn- mk-child
-  "function used in reduce
-  corner cases of FHIR logic is here"
-  [tag-name path data {name :name :as info}] {:post [(vector? %)]}
-  (map-no-nils
-    (fn [d]
-      (if (= name "contained") ;; specail case if contained
-        (mk-tag :contained
-          [(mk-node (:resourceType d) (next-path path info d) d)])
-        (mk-node tag-name (next-path path info d) d)))
-    (norm-vec data)))
-
-(defn check-lost-keys!
-  "guard from loosing some attributes"
-  [json res-xml]
-  (let [skip-keys #{:resourceType :id :text}
-        extra-keys (filter
-                     #(not (contains? (into (set (map :tag res-xml)) skip-keys) %))
-                     (keys json))]
-    (and (not-empty extra-keys)
-      ;; (throw (Exception. (str "There are extra keys: "
-      ;; extra-keys)))
-      (println "WARNING: remaining keys are" extra-keys))
-    res-xml))
-
-(defn- mk-children
-  "build children xml nodes in right order
-  going trou meta & building data"
-  [path json]
-  (check-lost-keys!
-    json
-    (reduce (fn [acc {name :name :as info}]
-              (let [tag-name (get-tag-name json name)
-                    data (get json tag-name)]
-                (if (not (nil? data))
-                  (into acc (mk-child tag-name path data info))
-                  acc)))
-      []
-      (meta/elem-children path))))
-
-;; Problems
-;;
-;; * text attribute
-;; * contained resources
-;; * fix contained resource id
-;; * polymorphic attributes [x]
-;; * TODO: name references
-;; * xml namespaces
-
-(defn- mk-root-node [json]
-  (let [res-type (:resourceType json)
-        res (mk-tag res-type {:xmlns "http://hl7.org/fhir"} (mk-children res-type json))]
-    (with-out-str (xml/emit res))))
+    (map? value) (convert-json-object-to-xml path value)
+    (or (list? value)
+      (vector? value)) (convert-json-array-to-xml path value)
+      :else (convert-json-data-to-xml path value)))
 
 (defn perform
-  "convert json string to xml string"
+  "Entry point to perform conversion."
   [json]
-  (mk-root-node json))
+
+  (first (convert-json-value-to-xml (list (:resourceType json)) json)))

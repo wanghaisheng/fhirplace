@@ -3,6 +3,7 @@
     [clojure.string :as string]
     [fhirplace.resources.xsd :as xsd]
     [saxon :as xml]
+    [clojure.data.xml :as cljxml]
     [fhirplace.resources.schematron :as sch]))
 
 (def ^{:private true} xsd-validator
@@ -26,8 +27,9 @@
 (defn errors
   "validate resource and return vec of errors
   or nil"
-  [xml-str]
-  (let [xmldoc (xml/compile-xml xml-str)
+  [xml]
+  (let [xml-str (if (string? xml) xml (cljxml/emit-str xml))
+        xmldoc (xml/compile-xml xml-str)
         res-type (xml/query "local-name(/*)" xmldoc)]
 
     (if-let [error (@xsd-validator xmldoc)]

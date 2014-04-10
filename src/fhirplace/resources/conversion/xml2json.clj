@@ -2,7 +2,8 @@
   (:require
    [saxon :as xslt]
    [fhirplace.util :as util]
-   [clojure.java.io :as io]))
+   [cheshire.core :as json]
+   [clojure.data.xml :as xml]))
 
 (def ^{:private true} fhir-xml2json-xsl
   (delay
@@ -11,5 +12,11 @@
 
 (defn perform
   "Performs XML => JSON conversion of FHIR resource"
-  [xml-str]
-  (.getStringValue (@fhir-xml2json-xsl (xslt/compile-xml xml-str))))
+  [xml]
+
+  (let [xml-str (if (string? xml) xml (xml/emit-str xml))]
+    (json/parse-string
+      (.getStringValue
+        (@fhir-xml2json-xsl
+          (xslt/compile-xml xml-str)))
+      keyword)))
