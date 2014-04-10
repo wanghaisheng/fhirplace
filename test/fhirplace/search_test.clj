@@ -185,3 +185,10 @@
 ; join fhir.resource _root on _root._logical_id = p2.reference
 ; join .... conditions
 ; where conditions
+
+
+; for cases like FR,NL in where expressions we use form (code = 'FR') or (code = 'NL') ||| (code in ('FR', 'NL'))
+; for composite type we flatten expression to separate search parameters like:
+; from   | state-on-date=new$2013-05-04,active$2013-05-05
+; we get | new=2013-05-04 and active=2013-05-05
+; and process them as regular search parameters
