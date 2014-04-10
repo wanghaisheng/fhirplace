@@ -134,3 +134,14 @@
          precision  (count  (second  (clojure.string/split  (str value) #"\.")))
          delta  (* 5  (/ 1  (Math/pow 10  (+ precision 1))))]
     [number (- number delta) (+ number delta)]))
+
+; number:
+; (let [value low high (uncertain parameter)])
+; =       join  (res path) j where j. (last path) >= low and j. (last path) < high
+; <       join  (res path) j where j. (last path) < value
+; <=      join  (res path) j where j. (last path) <= value
+; >       join  (res path) j where j. (last path) > value
+; >=      join  (res path) j where j. (last path) >= value
+; missing join  (res path) j on j. (last path) is not null where j._id is not? null
+
+; need to pass which parameters where processed to form valid outcome
