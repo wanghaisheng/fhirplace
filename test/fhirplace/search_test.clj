@@ -144,15 +144,22 @@
 ; >=      join (res path) j where j.(last path) >= value
 ; missing left join (res path) j on j.(last path) is not null where j._id is not? null
 
-;string:
+; string:
 ;         join (res path) j where j.(last path) = value
 ; exact   join (res path) j where j.(last path) ilike value
 ; missing left join (res path) j on j.(last path) is not null where j._id is not? null
 
-;reference:
+; reference:
 ; get value from id or uri
 ;         join path j where j.reference = value
 ; type    join path j where j.reference = value
 ; missing left join path j where j._id is not? null
 
+;quantity:
+; we assume that all quantities are intervals
+; we search for interval intersection
+; [comparator][number]|[namespace]|[code]
+; comparator?= join (++ str :_quantity) j where j. interval comparison
+; ~            join (++ str :_quantity) j where j. interval comparison +- 10%
+; missing left join (++ str :_quantity) j where j._id is not? null
 ; need to pass which parameters where processed to form valid outcome
