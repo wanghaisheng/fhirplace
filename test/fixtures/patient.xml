@@ -1,110 +1,67 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Patient xmlns="http://hl7.org/fhir">
+<?xml version="1.0" encoding="UTF-8"?><Patient xmlns="http://hl7.org/fhir">
   <text>
     <status value="generated"/>
     <div xmlns="http://www.w3.org/1999/xhtml">
-      <p>
-        <b>Generated Narrative</b>
-      </p>
-      <p>
-        <b>identifier</b>: 738472983 (usual), ?? (usual)
-      </p>
-      <p>
-        <b>name</b>: Pieter van de Heuvel
-      </p>
-      <p>
-        <b>telecom</b>: ph: 0648352638(mobile), p.heuvel@gmail.com(home)
-      </p>
-      <p>
-        <b>gender</b>:
-        <span title="Codes: {http://hl7.org/fhir/v3/AdministrativeGender M}">Male</span>
-      </p>
-      <p>
-        <b>birthDate</b>: 17-Nov 1944
-      </p>
-      <p>
-        <b>deceased</b>: false
-      </p>
-      <p>
-        <b>address</b>: Van Egmondkade 23 Amsterdam 1024 RJ NLD (home)
-      </p>
-      <p>
-        <b>maritalStatus</b>:
-        <span title="Codes: {http://hl7.org/fhir/v3/MaritalStatus M}">Getrouwd</span>
-      </p>
-      <p>
-        <b>multipleBirth</b>: true
-      </p>
-      <h3>Contacts</h3>
-      <table class="grid">
-        <tr>
-          <td>
-            <b>Relationship</b>
-          </td>
-          <td>
-            <b>Name</b>
-          </td>
-          <td>
-            <b>Telecom</b>
-          </td>
-          <td>
-            <b>Address</b>
-          </td>
-          <td>
-            <b>Gender</b>
-          </td>
-          <td>
-            <b>Organization</b>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <span title="Codes: {http://hl7.org/fhir/patient-contact-relationship partner}">Partner</span>
-          </td>
-          <td>Sarah Abels </td>
-          <td>ph: 0690383372(mobile)</td>
-          <td> </td>
-          <td> </td>
-          <td> </td>
-        </tr>
+      <table>
+        <tbody>
+          <tr>
+            <td>Name</td>
+            <td>Peter James <b>Chalmers</b> (&quot;Jim&quot;)</td>
+          </tr>
+          <tr>
+            <td>Address</td>
+            <td>534 Erewhon, Pleasantville, Vic, 3999</td>
+          </tr>
+          <tr>
+            <td>Contacts</td>
+            <td>Home: unknown. Work: (03) 5555 6473</td>
+          </tr>
+          <tr>
+            <td>Id</td>
+            <td>MRN: 12345 (Acme Healthcare)</td>
+          </tr>
+        </tbody>
       </table>
-      <p>
-        <b>communication</b>:
-        <span title="Codes: {urn:ietf:bcp:47 nl}">Nederlands</span>
-      </p>
-      <p>
-        <b>managingOrganization</b>: Burgers University Medical Centre
-      </p>
-      <p>
-        <b>active</b>: true
-      </p>
     </div>
   </text>
+
+  <!--  MRN assigned by ACME healthcare on 6-May 2001  -->
   <identifier>
     <use value="usual"/>
-    <system value="urn:oid:2.16.840.1.113883.2.4.6.3"/>
-    <value value="738472983"/>
+    <label value="MRN"/>
+    <system value="urn:oid:1.2.36.146.595.217.0.1"/>
+    <value value="12345"/>
+    <period>
+      <start value="2001-05-06"/>
+    </period>
+    <assigner>
+      <display value="Acme Healthcare"/>
+    </assigner>
   </identifier>
-  <identifier>
-    <use value="usual"/>
-    <system value="urn:oid:2.16.840.1.113883.2.4.6.3"/>
-  </identifier>
+
+  <!--  Peter James Chalmers, but called "Jim"  -->
+  <name>
+    <use value="official"/>
+    <family value="Chalmers"/>
+    <given value="Peter"/>
+    <given value="James"/>
+  </name>
   <name>
     <use value="usual"/>
-    <family value="van de Heuvel"/>
-    <given value="Pieter"/>
-    <suffix value="MSc"/>
+    <given value="Jim"/>
   </name>
+
+  <telecom>
+    <use value="home"/>
+    <!--  home communication details aren't known  -->
+  </telecom>
   <telecom>
     <system value="phone"/>
-    <value value="0648352638"/>
-    <use value="mobile"/>
+    <value value="(03) 5555 6473"/>
+    <use value="work"/>
   </telecom>
-  <telecom>
-    <system value="email"/>
-    <value value="p.heuvel@gmail.com"/>
-    <use value="home"/>
-  </telecom>
+
+  <!--  use FHIR code system for male / female  -->
   <gender>
     <coding>
       <system value="http://hl7.org/fhir/v3/AdministrativeGender"/>
@@ -112,24 +69,17 @@
       <display value="Male"/>
     </coding>
   </gender>
-  <birthDate value="1944-11-17"/>
+  <birthDate value="1974-12-25"/>
   <deceasedBoolean value="false"/>
+
   <address>
     <use value="home"/>
-    <line value="Van Egmondkade 23"/>
-    <city value="Amsterdam"/>
-    <zip value="1024 RJ"/>
-    <country value="NLD"/>
+    <line value="534 Erewhon St"/>
+    <city value="PleasantVille"/>
+    <state value="Vic"/>
+    <zip value="3999"/>
   </address>
-  <maritalStatus>
-    <coding>
-      <system value="http://hl7.org/fhir/v3/MaritalStatus"/>
-      <code value="M"/>
-      <display value="Married"/>
-    </coding>
-    <text value="Getrouwd"/>
-  </maritalStatus>
-  <multipleBirthBoolean value="true"/>
+
   <contact>
     <relationship>
       <coding>
@@ -137,28 +87,28 @@
         <code value="partner"/>
       </coding>
     </relationship>
+
     <name>
-      <use value="usual"/>
-      <family value="Abels"/>
-      <given value="Sarah"/>
+      <family value="du">
+        <!--  the "du" part is a family name prefix (VV in iso 21090)  -->
+        <extension url="http://hl7.org/fhir/Profile/iso-21090#qualifier">
+          <valueCode value="VV"/>
+        </extension>
+      </family>
+      <family value="Marché"/>
+      <given value="Bénédicte"/>
     </name>
+
     <telecom>
       <system value="phone"/>
-      <value value="0690383372"/>
-      <use value="mobile"/>
+      <value value="+33 (237) 998327"/>
     </telecom>
   </contact>
-  <communication>
-    <coding>
-      <system value="urn:ietf:bcp:47"/>
-      <code value="nl"/>
-      <display value="Dutch"/>
-    </coding>
-    <text value="Nederlands"/>
-  </communication>
+
   <managingOrganization>
-    <reference value="Organization/f001"/>
-    <display value="Burgers University Medical Centre"/>
+    <reference value="Organization/1"/>
   </managingOrganization>
+
   <active value="true"/>
+
 </Patient>

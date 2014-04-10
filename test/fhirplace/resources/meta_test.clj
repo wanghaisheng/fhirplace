@@ -3,21 +3,35 @@
   (:require
     [fhirplace.resources.meta :as m]))
 
-(fact
-  (count (m/elem-children "Patient")) => 21
-  (count (m/elem-children "Patient.contact")) => 8
-  (count (m/elem-children "Encounter.hospitalization")) => 14)
+(def recursive-path '("Questionnaire"
+                      "group"
+                      "group"
+                      "group"
+                      "question"
+                      "group"
+                      "question"
+                      "choice"
+                      "system"))
 
 (fact
-  (count (m/elem-children "Address")) => 10
-  (count (m/elem-children "CodeableConcept")) => 4)
+  (m/lookup '("CarePlan" "activity" "goal")) => {:max "*"
+                                                 :min "0"
+                                                 :nameRef nil
+                                                 :type "idref"
+                                                 :weight 58}
+
+  (m/lookup '("Foo" "unexistent" "path")) => nil)
 
 (fact
-  (m/polymorphic-attr? "deceased[x]") => true
-  (m/polymorphic-attr? "deceased") => false)
+  (m/resolve-path '("Questionnaire" "group" "question" "name" "coding" "system")) => '("Coding" "system")
+  (m/resolve-path '("Questionnaire" "group")) => '("Questionnaire" "group"))
 
 (fact
-  (m/polymorphic-keys-match?
-    (keyword "deceased[x]")
-    :deceasedBoolean) => true)
+  (m/normalize-path recursive-path) => '("Questionnaire" "group" "question" "choice" "system"))
 
+(fact
+  (m/smart-lookup recursive-path) => {:max "1"
+                                      :min "0"
+                                      :nameRef nil
+                                      :type "uri"
+                                      :weight 7})
