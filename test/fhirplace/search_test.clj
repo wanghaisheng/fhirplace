@@ -176,11 +176,12 @@
 
 ; head of query for selecting:
 ; select v.json, v_logical_id from fhir.view_[resource-type]
-; join fhir.resource r on r._logical_id = v._logical_id and r._state = 'current'
 ; chaining to connect conditions and selecting:
+; join fhir.resource r1 on r._logical_id = v._logical_id and r._state = 'current'
 ; join fhir.path1 p1 on p1._version_id = r._version_id
-; join fhir.path2 p2 on p2._version_id = p1.reference
+; join fhir.resource r2 on r._logical_id = p1.reference and r._state = 'current'
+; join fhir.path2 p2 on p2._version_id = r2._version_id
 ; last in chain for conditions:
-; join fhir.resource _root on _root._version_id = p2.reference
+; join fhir.resource _root on _root._logical_id = p2.reference
 ; join .... conditions
 ; where conditions
