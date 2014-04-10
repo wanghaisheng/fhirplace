@@ -58,51 +58,6 @@
     (hh/join [(++ :fhir. (string/join "_" parts)) alias]
              [:= (++ alias :._version_id) :_root._version_id])))
 
-(defn search-using [op res-type field r-value]
-  (-> (join* :t res-type field)
-      (hh/where [op (++ :t. field) r-value])))
-
-;#_(defn gen-search-sql [[res-type field field-type modifier r-value :as tks]]
-;  (m/match [field field-type modifier (vec r-value)]
-;
-;    [field _          :missing [nil value & _]] (-> (left-join* :t res-type field)
-;                                                    (hh/where [(if (= "false" value) :not= :=)
-;                                                               :t._id :null]))
-;    [field :number    _        [nil value & _]] (search-using := res-type field value)
-;
-;    [field :number    _        [op value & _]]  (search-using op res-type field value)
-;
-;    [field :datetime  _        [nil value & _]] (search-using := res-type field value)
-;
-;    [field :string    :exact   [nil value & _]] (search-using :=  res-type field value)
-;
-;    [field :string    _        [nil value & _]] (-> (join* :t res-type "name")
-;                                                   (hh/where [:= (str "%" value "%") (++ :%any.t. field)]))
-;    ))
-;
-;
-;
-;(p/pprint (map (fn [x] (-> x
-;                 tokenize
-;                 (gen-matching-seq "Patient")
-;                 gen-search-sql))
-;     ["value:missing=true"
-;      "family=john"]))
-;
-;(string/split "family=<=2012" #"=" 2)
-;
-;(-> "family=<=2012"
-;    tokenize
-;    (gen-matching-seq "Patient")
-;    gen-search-sql
-;    (hh/select :a1.family :_root._logical_id)
-;    (hh/from [:fhir.view_patient_full :_root])
-;    h/format)
-
-;[ number       [true | false]            [:missing]   left join table_name                    table_name._id is null | table_name._id is not null
-;               [    num]                 []           join table_name                         table_name.field = num
-;               [string]                  []           join table_name                         table_name.field ilike '%string%' (should be opensearch ranking)
-; (count (second (clojure.string/split (str x) #"\."))))
 
 (defn split-r-value [r-value]
   (rest
@@ -117,46 +72,42 @@
 (defn token-to-sql
   [resource-type search-path fhir-type modifier r-value]
   (let [r-value (vec (split-r-value r-value))
-        search-path (sql-path search-path)]
-
+        search-path (sql-path search-path)
+        token-complex-value-search-query (fn [search-path value uri value-attr with-system?]
+                                     (-> (join* :t1 search-path)
+                                         (hh/where (if with-system?
+                                                     [:and
+                                                      [:= (++ :t1. value-attr) value]
+                                                      [:= :t1.system uri]]
+                                                     [:= (++ :t1 value-attr) value]))))
+        token-complex-text-search-query (fn [search-path value text-attr]
+                                          (-> (join* :t1 search-path)
+                                              (hh/where [:= (++ :t1. text-attr) value])))]
     (m/match
       [fhir-type modifier r-value]
 
-      ["Coding"                 nil              [uri sep value]]   (-> (join* :t1 search-path)
-                                                                        (hh/where (if sep
-                                                                                    [:and
-                                                                                     [:= :t1.code value]
-                                                                                     [:= :t1.system uri]]
-                                                                                    [:= :t1.code value])))
+      ["Coding"                 nil              [uri sep value]]   (token-complex-value-search-query
+                                                                      search-path value uri :code sep) 
 
-      ["Coding"                 :text            [_ _ value]]       (-> (join* :t1 search-path)
-                                                                        (hh/where [:= :t1.display value]))
-
+      ["Coding"                 :text            [_ _ value]]       (token-complex-text-search-query
+                                                                      search-path value :display)
       [(:or "Coding"
             "Identifier"
             "CodeableConcept")  :missing         [_ _ value]]       (-> (left-join* :t1 search-path)
                                                                         (hh/where [(if (= value "true") := :not=) 
                                                                                    :t1._id nil]))
 
-      ["Identifier"             nil              [uri sep value]]   (-> (join* :t1 search-path)
-                                                                        (hh/where (if sep
-                                                                                    [:and
-                                                                                     [:= :t1.value value]
-                                                                                     [:= :t1.system uri]]
-                                                                                    [:= :t1.value value])))
+      ["Identifier"             nil              [uri sep value]]   (token-complex-value-search-query
+                                                                      search-path value uri :value sep)
 
-      ["Identifier"             :text            [_ _ value]]       (-> (join* :t1 search-path)
-                                                                        (hh/where [:= :t1.label value]))
+      ["Identifier"             :text            [_ _ value]]       (token-complex-text-search-query
+                                                                      search-path value :label)
 
-      ["CodeableConcept"        nil              [uri sep value]]   (-> (join* :t1 (concat search-path :coding))
-                                                                        (hh/where (if sep
-                                                                                    [:and
-                                                                                     [:= :t1.code value]
-                                                                                     [:= :t1.system uri]]
-                                                                                    [:= :t1.code value])))
+      ["CodeableConcept"        nil              [uri sep value]]   (token-complex-value-search-query
+                                                                      (concat search-path) value uri :value sep)
 
-      ["CodeableConcept"        :text            [_ _ value]]       (-> (join* :t1 search-path)
-                                                                        (hh/where [:= :t1.text value]))
+      ["CodeableConcept"        :text            [_ _ value]]       (token-complex-value-search-query
+                                                                      search-path value :text)
 
       [_                        (:or nil
                                      :text)      [_ _ value]]       (-> (join* :t1 (butlast search-path))
@@ -183,7 +134,3 @@
          precision  (count  (second  (clojure.string/split  (str value) #"\.")))
          delta  (* 5  (/ 1  (Math/pow 10  (+ precision 1))))]
     [number (- number delta) (+ number delta)]))
-
-    ;;(hh/join [(++ :fhir. (string/join "_" parts)) alias]
-    ;;         [:= (++ alias :._version_id) :_root._version_id])))
-

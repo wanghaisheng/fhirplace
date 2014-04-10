@@ -1,0 +1,18 @@
+| search-type | fhir-type       | modifier |
+| token       | Coding          |          | join path w where (w.system = uri)? and w.code = code
+| token       | Identifier      |          | join path w where (w.system = uri)? and w.value = code
+| token       | CodeableConcept |          | join (++ path :coding) w where (w.system = uri)? and w.code = code
+| token       | primitive type  |          | join (rest path) w where ((last w.path)::varchar = code)
+| token       | Coding          | text     | join path w where (w.display ilike code)
+| token       | Identifier      | text     | join path w where (w.label ilike code)
+| token       | CodeableConcept | text     | join path w where (w.text ilike code)
+| token       | primitive type  | text     | join (rest path) w where ((last w.path)::varchar ilike code)
+| token       | Coding          | missing  | left join path w where (w._id is not? null)
+| token       | Identifier      | missing  | left join path w where (w._id is not? null)
+| token       | CodeableConcept | missing  | left join path w where (w._id is not? null)
+| token       | primitive type  | missing  | left join (rest path) on ((last w.path) is not null) where (w._id is not? null)
+
+-> builder
+
+(builder path r-value)
+  r-value=uri?|code -> uri + code
