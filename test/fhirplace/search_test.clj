@@ -137,11 +137,16 @@
 
 ; number:
 ; (let [value low high (uncertain parameter)])
-; =       join  (res path) j where j. (last path) >= low and j. (last path) < high
-; <       join  (res path) j where j. (last path) < value
-; <=      join  (res path) j where j. (last path) <= value
-; >       join  (res path) j where j. (last path) > value
-; >=      join  (res path) j where j. (last path) >= value
-; missing join  (res path) j on j. (last path) is not null where j._id is not? null
+; =       join (res path) j where j.(last path) >= low and j. (last path) < high
+; <       join (res path) j where j.(last path) < value
+; <=      join (res path) j where j.(last path) <= value
+; >       join (res path) j where j.(last path) > value
+; >=      join (res path) j where j.(last path) >= value
+; missing join (res path) j on j.(last path) is not null where j._id is not? null
+
+;string:
+;         join (res path) j where j.(last path) = value
+; exact   join (res path) j where j.(last path) ilike value
+; missing join (res path) j on j.(last path) is not null where j._id is not? null
 
 ; need to pass which parameters where processed to form valid outcome
