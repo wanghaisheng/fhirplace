@@ -34,10 +34,21 @@
 
 (defn convert-json-text-attr-to-xml
   [path value]
-  (list))
+  (let [text (:text value)]
+    (if (and text (not (empty? text)))
+      (list
+        (xml/element :text {}
+          (xml/element :status {:value (:status text)})
+          (xml/element :div {:xmlns "http://www.w3.org/1999/xhtml"}
+            (first
+              (:content
+               (xml/parse (java.io.StringReader. (:div text)))))))
+        )
+      '())))
 
 (defn convert-json-containeds-attr-to-xml
   [path value]
+
   (if (:contained value)
     (map
       (fn [res-xml] (xml/element :contained {} res-xml))
@@ -70,8 +81,12 @@
         (keyword (first path))                       ; tag name
         (if root? {:xmlns "http://hl7.org/fhir"} {}) ; tag attrs
         (concat                                      ; inner xml
-          (convert-json-text-attr-to-xml path value) ; special cases
-          (convert-json-containeds-attr-to-xml path value)
+          (if root?    ; convert contained and text on root node
+            (concat
+              (convert-json-text-attr-to-xml path value)
+              (convert-json-containeds-attr-to-xml path value))
+            '())
+
           (reduce                                    ; convert value
             (fn [acc [k v]]
               (concat acc
