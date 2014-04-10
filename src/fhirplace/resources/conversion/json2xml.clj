@@ -32,17 +32,18 @@
 (defn convert-json-object-to-xml
   [path value]
 
-  (let [root? (= 1 (count path))
-        special-keys (if root?
+  (let [root? (= 1 (count path)) ; do we converting resource root?
+        special-keys (if root?   ; when we converting resource root,
+                                 ; we want to ignore those special keys
                        '(:resourceType :text :contained)
                        '())
 
-        keys-to-dissoc (concat special-keys
-                         (filter
+        keys-to-dissoc (concat special-keys ; also we want to discard
+                         (filter            ; keys starting with '_'
                            #(.startsWith (name %) "_")
                            (keys value)))
 
-        cleaned-value (apply dissoc value keys-to-dissoc)
+        cleaned-value (apply dissoc value keys-to-dissoc) ; discard keys
         sorted-value (into
                        (sorted-map-by
                          (partial json-attributes-comparator path))
@@ -55,11 +56,8 @@
         (if root? {:xmlns "http://hl7.org/fhir"} {}) ; tag attrs
         (reduce                                      ; inner xml
           (fn [acc [k v]]
-            (if (or (> 1 (count path))
-                  (not (contains? #{:resourceType :text :contained} k)))
-              (concat acc
-                (convert-json-value-to-xml (conj path (name k)) v))
-              acc))
+            (concat acc
+              (convert-json-value-to-xml (conj path (name k)) v)))
           '() sorted-value)))))
 
 (defn convert-json-value-to-xml
