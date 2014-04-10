@@ -173,3 +173,14 @@
 ; need to pass which parameters where processed to form valid outcome
 
 ; for multitype observation.value[x] there is exception on join and field part value_string or separate table observation_value_period etc
+
+; head of query for selecting:
+; select v.json, v_logical_id from fhir.view_[resource-type]
+; join fhir.resource r on r._logical_id = v._logical_id and r._state = 'current'
+; chaining to connect conditions and selecting:
+; join fhir.path1 p1 on p1._version_id = r._version_id
+; join fhir.path2 p2 on p2._version_id = p1.reference
+; last in chain for conditions:
+; join fhir.resource _root on _root._version_id = p2.reference
+; join .... conditions
+; where conditions
