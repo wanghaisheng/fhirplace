@@ -2,9 +2,6 @@
   (:require [clojure.string :as string]
             [saxon :as xml]))
 
-(def fhir-elements (xml/compile-xml
-                     (java.io.File. "resources/xml2json/fhir-elements.xml")))
-
 (defn- convert-xml-nodes-to-map
   [nodes]
   (reduce
@@ -13,25 +10,30 @@
                    .getNodeName
                    .toString
                    keyword)
-            value (.getAttributeValue node (net.sf.saxon.s9api.QName. "value"))]
-        (assoc acc name value)))
+            value (.getAttributeValue node (net.sf.saxon.s9api.QName. "value"))
+            coerced-value (if (= name :weight)
+                            (read-string value)
+                            value)]
+        (assoc acc name coerced-value)))
     {} nodes))
+
+(defn- convert-fhir-elements-xml-to-map
+  []
+  (let [xmldoc (xml/compile-xml
+                 (java.io.File. "resources/xml2json/fhir-elements.xml"))
+        elements (xml/query "/elements/element" xmldoc)]
+    (into {}
+      (map (fn [el]
+             [(.getAttributeValue el (net.sf.saxon.s9api.QName. "path"))
+              (convert-xml-nodes-to-map (xml/query "*" el))])
+        elements))))
+
+(def fhir-elements (convert-fhir-elements-xml-to-map))
 
 (defn lookup
   "Returns metainfo describing FHIR element."
   [path]
-  (let [path-string (string/join "." path)
-        element (xml/query
-                  (str "/elements/element[@path='" path-string "']")
-                  fhir-elements)]
-
-    (if element
-      (let [nodes (xml/query "*" element)
-            values (convert-xml-nodes-to-map nodes)]
-        (if (contains? values :weight)
-          (assoc values :weight (read-string (:weight values)))
-          values))
-      nil)))
+  (fhir-elements (string/join "." path)))
 
 (declare normalize-path)
 (defn- normalize-path*
