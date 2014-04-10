@@ -155,11 +155,21 @@
 ; type    join path j where j.reference = value
 ; missing left join path j where j._id is not? null
 
-;quantity:
+; quantity:
 ; we assume that all quantities are intervals
 ; we search for interval intersection
 ; [comparator][number]|[namespace]|[code]
 ; comparator?= join (++ str :_quantity) j where j. interval comparison
 ; ~            join (++ str :_quantity) j where j. interval comparison +- 10%
 ; missing left join (++ str :_quantity) j where j._id is not? null
+
+; date:
+; yyyy-mm-ddThh:nn:ss(TZ)
+
+; first need to find intersection of (date, dateTime, instant, Period, Schedule) and (multitype attribute)
+; operator     jeft join (res path) j-s jeft join (++ path _period) j-p jeft join (++ path _schedule_repeat) j-r where j-s.(last path) operatior value or j-p intersection with perion or j-r intersection with scheduler
+; missing left join (res path) j on j.(last path) is not null where j._id is not? null
+
 ; need to pass which parameters where processed to form valid outcome
+
+; for multitype observation.value[x] there is exception on join and field part value_string or separate table observation_value_period etc
