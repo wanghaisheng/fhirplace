@@ -142,11 +142,17 @@
 ; <=      join (res path) j where j.(last path) <= value
 ; >       join (res path) j where j.(last path) > value
 ; >=      join (res path) j where j.(last path) >= value
-; missing join (res path) j on j.(last path) is not null where j._id is not? null
+; missing left join (res path) j on j.(last path) is not null where j._id is not? null
 
 ;string:
 ;         join (res path) j where j.(last path) = value
 ; exact   join (res path) j where j.(last path) ilike value
-; missing join (res path) j on j.(last path) is not null where j._id is not? null
+; missing left join (res path) j on j.(last path) is not null where j._id is not? null
+
+;reference:
+; get value from id or uri
+;         join path j where j.reference = value
+; type    join path j where j.reference = value
+; missing left join path j where j._id is not? null
 
 ; need to pass which parameters where processed to form valid outcome
