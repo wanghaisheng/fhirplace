@@ -2,7 +2,7 @@
   (:require [fhirplace.resources.validation :as validation]
             [fhirplace.resources.conversion :as conversion]
             [cheshire.core :as json]
-            [saxon :as xml]))
+            [clojure.data.xml :as xml]))
 
 (defn- safely-parse-json [raw-json]
   (try
@@ -12,11 +12,12 @@
 
 (defn- safely-parse-xml [raw-xml]
   (try
-    [(xml/compile-xml raw-xml) []]
+    [(xml/parse-str raw-xml :namespace-aware false) []]
     (catch Exception e
-      [nil ["Mailformed XML, could not be parsed"]])))
+      [nil [(str "Mailformed XML, could not be parsed: " e)]])))
 
 (defn- validate-xml [xml]
+  (println xml)
   (let [errors (validation/errors xml)]
     (if (empty? errors)
       [xml []]
@@ -30,7 +31,7 @@
 
 (defn- convert-json-to-xml [json]
   (try
-    [(xml/compile-xml (conversion/json->xml json)) []]
+    [(conversion/json->xml json) []]
     (catch Exception e
       [nil [(str "Could not convert JSON to XML: " e)]])))
 
@@ -72,3 +73,4 @@
 ;; default implementation just raises exception
 (defmethod parse-resource-with-validations :default [_ _]
   [nil ["Resource type can be eihter :xml or :json"]])
+

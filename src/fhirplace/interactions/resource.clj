@@ -8,7 +8,6 @@
             [clojure.string :as string])
   (:refer-clojure :exclude (read)))
 
-
 (defn wrap-with-json [h]
   (fn [{body-str :body-str :as req}]
     (try
