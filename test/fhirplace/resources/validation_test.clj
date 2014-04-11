@@ -11,12 +11,12 @@
   "valid"
   [pt (slurp "test/fixtures/patient.xml")]
 
-  (v/errors "Patient" pt) => nil )
+  (v/errors pt) => nil )
 
 (let-fact
   "xsd errors"
   [inv-pt (slurp "test/fixtures/invalid-patient.xml")
-   errors (v/errors "Patient" inv-pt)]
+   errors (v/errors inv-pt)]
 
   errors =not=> empty?
   errors => (one-of map?)
@@ -25,7 +25,7 @@
 (let-fact
   "xsd errors"
   [inv-pt (slurp "test/fixtures/patient-invalid-schematron.xml")
-   errors (v/errors "Patient" inv-pt)]
+   errors (v/errors inv-pt)]
 
   errors =not=> nil?
   errors => (one-of map?))

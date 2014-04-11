@@ -1,6 +1,7 @@
 (ns fhirplace.resources.conversion.json2xml
   (:require
    [fhirplace.resources.meta :as meta]
+   [fhirplace.util :as util]
    [clojure.data.xml :as xml]))
 
 (defn convert-json-data-to-xml
@@ -21,17 +22,6 @@
       (concat acc (convert-json-value-to-xml path item)))
     '() value))
 
-(defn json-attributes-comparator
-  "Comparator for sorting resource attrs by it's weight what means
-   that elements will appear in XML in right order."
-  [path key1 key2]
-
-  (let [path1 (conj path (name key1))
-        path2 (conj path (name key2))
-        el1 (meta/smart-lookup (reverse path1))
-        el2 (meta/smart-lookup (reverse path2))]
-    (compare (:weight el1) (:weight el2))))
-
 (defn convert-json-text-attr-to-xml
   [path value]
   (let [text (:text value)]
@@ -42,10 +32,10 @@
           (xml/element :div {:xmlns "http://www.w3.org/1999/xhtml"}
             (first
               (:content
-               (xml/parse (java.io.StringReader. (:div text)))))))
-        )
+               (xml/parse (java.io.StringReader. (:div text))))))))
       '())))
 
+(declare perform)
 (defn convert-json-containeds-attr-to-xml
   [path value]
 
@@ -55,39 +45,79 @@
       (map perform (:contained value)))
     '()))
 
-(defn convert-json-object-to-xml
-  [path value]
+(declare root?)
+(defn cleanup-json-value
+  "Before converting JSON object (map) to XML we must
+   remove some attribtes (resourceType, text, contained)"
+  [value path]
 
-  (let [root? (= 1 (count path)) ; do we converting resource root?
-        special-keys (if root?   ; when we converting resource root,
-                                        ; we want to ignore those special keys
+  (let [is-root (root? path)       ; do we converting resource root?
+        special-keys (if is-root   ; when we converting resource root,
+                                   ; we want to ignore those special keys
                        '(:resourceType :text :contained)
                        '())
 
         keys-to-dissoc (concat special-keys ; also we want to discard
                          (filter            ; keys starting with '_'
                            #(.startsWith (name %) "_")
-                           (keys value)))
+                           (keys value)))]
 
-        cleaned-value (apply dissoc value keys-to-dissoc) ; discard keys
-        sorted-value (into                                ; sort map
-                       (sorted-map-by
-                         (partial json-attributes-comparator path))
-                       cleaned-value)]
+    ; discard keys
+    (apply dissoc value keys-to-dissoc)))
+
+(defn sort-json-attributes
+  "Before converting JSON object to XML we must arrange
+   it's attributes in right order (using :weight value found in meta)."
+  [value path]
+
+  (let [get-weight (fn [key]
+                     (:weight
+                      (meta/smart-lookup
+                        (reverse
+                          (conj path (name key))))))
+
+        comparator (fn [key1 key2]
+                     (compare (get-weight key1) (get-weight key2)))]
+
+    (into (sorted-map-by comparator) value)))
+
+(defn convert-special-attributes-to-xml
+  [path value]
+  (if (root? path)
+    (concat
+      (convert-json-text-attr-to-xml path value)
+      (convert-json-containeds-attr-to-xml path value))
+    '()))
+
+(defn get-xml-attributes-for-tag
+  [path value]
+
+  (if (root? path)
+    (util/discard-nils
+      {:xmlns "http://hl7.org/fhir"
+       :id (:_id value)})
+    {}))
+
+(defn- root?
+  [path]
+  (= 1 (count path)))
+
+(defn convert-json-object-to-xml
+  [path value]
+
+  (let [is-root (root? path)
+        sorted-value (-> value
+                       (cleanup-json-value path)
+                       (sort-json-attributes path))]
 
     (list ; wrap return value in a list
       (apply
         xml/element
         (keyword (first path))                       ; tag name
-        (if root? {:xmlns "http://hl7.org/fhir"} {}) ; tag attrs
+        (get-xml-attributes-for-tag path value)      ; tag attrs
         (concat                                      ; inner xml
-          (if root?    ; convert contained and text on root node
-            (concat
-              (convert-json-text-attr-to-xml path value)
-              (convert-json-containeds-attr-to-xml path value))
-            '())
-
-          (reduce                                    ; convert value
+          (convert-special-attributes-to-xml path value)
+          (reduce ; recursively convert every child attr
             (fn [acc [k v]]
               (concat acc
                 (convert-json-value-to-xml (conj path (name k)) v)))

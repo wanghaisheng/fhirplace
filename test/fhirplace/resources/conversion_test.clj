@@ -22,15 +22,14 @@
     (json/read-str (c/xml->json pt-xml)) =not=> nil)
 
   (fact "outputs same JSON as original patient.json is"
-    (:address (json/read-str (c/xml->json pt-xml) :key-fn keyword)) => (:address pt-data)))
+    (:address (c/xml->json pt-xml)) => (:address pt-data)))
 
 (facts "Conversion of JSON to XML"
   (fact "outputs correct XML representation"
-    (:address (c/xml->json (c/json->xml (pt-data)))) => (:address pt-data))
+    (:address (c/xml->json (c/json->xml pt-data))) => (:address pt-data))
 
   (fact "outputs valid XML representation"
     (v/errors (c/json->xml pt-data)) => nil
 
     (let [obs-xml (c/json->xml (json/read-str (slurp "test/fixtures/observation.json") :key-fn keyword))]
-      (println (xml2/indent-str obs-xml))
       (v/errors obs-xml)) => nil))
