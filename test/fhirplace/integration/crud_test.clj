@@ -44,7 +44,7 @@
                        {:system "phone" :value "+919191282" :use "home"})
 
      :new-pt      (fnk [pt new-telecom]
-                       (update-in  pt [:telecom] conj new-telecom))
+                       (assoc pt :telecom [new-telecom]))
 
      :new-pt-json      (fnk [new-pt] (json/write-str new-pt))
 
@@ -73,53 +73,67 @@
   (checker [act]
            (let [json (json-body act)
                  testable (get-in json path)]
-             (= testable sample))))
+             (if (= testable sample)
+               true
+               (do
+                 (println sample " is not matched with " testable)
+                 false)))))
 
 (defchecker header? [nm regx]
   (checker [act]
            (re-find regx (header act nm))))
 
 (deftest integration-test
-
   (def res (test-cmp {}))
   (facts
     "create"
     (:create-pt res) => (contains {:status 201})
     (:pt-loc res) => #"/Patient/.+/_history/.+")
 
-  (facts "read"
-         (:read-pt res)
-         => (every-checker
-              (status? 200)
-              (header? "Content-Location" #"/Patient/.+/_history/.+")
-              (header? "Last-Modified" #"....-..-.. .+")
-              (contains {:body (complement nil?)})
-              (json-contains [:name] (:name (:pt res)))))
+  (facts
+    "read"
+    (:read-pt res)
+    => (every-checker
+         (status? 200)
+         (header? "Content-Location" #"/Patient/.+/_history/.+")
+         (header? "Last-Modified" #"....-..-.. .+")
+         (contains {:body (complement nil?)})
+         (json-contains [:name] (:name (:pt res)))))
 
-  (facts "vread"
-         (:vread-pt res)
-         => (every-checker
-              (status? 200)
-              (contains {:body (complement nil?)})
-              (json-contains [:name] (:name (:pt res)))))
+  (facts
+    "vread"
+    (:vread-pt res)
+    => (every-checker
+         (status? 200)
+         (contains {:body (complement nil?)})
+         (json-contains [:name] (:name (:pt res)))))
 
   (facts
     "when UPDATEing without specified version error with outcome"
-    (:wrong-chg res) => (status? 412)
-    (get-in (json-body (:wrong-chg res)) [:issue 0 :details]) => #"Version id is missing"
-    (get-in (json-body (:wrong-chg res)) [:resourceType]) => "OperationOutcome")
+    (:wrong-chg res)
+    => (every-checker
+         (status? 412)
+         (json-contains [:issue 0 :details] "Version id is missing in content location header")
+         (json-contains [:resourceType] "OperationOutcome")))
 
-  (facts "empty udpate body"
-         (:chg-pt res) => (status? 200)
-         (:body (:chg-pt res)) => "")
+  (facts
+    "update"
+    (:chg-pt res)
+    => (every-checker
+         (status? 200)
+         (contains {:body ""})))
 
-  (facts "updated pt"
-         (:telecom (json-body (:chg->read-pt res))) => (contains [(:new-telecom res)]))
+  (facts
+    "updated pt"
+    (:chg->read-pt res)
+    => (json-contains [:telecom 0] (:new-telecom res)))
 
-  (fact "when UPDATEing with specified previous resource version"
-        (:dup-chg-pt res) => (status? 409))
+  (fact
+    "when UPDATEing with specified previous resource version"
+    (:dup-chg-pt res) => (status? 409))
 
-  (facts "delete"
-         (:del-pt res)     => (status? 204)
-         (:del-2-pt res)   => (status? 204)
-         (:del->read res)  => (status? 410)))
+  (facts
+    "delete"
+    (:del-pt res)     => (status? 204)
+    (:del-2-pt res)   => (status? 204)
+    (:del->read res)  => (status? 410)))
