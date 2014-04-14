@@ -5,6 +5,7 @@
 
 (def test-system (sys/create :test))
 
+
 (facts "`build-history'"
   (let [entries [{:last-modified-date "2013-02-03"}
                  {:last-modified-date "2012-02-02"
@@ -16,7 +17,7 @@
     history => (contains {:updated "2013-02-03"})
     history => (contains {:entry anything})
     history => (contains {:totalResults 2})))
-  
+
 (facts "`build-entry'"
   (fact "Updated resource"
     (let [entry {:last-modified-date "2013-01-01"

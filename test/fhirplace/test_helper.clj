@@ -20,14 +20,14 @@
 (defn POST [& args]
   (apply request :post args))
 
-(defn PUT [& args]
-  (apply request :put args))
-
-(defn PUT-LONG [uri body headers]
-  ((:handler test-system) (update-in (mock/request :put uri body)
-                                            [:headers]
-                                            merge
-                                            headers)))
+(defn PUT
+  "simpulate PUT request"
+  ([uri body]
+   (PUT uri body {}))
+  ([uri body headers]
+   ((:handler test-system)
+    (update-in (mock/request :put uri body)
+               [:headers] merge headers))))
 
 (defn DELETE [& args]
   (apply request :delete args))
@@ -38,7 +38,7 @@
   (let [smbl (symbol (string/replace str #"[^a-zA-Z]" "_"))]
     `(deftest ~smbl
        (facts ~str
-         ~@body))))
+              ~@body))))
 
 (defn fixture-str [name]
   "Returns fixture content as string."

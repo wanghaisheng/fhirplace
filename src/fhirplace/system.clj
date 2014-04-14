@@ -22,6 +22,7 @@
                    read-string)]
     (merge (env conf) (load-project-info))))
 
+;;TODO: validate keys or set defalults in system
 (defn create
   "Create system instance"
   ([] (create :dev))
