@@ -149,14 +149,15 @@
       (wrap-with-deleted-check 204)))
 
 (defn read*
-  [{{db :db :as system} :system {:keys [id resource-type]} :params :as req}]
-  (let [{vid :version-id
-         lmd :last-modified-date
-         resource :data} (repo/select-latest-version db resource-type id)]
+  [{{db :db :as system} :system
+    {:keys [id resource-type]} :params
+    :as req}]
+
+  (let [res (repo/select-latest-version db resource-type id)]
       {:status 200
-       :headers {"Content-Location" (util/cons-url system resource-type id vid)
-                 "Last-Modified" lmd}
-       :body resource}))
+       :headers {"Content-Location" (util/cons-url system resource-type id (:version_id res))
+                 "Last-Modified" (:last_modified_date res)}
+       :body (:data res)}))
 
 (def read
   (-> read*

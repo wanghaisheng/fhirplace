@@ -91,4 +91,8 @@
 
 (defchecker header? [nm regx]
   (checker [act]
-           (re-find regx (get-header act nm))))
+           (if (re-find regx (get-header act nm))
+             true
+             (do
+               (println "expected " (get-header act nm) " ~ " regx)
+               false))))

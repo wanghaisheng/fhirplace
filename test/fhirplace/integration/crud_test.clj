@@ -61,8 +61,7 @@
     (:create-pt res) => (contains {:status 201})
     (:pt-loc res) => #"/Patient/.+/_history/.+")
 
-  (facts
-    "read"
+  (facts "read"
     (:read-pt res)
     => (every-checker
          (status? 200)
