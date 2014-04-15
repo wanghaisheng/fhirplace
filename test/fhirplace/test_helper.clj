@@ -3,9 +3,14 @@
             [clojure.test :refer :all]
             [fhirplace.system :as sys]
             [ring.mock.request :as mock]
+            [plumbing.graph :as graph ]
+            [schema.core :as s]
+            [ring.util.response :as response]
             [clojure.string :as string]
             [midje.sweet :refer :all]
             [clojure.data.json :as json]))
+
+(use 'plumbing.core)
 
 (def test-system (sys/create :test))
 
@@ -47,3 +52,32 @@
 (defn fixture [name]
   "Returns fixture content as Clojure data structure (parsed from JSON)."
   (json/read-str (fixture-str name) :key-fn keyword))
+
+(defn json-body [{body :body :as req}]
+  (if body
+    (json/read-str body :key-fn keyword)
+    (throw (Exception. (str "Could not read body from request (it's empty): "  req)))))
+
+(def get-header response/get-header)
+
+(defmacro def-test-cases [mn m]
+  `(def ~mn (graph/lazy-compile ~m)))
+
+(defchecker status? [exp]
+  (checker [act]
+           (= (:status act) exp)))
+
+(defchecker json-contains [path sample]
+  (checker
+    [act]
+    (let [json (json-body act)
+          testable (get-in json path)]
+      (if (= testable sample)
+        true
+        (do
+          (println sample " is not matched with " testable)
+          false)))))
+
+(defchecker header? [nm regx]
+  (checker [act]
+           (re-find regx (get-header act nm))))

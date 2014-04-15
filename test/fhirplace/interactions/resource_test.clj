@@ -1,6 +1,6 @@
 (ns fhirplace.interactions.resource-test
   (:require [fhirplace.interactions.resource :as res]
-            [ring.util.response :refer :all]
+            #_[ring.util.response :refer :all]
             [fhirplace.repositories.resource :as repo]
             [fhirplace.test-helper :refer :all]
             [ring.mock.request :as mock]

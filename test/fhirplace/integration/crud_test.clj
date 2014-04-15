@@ -1,8 +1,6 @@
 (ns fhirplace.integration.crud-test
   (:use midje.sweet)
-  (:require [ring.util.request :as request]
-            [ring.util.response :as response]
-            [clojure.string :as string]
+  (:require [clojure.string :as string]
             [clojure.data.json :as json]
             [clojure.test :refer :all]
             [plumbing.graph :as graph ]
@@ -11,77 +9,50 @@
 
 (use 'plumbing.core)
 
-(defn json-body [{body :body :as req}]
-  (if body
-    (json/read-str body :key-fn keyword)
-    (throw (Exception. (str "Could not read body from request (it's empty): "  req)))))
+(def-test-cases test-cmp
+  {:pt-str       (fnk [] (fixture-str "patient"))
+   :pt           (fnk [] (fixture "patient"))
 
-(defn header [resp name]
-  (response/get-header resp name))
+   :create-pt    (fnk [pt-str]
+                      (POST "/Patient" pt-str))
 
-(def test-cmp
-  (graph/lazy-compile
-    {:pt-str       (fnk [] (fixture-str "patient"))
-     :pt           (fnk [] (fixture "patient"))
+   :pt-loc       (fnk [create-pt]
+                      (get-header create-pt "Location"))
 
-     :create-pt    (fnk [pt-str]
-                        (POST "/Patient" pt-str))
+   :pt-uri       (fnk [pt-loc]
+                      (first
+                        (clojure.string/split pt-loc #"/_history/")))
 
-     :pt-loc       (fnk [create-pt]
-                        (header create-pt "Location"))
+   :read-pt     (fnk [pt-uri]
+                     (GET pt-uri))
 
-     :pt-uri       (fnk [pt-loc]
-                        (first
-                          (clojure.string/split pt-loc #"/_history/")))
+   :vread-pt    (fnk [pt-loc]
+                     (GET pt-loc))
 
-     :read-pt     (fnk [pt-uri]
-                       (GET pt-uri))
+   :new-telecom (fnk []
+                     {:system "phone" :value "+919191282" :use "home"})
 
-     :vread-pt    (fnk [pt-loc]
-                       (GET pt-loc))
+   :new-pt      (fnk [pt new-telecom]
+                     (assoc pt :telecom [new-telecom]))
 
-     :new-telecom (fnk []
-                       {:system "phone" :value "+919191282" :use "home"})
+   :new-pt-json (fnk [new-pt] (json/write-str new-pt))
 
-     :new-pt      (fnk [pt new-telecom]
-                       (assoc pt :telecom [new-telecom]))
+   :wrong-chg   (fnk [new-pt-json pt-uri]
+                     (PUT pt-uri new-pt-json))
 
-     :new-pt-json      (fnk [new-pt] (json/write-str new-pt))
+   :chg-pt      (fnk [pt-loc pt-uri new-pt-json]
+                     (PUT pt-uri new-pt-json {"Content-Location" pt-loc}))
 
-     :wrong-chg   (fnk [new-pt-json pt-uri]
-                       (PUT pt-uri new-pt-json))
+   :dup-chg-pt  (fnk [pt-loc pt-uri new-pt-json chg-pt]
+                     (PUT pt-uri new-pt-json {"Content-Location" pt-loc}))
 
-     :chg-pt      (fnk [pt-loc pt-uri new-pt-json]
-                       (PUT pt-uri new-pt-json {"Content-Location" pt-loc}))
+   :chg->read-pt (fnk [chg-pt] (GET (get-header chg-pt "Location")))
 
-     :dup-chg-pt  (fnk [pt-loc pt-uri new-pt-json chg-pt]
-                       (PUT pt-uri new-pt-json {"Content-Location" pt-loc}))
+   :del-pt      (fnk [pt-uri] (DELETE pt-uri))
 
-     :chg->read-pt (fnk [chg-pt] (GET (header chg-pt "Location")))
+   :del-2-pt    (fnk [pt-uri del-pt] (DELETE pt-uri))
 
-     :del-pt      (fnk [pt-uri] (DELETE pt-uri))
-
-     :del-2-pt    (fnk [pt-uri del-pt] (DELETE pt-uri))
-
-     :del->read    (fnk [pt-uri del-pt] (GET pt-uri)) }))
-
-(defchecker status? [exp]
-  (checker [act]
-           (= (:status act) exp)))
-
-(defchecker json-contains [path sample]
-  (checker [act]
-           (let [json (json-body act)
-                 testable (get-in json path)]
-             (if (= testable sample)
-               true
-               (do
-                 (println sample " is not matched with " testable)
-                 false)))))
-
-(defchecker header? [nm regx]
-  (checker [act]
-           (re-find regx (header act nm))))
+   :del->read   (fnk [pt-uri del-pt] (GET pt-uri)) })
 
 (deftest integration-test
   (def res (test-cmp {}))
