@@ -21,15 +21,29 @@
        (map :path)
        set))
 
+(defn scope-with-logical-id [exp id]
+  (h/merge-where
+    exp
+    [:= (u/column :_logical_id :varchar) (str id)]))
+
+(defn scope-with-state [exp state]
+  (h/merge-where
+    exp
+    [:= (u/column :_state :varchar) state]) )
+
+(defn scope-without-state [exp state]
+  (h/merge-where
+    exp
+    [:not= (u/column :_state :varchar) state]))
+
 (defn version-scope [resource-type id]
   (-> (h/select [(u/column :_version_id :varchar) "version-id"]
                 [(u/column :_last_modified_date :varchar) "last-modified-date"]
                 [:_state "state"]
                 [:_logical_id "id"])
       (h/from (keyword (resource-table-name resource-type)))
-      (h/where [:and
-                [:= (u/column :_logical_id :varchar) (str id)]
-                [:not= (u/column :_state :varchar) "deleted"]  ])
+      (scope-with-logical-id id)
+      (scope-without-state "deleted")
       (h/order-by [:_last_modified_date :desc])))
 
 (defn scope-with-data [exp]
@@ -106,27 +120,34 @@
       (query-> db-spec)
       (fix-all-json)))
 
-(defn delete [db-spec resource-id]
-  (u/proc-call db-spec
-               :fhir.delete_resource [resource-id :uuid]))
+(defn delete
+  [db-spec resource-id]
+
+  (-> db-spec
+      (u/proc-call
+        :fhir.delete_resource [resource-id :uuid])))
 
 (defn update [db-spec resource-id resource]
-  (u/proc-call db-spec
-               :fhir.update_resource
-               [resource-id :uuid]
-               [(u/json-to-string resource) :json]))
+  (-> db-spec
+      (u/proc-call
+        :fhir.update_resource
+        [resource-id :uuid]
+        [(u/json-to-string resource) :json])))
 
 (defn deleted? [db-spec resource-id]
-  (-> (sql/query db-spec (str "SELECT count(*) FROM fhir.resource"
-                              " WHERE _logical_id = '" resource-id "'"
-                              " AND _state = 'deleted'"))
-      first :count zero? not))
+  (-> (h/select :%count.*)
+      (h/from  :fhir.resource)
+      (scope-with-logical-id resource-id)
+      (scope-with-state "deleted")
+      (query-> db-spec)
+      first :count zero?  not))
 
+;; TODO: looks like here is wrong logic
+;; this query do not guaranty existance
 (defn exists? [db-spec resource-id]
-  (let [count (:count
-                (first
-                  (sql/query db-spec
-                             (str "SELECT count(*) FROM fhir.resource"
-                                  " WHERE _logical_id = '" resource-id "'"
-                                  " AND _state = 'current'"))))]
-    (not (zero? count))))
+  (-> (h/select :%count.*)
+      (h/from  :fhir.resource)
+      (scope-with-logical-id resource-id)
+      (scope-with-state "current")
+      (query-> db-spec)
+      first :count zero?  not))
