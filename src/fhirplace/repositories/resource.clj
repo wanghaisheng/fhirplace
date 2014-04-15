@@ -83,21 +83,30 @@
     (h/limit expr (Integer. limit))
     expr))
 
-(defn select-history* [resource-type id cnt snc]
-  (-> (h/select [(keyword "_version_id::varchar") "versionsd-id"]
-                       [(keyword "_last_modified_date::varchar") "last-modified-date"]
-                       [:_state "state"]
-                       [:_logical_id "id"]
-                       [(keyword "data::text") "data"])
-             (h/from (keyword (resource-table-name resource-type)))
-             (h/where [:= (keyword "_logical_id::varchar") (str id)])
-             (merge-where-if snc [:>= :_last_modified_date snc])
-             (limit-if cnt)
-             (h/order-by [:_last_modified_date :desc])
-             honey/format))
+(defn ++ [& parts]
+  (keyword
+   (apply str
+          (map name parts))))
+
+(defn cast [column type]
+  (++ column "::" type))
+(cast :res :varchar)
+
+(defn select-history-sql [resource-type id cnt snc]
+  (-> (h/select [(cast :version_id :varchar) "versionsd-id"]
+                [(cast :_last_modified_date :varchar) "last-modified-date"]
+                [:_state "state"]
+                [:_logical_id "id"]
+                [(cast :data :text) "data"])
+      (h/from (keyword (resource-table-name resource-type)))
+      (h/where [:= (cast :_logical_id :varchar) (str id)])
+      (merge-where-if snc [:>= :_last_modified_date snc])
+      (limit-if cnt)
+      (h/order-by [:_last_modified_date :desc])
+      honey/format))
 (defn select-history [db-spec resource-type id cnt snc]
   (let [history (run-query db-spec
-                           (select-history* resource-type id cnt snc))]
+                           (select-history-sql resource-type id cnt snc))]
     (map #(update-in % [:data] clean-json) history)))
 
 (defn delete [db-spec resource-id]
