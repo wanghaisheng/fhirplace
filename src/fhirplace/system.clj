@@ -5,7 +5,7 @@
 
 
 (defn load-project-info []
-  ( let [pr (->> "project.clj"
+  (let [pr (->> "project.clj"
                  slurp
                  read-string)
          info (->> pr
@@ -47,6 +47,3 @@
   (when (:server system)
     (web/stop-server (:server system)))
   (dissoc system :server))
-
-
-
