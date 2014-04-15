@@ -22,11 +22,11 @@
         (discard-indexes some-data) => {:name [{:family ["Pedro"]}]}))
 
 (facts "`cons-url'"
-  (cons-url {:host "superhost" :protocol "http" :port 1234}
-            "Patient"
-            "123"
-            "234") => "http://superhost:1234/Patient/123/_history/234"
-  
-  (cons-url {:host "superhost" :protocol "http" :port 1234}
-            "Patient"
-            "123") => "http://superhost:1234/Patient/123")
+       (cons-url {:host "superhost" :protocol "http" :port 1234}
+                 "Patient"
+                 "123"
+                 "234") => "http://superhost:1234/Patient/123/_history/234"
+
+       (cons-url {:host "superhost" :protocol "http" :port 1234}
+                 "Patient"
+                 "123") => "http://superhost:1234/Patient/123")

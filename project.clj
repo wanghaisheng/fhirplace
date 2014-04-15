@@ -24,6 +24,8 @@
                  [clojure-saxon "0.9.3"]
                  [org.clojure/core.match  "0.2.1"]
                  [honeysql "0.4.3"]
+                 [org.clojure/data.xml "0.0.7"]
+                 [prismatic/plumbing "0.2.2"]
                  [org.clojure/data.zip "0.1.1"]]
 
   :profiles {:dev {:source-paths ["dev"]

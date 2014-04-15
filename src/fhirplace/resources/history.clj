@@ -2,14 +2,14 @@
   (require [fhirplace.util :as util]))
 
 (defn entry-title
-  [{{resource-type :resourceType} :json id :id version-id :version-id}] 
+  [{{resource-type :resourceType} :json id :id version-id :version-id}]
   (str "Resource of type " resource-type
        ", with id = " id
        " and version-id = "  version-id))
 
 (def last-updated-date (comp :last-modified-date first))
 
-(defn build-entry 
+(defn build-entry
   [{:keys [json last-modified-date id state version-id] :as entry} system]
   (let [history-url (util/cons-url system (:resourceType json) id version-id)
         res-url (util/cons-url system (:resourceType json) id)

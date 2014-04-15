@@ -7,6 +7,7 @@
             [compojure.response :as response]
             [ring.middleware.stacktrace :refer :all]
             [cheshire.core :as json]
+            [clojure.xml :as xml]
             [fhirplace.resources.conversion :as conversion]
             [ring.adapter.jetty :as jetty]))
 
@@ -37,7 +38,9 @@
   "Map of serializer fns to use in `wrap-with-body-serialization'."
   {:json (fn [body]
            (json/generate-string body))
-   :xml conversion/json->xml})
+   :xml (fn [x]
+          (let [xml-clj (conversion/json->xml x)]
+            (with-out-str (xml/emit xml-clj))))})
 
 (defn- determine-format
   "Determines request format (:xml or :json)."
@@ -50,14 +53,13 @@
 
 (defn wrap-with-format
   "Middleware for determining format of incoming request.
-   Creates :format key in `response' object with value either :xml or :json."
+  Creates :format key in `response' object with value either :xml or :json."
   [handler]
   (fn [request]
-    (let [format (determine-format request)]
-      (if format
-        (handler (assoc request :format format))
-        {:status 500
-         :body "Could not determine request format."}))))
+    (if-let [format (determine-format request)]
+      (handler (assoc request :format format))
+      {:status 500
+       :body "Could not determine request format."})))
 
 (defn wrap-with-response-serialization
   "Serialize response body to JSON or XML, if it has non-string value."
@@ -74,7 +76,7 @@
 
 (defn wrap-copy-body
   "Because of body can be read only once,
-   we should copy it for later use."
+  we should copy it for later use."
   [handler]
   (fn [request]
     (handler (if-let [body (:body request)]
@@ -84,10 +86,10 @@
 (defn create-web-handler [system]
   (let [stacktrace-fn (if (= :dev (:env system)) (wrap-stacktrace) identity)]
     (stacktrace-fn (-> (wrap-with-response-serialization main-routes)
-                     (wrap-with-format)
-                     (handler/api)
-                     (wrap-with-system system)
-                     (wrap-copy-body)))))
+                       (wrap-with-format)
+                       (handler/api)
+                       (wrap-with-system system)
+                       (wrap-copy-body)))))
 
 (defn start-server
   [handler port]

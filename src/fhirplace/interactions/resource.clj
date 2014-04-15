@@ -8,7 +8,6 @@
             [clojure.string :as string])
   (:refer-clojure :exclude (read)))
 
-
 (defn wrap-with-json [h]
   (fn [{body-str :body-str :as req}]
     (try
@@ -153,7 +152,7 @@
   [{{db :db :as system} :system {:keys [id resource-type]} :params :as req}]
   (let [{vid :version-id
          lmd :last-modified-date
-         resource :json} (repo/select-latest-version db resource-type id)]
+         resource :data} (repo/select-latest-version db resource-type id)]
       {:status 200
        :headers {"Content-Location" (util/cons-url system resource-type id vid)
                  "Last-Modified" lmd}
@@ -167,7 +166,7 @@
 (defn vread*
   [{{db :db} :system {:keys [resource-type id vid]} :params :as req}]
   (let [{lmd :last-modified-date
-         resource :json} (repo/select-version db resource-type id vid)]
+         resource :data} (repo/select-version db resource-type id vid)]
       {:status 200
        :headers {"Last-Modified" lmd}
        :body resource}))
