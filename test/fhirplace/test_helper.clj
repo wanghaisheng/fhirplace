@@ -77,6 +77,17 @@
         (do
           (println sample " is not matched with " testable)
           false)))))
+(defchecker count-in-body [path exp-count]
+  (checker
+    [act]
+    (let [json (json-body act)
+          testable (get-in json path)
+          testable-count (count testable)]
+      (if (= testable-count exp-count)
+        true
+        (do
+          (println "expected count " exp-count " but " testable-count " for " testable)
+          false)))))
 
 (defchecker header? [nm regx]
   (checker [act]

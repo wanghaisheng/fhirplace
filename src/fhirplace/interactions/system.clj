@@ -1,8 +1,11 @@
 (ns fhirplace.interactions.system
   (:use ring.util.response ring.util.request)
   (:require [fhirplace.resources.conformance :as conf]
+            [ring.util.codec]
             [fhirplace.resources.history :as hist]
             [fhirplace.resources.operation-outcome :as oo]
+            [clj-time.format :as time]
+            [clj-time.coerce :as time-coerce]
             [fhirplace.resources.conversion :as conversion]
             [fhirplace.resources.validation :as validation]
             [fhirplace.repositories.resource :as repo])
@@ -14,8 +17,8 @@
   [{ system :system params :params :as request }]
 
   {:body (conf/build-conformance
-           (repo/resource-types (:db system))
-           system)})
+          (repo/resource-types (:db system))
+          system)})
 
 (defn info
   "Handler for debug purposes (displays system info)."
@@ -38,16 +41,18 @@
     (catch Exception e
       {:status 400
        :body (oo/build-operation-outcome
-               "fatal"
-               "Request body could not be parsed")})))
+              "fatal"
+              "Request body could not be parsed")})))
 
 (defn history
   [{{db :db :as system} :system {:keys [id resource-type _count _since]} :params}]
-  (if (repo/exists? db id)
-    {:body (hist/build-history
-             (repo/select-history db resource-type id _count _since)
-             system)}
-    {:status 404
-     :body (oo/build-operation-outcome
-             "fatal"
-             (str "Resource with ID " id " doesn't exist"))}))
+  (let [since-decoded (when _since (ring.util.codec/url-decode _since))
+        since-sql (time-coerce/to-sql-time (time/parse since-decoded))]
+    (if (repo/exists? db id)
+      {:body (hist/build-history
+              (repo/select-history db resource-type id _count since-sql)
+              system)}
+      {:status 404
+       :body (oo/build-operation-outcome
+              "fatal"
+              (str "Resource with ID " id " doesn't exist"))})))

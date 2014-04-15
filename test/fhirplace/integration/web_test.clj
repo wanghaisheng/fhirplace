@@ -27,17 +27,11 @@
           resource-loc-simple (string/replace resource-loc-with-history #"/_history/.+" "")]
 
       (fact "get history"
-            (GET resource-loc) => (contains {:status 200})
-            (json-body (GET resource-loc)) => (contains {:resourceType "Bundle"
-                                                         :entry anything}))
+            (json-body (GET resource-loc)) => )
 
       (fact "get history with _count and _since"
-            (let [update-body (json/write-str
-                                (update-in  patient-json [:telecom] conj
-                                           {:system "phone"
-                                            :value "+919191282"
-                                            :use "home"} ))
-                  update-response (PUT-LONG resource-loc-simple update-body {"Content-Location" resource-loc-with-history})
+            (let [update-body
+                  update-response (PUT-LONG resource-loc-simple update-body)
                   update-last-modified (response/get-header update-response "Last-Modified")]
               (:status update-response) => 200
               (count (:entry (json-body (GET resource-loc)))) => 2
