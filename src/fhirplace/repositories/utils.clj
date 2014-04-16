@@ -5,7 +5,7 @@
             [honeysql.core :as honey]
             [clojure.string :as string]
             [honeysql.helpers :as h])
-  (:refer-clojure :exclude (delete)))
+  (:refer-clojure :exclude (delete cast)))
 
 (defn json-to-string [json-or-string]
   (if (string? json-or-string)
@@ -28,23 +28,23 @@
     (h/limit expr (Integer. limit))
     expr))
 
-(defn ++ [& parts]
+(defn- ++ [& parts]
   (keyword
     (apply str
            (map name parts))))
 
-(defn column [col type]
+(defn cast [col type]
   (++ col "::" type))
 
-(defn sql-mk-arg [x]
+(defn- sql-mk-arg [x]
   (if (vector? x)
     (str "?::" (name (second x)))
     "?"))
 
-(defn sql-mk-val [x]
+(defn- sql-mk-val [x]
   (if (vector? x) (first x) x))
 
-(defn sql-apply
+(defn- sql-apply
   "generate sql for proc call"
   [fn-nm & args]
   (let [args* (map sql-mk-arg args)

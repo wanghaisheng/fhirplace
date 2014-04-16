@@ -1,19 +1,61 @@
 (ns fhirplace.repositories.resource
   (:require [clojure.java.jdbc :as sql]
-            [clojure.data.json :as json]
             [fhirplace.repositories.utils :as u]
             [honeysql.core :as honey]
             [honeysql.helpers :as h])
   (:refer-clojure :exclude (delete cast)))
 
-(defn resource-table-name [res-type]
+(defn- table-name [res-type]
   (str "fhir." (.toLowerCase res-type)))
 
-(defn insert [db-spec resource]
-  (u/proc-call
-    db-spec
-    :fhir.insert_resource
-    [(u/json-to-string resource) :json]))
+(defmacro def-where
+  "generate merge-where scope for chaining"
+  [nm args & body]
+  `(defn- ~nm [exp# ~@args]
+     (h/merge-where exp# ~@body)))
+
+(def-where where-logical-id [id]
+  [:= (u/cast :_logical_id :varchar) (str id)])
+
+(def-where where-state [state]
+  [:= (u/cast :_state :varchar) state])
+
+(def-where where-state-not [state]
+  [:not= (u/cast :_state :varchar) state])
+
+(def-where where-version-id [vid]
+  [:= (u/cast :_version_id :varchar) vid])
+
+(defn- with-data [exp]
+  (h/merge-select exp (u/cast :data :text)))
+
+(defn- since [exp snc]
+  (u/merge-where-if exp snc [:>= :_last_modified_date snc]))
+
+(defn- with-limit [exp limit]
+  (h/limit exp limit))
+
+(defn- base-scope [resource-type id]
+  (-> (h/select [(u/cast :_version_id :varchar) "version-id"]
+                [(u/cast :_last_modified_date :varchar) "last-modified-date"]
+                [:_state "state"]
+                [:_logical_id "id"])
+      (h/from (keyword (table-name resource-type)))
+      (where-logical-id id)
+      (where-state-not "deleted")
+      (h/order-by [:_last_modified_date :desc])))
+
+(defn- query-> [query db-spec]
+  (sql/query db-spec (honey/format query)))
+
+(defn- fix-json [resource]
+  (when resource
+    (update-in resource [:data] u/clean-json)) )
+
+(defn- fix-all-json [xs]
+  (map fix-json xs))
+
+;; PUBLIC FUNCTIONS
 
 (defn resource-types [db-spec]
   (->> ["SELECT DISTINCT(path[1]) FROM meta.resource_elements"]
@@ -21,65 +63,20 @@
        (map :path)
        set))
 
-(defn scope-with-logical-id [exp id]
-  (h/merge-where
-    exp
-    [:= (u/column :_logical_id :varchar) (str id)]))
-
-(defn scope-with-state [exp state]
-  (h/merge-where
-    exp
-    [:= (u/column :_state :varchar) state]) )
-
-(defn scope-without-state [exp state]
-  (h/merge-where
-    exp
-    [:not= (u/column :_state :varchar) state]))
-
-(defn version-scope [resource-type id]
-  (-> (h/select [(u/column :_version_id :varchar) "version-id"]
-                [(u/column :_last_modified_date :varchar) "last-modified-date"]
-                [:_state "state"]
-                [:_logical_id "id"])
-      (h/from (keyword (resource-table-name resource-type)))
-      (scope-with-logical-id id)
-      (scope-without-state "deleted")
-      (h/order-by [:_last_modified_date :desc])))
-
-(defn scope-with-data [exp]
-  (h/merge-select exp (u/column :data :text)))
-
-(defn scope-with-version-id [exp vid]
-  (h/merge-where
-    exp [:= (u/column :_version_id :varchar) vid]))
-
-(defn scope-since [exp snc]
-  (u/merge-where-if exp snc [:>= :_last_modified_date snc]))
-
-(defn scope-limit [exp limit]
-  (h/limit exp limit))
-
-(defn honey-query [db-spec query]
-  (sql/query db-spec (honey/format query)))
-
-(defn query-> [query db-spec]
-  (honey-query db-spec query))
-
-(defn fix-json [resource]
-  (when resource
-    (update-in resource [:data] u/clean-json)) )
-
-(defn fix-all-json [xs]
-  (map fix-json xs))
+(defn insert [db-spec resource]
+  (u/proc-call
+    db-spec
+    :fhir.insert_resource
+    [(u/json-to-string resource) :json]))
 
 (defn select-version
   "select resource version"
   [db-spec resource-type id vid]
 
-  (-> (version-scope resource-type id)
-      (scope-with-data)
-      (scope-with-version-id vid)
-      (scope-limit 1)
+  (-> (base-scope resource-type id)
+      (with-data)
+      (where-version-id vid)
+      (h/limit 1)
 
       (query-> db-spec)
       (first)
@@ -89,9 +86,9 @@
   "select latest version"
   [db-spec resource-type id]
 
-  (-> (version-scope resource-type id)
-      (scope-with-data)
-      (scope-limit 1)
+  (-> (base-scope resource-type id)
+      (with-data)
+      (h/limit 1)
 
       (query-> db-spec)
       (first)
@@ -101,8 +98,8 @@
   "return latest version id"
   [db-spec resource-type id]
 
-  (-> (version-scope resource-type id)
-      (scope-limit 1)
+  (-> (base-scope resource-type id)
+      (h/limit 1)
 
       (query-> db-spec)
       (first)
@@ -112,10 +109,10 @@
   "select whole history"
   [db-spec resource-type id cnt snc]
 
-  (-> (version-scope resource-type id)
-      (scope-with-data)
-      (scope-limit cnt)
-      (scope-since snc)
+  (-> (base-scope resource-type id)
+      (with-data)
+      (h/limit cnt)
+      (since snc)
 
       (query-> db-spec)
       (fix-all-json)))
@@ -137,8 +134,8 @@
 (defn deleted? [db-spec resource-id]
   (-> (h/select :%count.*)
       (h/from  :fhir.resource)
-      (scope-with-logical-id resource-id)
-      (scope-with-state "deleted")
+      (where-logical-id resource-id)
+      (where-state "deleted")
       (query-> db-spec)
       first :count zero?  not))
 
@@ -147,7 +144,7 @@
 (defn exists? [db-spec resource-id]
   (-> (h/select :%count.*)
       (h/from  :fhir.resource)
-      (scope-with-logical-id resource-id)
-      (scope-with-state "current")
+      (where-logical-id resource-id)
+      (where-state "current")
       (query-> db-spec)
       first :count zero?  not))
