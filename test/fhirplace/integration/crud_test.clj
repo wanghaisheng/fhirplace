@@ -23,8 +23,9 @@
                       (first
                         (clojure.string/split pt-loc #"/_history/")))
 
-   :read-pt     (fnk [pt-uri]
-                     (GET pt-uri))
+   :read-pt     (fnk [pt-uri format]
+                     (GET pt-uri {:_format format}))
+
 
    :vread-pt    (fnk [pt-loc]
                      (GET pt-loc))
@@ -55,7 +56,7 @@
    :del->read   (fnk [pt-uri del-pt] (GET pt-uri)) })
 
 (deftest integration-test
-  (def res (test-cmp {}))
+  (def res (test-cmp {:format "application/json"}))
   (facts
     "create"
     (:create-pt res) => (contains {:status 201})
@@ -107,3 +108,9 @@
     (:del-pt res)     => (status? 204)
     (:del-2-pt res)   => (status? 204)
     (:del->read res)  => (status? 410)))
+
+
+(deftest integration-test
+  (def res (test-cmp {:format "application/xml"}))
+
+  (:read-pt res))
