@@ -17,7 +17,6 @@
       [nil [(str "Mailformed XML, could not be parsed: " e)]])))
 
 (defn- validate-xml [xml]
-  (println xml)
   (let [errors (validation/errors xml)]
     (if (empty? errors)
       [xml []]

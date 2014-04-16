@@ -19,6 +19,7 @@
                "fatal"
                (str "Resource cannot be parsed"))}))))
 
+
 (defn- check-type [db type]
   (let [resource-types (map string/lower-case
                             (repo/resource-types db))]

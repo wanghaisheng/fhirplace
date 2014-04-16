@@ -61,7 +61,6 @@
                [:= (++ alias :._logical_id) :_root._logical_id])))
 
 (defn join* [alias parts & others]
-  (println parts)
   (let [parts (map string/lower-case parts)]
     (hh/join [(++ :fhir. (string/join "_" parts)) alias]
              [:= (++ alias :._version_id) :_root._version_id]
