@@ -49,3 +49,16 @@
   (-> (io/resource path)
     (.toURI)
     (File.)))
+
+(defn format-json? [fmt]
+  (or (not fmt)
+      (#{"json"
+         "application/json"
+         "application/json+fhir"} fmt)))
+
+(defn format-xml? [fmt]
+  (#{"xml"
+     "text/xml"
+     "application/xml"
+     "application/xml+fhir"} fmt))
+

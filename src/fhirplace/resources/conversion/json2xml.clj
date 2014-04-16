@@ -128,8 +128,7 @@
   [path value]
   (cond
     (map? value) (convert-json-object-to-xml path value)
-    (or (list? value)
-      (vector? value)) (convert-json-array-to-xml path value)
+    (coll? value) (convert-json-array-to-xml path value)
       :else (convert-json-data-to-xml path value)))
 
 (defn perform

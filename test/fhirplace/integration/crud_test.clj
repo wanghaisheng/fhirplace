@@ -10,11 +10,11 @@
 (use 'plumbing.core)
 
 (def-test-cases test-cmp
-  {:pt-str       (fnk [] (fixture-str "patient"))
+  {:pt-str       (fnk [format] (fixture-str "patient" format))
    :pt           (fnk [] (fixture "patient"))
 
-   :create-pt    (fnk [pt-str]
-                      (POST "/Patient" pt-str))
+   :create-pt    (fnk [pt-str format]
+                      (POST (str "/Patient?_format=" format) pt-str))
 
    :pt-loc       (fnk [create-pt]
                       (get-header create-pt "Location"))
@@ -27,8 +27,8 @@
                      (GET pt-uri {:_format format}))
 
 
-   :vread-pt    (fnk [pt-loc]
-                     (GET pt-loc))
+   :vread-pt    (fnk [pt-loc format]
+                     (GET pt-loc {:_format format}))
 
    :new-telecom (fnk []
                      {:system "phone" :value "+919191282" :use "home"})
@@ -38,8 +38,8 @@
 
    :new-pt-json (fnk [new-pt] (json/write-str new-pt))
 
-   :wrong-chg   (fnk [new-pt-json pt-uri]
-                     (PUT pt-uri new-pt-json))
+   :wrong-chg   (fnk [new-pt-json pt-uri format]
+                     (PUT (str pt-uri "?_format=" format) (prepare-resource new-pt-json format)))
 
    :chg-pt      (fnk [pt-loc pt-uri new-pt-json]
                      (PUT pt-uri new-pt-json {"Content-Location" pt-loc}))
@@ -55,62 +55,69 @@
 
    :del->read   (fnk [pt-uri del-pt] (GET pt-uri)) })
 
-(deftest integration-test
-  (def res (test-cmp {:format "application/json"}))
+
+(defmacro defptest
+  "Defines parametrized test"
+  [nm args & body]
+  `(defn ~nm ~args
+     (deftest ~(symbol (str nm "-test"))
+       ~@body)))
+
+(defptest integration-test [format]
+  (def res (test-cmp {:format format}))
   (facts
-    "create"
-    (:create-pt res) => (contains {:status 201})
-    (:pt-loc res) => #"/Patient/.+/_history/.+")
+   "create"
+   (:create-pt res) => (contains {:status 201})
+   (:pt-loc res) => #"/Patient/.+/_history/.+")
 
   (facts "read"
-    (:read-pt res)
-    => (every-checker
-         (status? 200)
-         (header? "Content-Location" #"/Patient/.+/_history/.+")
-         (header? "Last-Modified" #"....-..-.. .+")
-         (contains {:body (complement nil?)})
-         (json-contains [:name] (:name (:pt res)))))
+         (:read-pt res)
+         => (every-checker
+             (status? 200)
+             (header? "Content-Location" #"/Patient/.+/_history/.+")
+             (header? "Last-Modified" #"....-..-.. .+")
+             (contains {:body (complement nil?)})
+             (body-contains [:name] (:name (:pt res)))))
 
   (facts
-    "vread"
-    (:vread-pt res)
-    => (every-checker
-         (status? 200)
-         (contains {:body (complement nil?)})
-         (json-contains [:name] (:name (:pt res)))))
+   "vread"
+   (:vread-pt res)
+   => (every-checker
+       (status? 200)
+       (contains {:body (complement nil?)})
+       (body-contains [:name] (:name (:pt res)))))
 
   (facts
-    "when UPDATEing without specified version error with outcome"
-    (:wrong-chg res)
-    => (every-checker
-         (status? 412)
-         (json-contains [:issue 0 :details] "Version id is missing in content location header")
-         (json-contains [:resourceType] "OperationOutcome")))
+   "when UPDATEing without specified version error with outcome"
+   (:wrong-chg res)
+   => (every-checker
+       (status? 412)
+       (body-contains [:issue 0 :details] "Version id is missing in content location header")
+       (body-contains [:resourceType] "OperationOutcome")))
 
   (facts
-    "update"
-    (:chg-pt res)
-    => (every-checker
-         (status? 200)
-         (contains {:body ""})))
+   "update"
+   (:chg-pt res)
+   => (every-checker
+       (status? 200)
+       (contains {:body ""})))
 
   (facts
-    "updated pt"
-    (:chg->read-pt res)
-    => (json-contains [:telecom 0] (:new-telecom res)))
+   "updated pt"
+   (:chg->read-pt res)
+   => (body-contains [:telecom 0] (:new-telecom res)))
 
   (fact
-    "when UPDATEing with specified previous resource version"
-    (:dup-chg-pt res) => (status? 409))
+   "when UPDATEing with specified previous resource version"
+   (:dup-chg-pt res) => (status? 409))
 
   (facts
-    "delete"
-    (:del-pt res)     => (status? 204)
-    (:del-2-pt res)   => (status? 204)
-    (:del->read res)  => (status? 410)))
+   "delete"
+   (:del-pt res)     => (status? 204)
+   (:del-2-pt res)   => (status? 204)
+   (:del->read res)  => (status? 410)))
 
 
-(deftest integration-test
-  (def res (test-cmp {:format "application/xml"}))
+(integration-test "application/json")
+(integration-test "application/xml")
 
-  (:read-pt res))

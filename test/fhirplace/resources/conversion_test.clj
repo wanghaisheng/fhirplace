@@ -19,7 +19,7 @@
 
 (facts "Conversion of XML to JSON"
   (fact "outputs valid JSON"
-    (json/read-str (c/xml->json pt-xml)) =not=> nil)
+        (c/xml->json pt-xml) =not=> nil)
 
   (fact "outputs same JSON as original patient.json is"
     (:address (c/xml->json pt-xml)) => (:address pt-data)))

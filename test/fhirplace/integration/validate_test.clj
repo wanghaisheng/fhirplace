@@ -36,11 +36,11 @@
     (:inv-post res)
     => (every-checker
          (status? 422)
-         (json-contains [:resourceType] "OperationOutcome")))
+         (body-contains [:resourceType] "OperationOutcome")))
 
   (fact
     "when received request with broken body should respond with 400"
     (:bad-post res)
     => (every-checker
          (status? 400)
-         (json-contains [:issue 0 :details] "Resource cannot be parsed"))))
+         (body-contains [:issue 0 :details] "Resource cannot be parsed"))))

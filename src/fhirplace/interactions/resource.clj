@@ -3,21 +3,26 @@
         ring.util.request)
   (:require [fhirplace.resources.operation-outcome :as oo]
             [fhirplace.repositories.resource :as repo]
+            [fhirplace.resources.conversion :as conv]
             [fhirplace.util :as util]
             [clojure.data.json :as json]
             [clojure.string :as string])
   (:refer-clojure :exclude (read)))
 
 (defn wrap-with-json [h]
-  (fn [{body-str :body-str :as req}]
+  (fn [{body-str :body-str {format :_format} :params :as req}]
     (try
-      (let  [json-body  (json/read-str body-str)]
+      (let [json-body (cond
+                       (util/format-json? format) (json/read-str body-str)
+                       (util/format-xml? format)  (conv/xml->json body-str)
+                       ;;TODO return OUTCOME
+                       :else {})]
         (h (assoc req :json-body json-body)))
       (catch Exception e
         {:status 400
          :body (oo/build-operation-outcome
-               "fatal"
-               (str "Resource cannot be parsed"))}))))
+                "fatal"
+                (str "Resource cannot be parsed"))}))))
 
 
 (defn- check-type [db type]
@@ -31,8 +36,8 @@
       (h req)
       {:status 404
        :body (oo/build-operation-outcome
-               "fatal"
-               (str "Resource type " resource-type " isn't supported"))})))
+              "fatal"
+              (str "Resource type " resource-type " isn't supported"))})))
 
 (defn wrap-resource-not-exist [h status]
   (fn [{{db :db} :system, {id :id} :params :as req}]
@@ -74,7 +79,7 @@
                "fatal"
                (str "Resource with ID " id " doesn't exist"))})))
 
-(defn wrap-with-deleted-check [h status]
+(defn check-if-deleted [h status]
   (fn [{{db :db} :system {id :id} :params :as req}]
     (if-not (repo/deleted? db id)
       (h req)
@@ -98,10 +103,13 @@
                "fatal"
                "Insertion of resource has failed on DB server")})))
 
+(defmacro <- [& forms]
+  `(-> ~@(reverse forms)))
+
 (def create
-  (-> create*
+  (<- wrap-with-json
       wrap-with-check-type
-      wrap-with-json))
+      create*))
 
 ;; 409/412 - version conflict management - see above
 (defn update*
@@ -123,12 +131,12 @@
                "Update of resource has failed on DB server")})))
 
 (def update
-  (-> update*
-      (wrap-resource-not-exist 405)
-      wrap-with-check-type
-      wrap-with-json
+  (<- wrap-resource-has-content-location
       wrap-resource-has-latest-version
-      wrap-resource-has-content-location))
+      wrap-with-json
+      wrap-with-check-type
+      (wrap-resource-not-exist 405)
+      update*))
 
 ;;   DELETE
 ;; - If the server refuses to delete resources of that type on principle,
@@ -145,9 +153,9 @@
       (status 204)))
 
 (def delete
-  (-> delete*
-      (wrap-with-deleted-check 404)
-      (wrap-with-deleted-check 204)))
+  (<- (check-if-deleted 204)
+      (wrap-resource-not-exist 404)
+      delete*))
 
 (defn read*
   [{{db :db :as system} :system
@@ -161,9 +169,9 @@
        :body (:data res)}))
 
 (def read
-  (-> read*
+  (<- (check-if-deleted 410)
       wrap-with-existence-check
-      (wrap-with-deleted-check 410)))
+      read*))
 
 (defn vread*
   [{{db :db} :system {:keys [resource-type id vid]} :params :as req}]
@@ -172,8 +180,7 @@
       {:status 200
        :headers {"Last-Modified" lmd}
        :body resource}))
-
 (def vread
-  (-> vread*
+  (<- (check-if-deleted 410)
       wrap-with-existence-check
-      (wrap-with-deleted-check 410)))
+      vread*))

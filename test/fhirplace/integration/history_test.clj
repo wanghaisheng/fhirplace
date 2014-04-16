@@ -39,7 +39,7 @@
   (fact
    "with no params"
    (GET (:history-loc res)) => (every-checker
-                                (json-contains [:resourceType] "Bundle")
+                                (body-contains [:resourceType] "Bundle")
                                 (status? 200)))
 
   (fact "version-aware put"

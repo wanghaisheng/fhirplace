@@ -119,7 +119,6 @@
 
 (defn delete
   [db-spec resource-id]
-
   (-> db-spec
       (u/proc-call
         :fhir.delete_resource [resource-id :uuid])))

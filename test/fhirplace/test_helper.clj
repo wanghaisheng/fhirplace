@@ -1,5 +1,7 @@
 (ns fhirplace.test-helper
   (:require [fhirplace.repositories.resource :refer :all]
+            [fhirplace.resources.conversion :as conv]
+            [fhirplace.util :as util]
             [clojure.test :refer :all]
             [fhirplace.system :as sys]
             [ring.mock.request :as mock]
@@ -45,12 +47,20 @@
        (facts ~str
               ~@body))))
 
-(defn fixture-str [name]
-  "Returns fixture content as string."
-  (slurp (str "test/fixtures/" name ".json")))
+(defn- format-to-ext [fmt]
+  ({"application/xml" ".xml"
+    "application/json" ".json"} fmt))
 
-(defn fixture [name]
+(defn fixture-str
+  "Returns fixture content as string."
+  ([name]
+     (fixture-str name "application/json"))
+  ([name fmt]
+     (slurp (str "test/fixtures/" name (format-to-ext fmt)))))
+
+(defn fixture
   "Returns fixture content as Clojure data structure (parsed from JSON)."
+  [name]
   (json/read-str (fixture-str name) :key-fn keyword))
 
 (defn json-body [{body :body :as req}]
@@ -67,10 +77,31 @@
   (checker [act]
            (= (:status act) exp)))
 
-(defchecker json-contains [path sample]
+(defn json? [text]
+  (re-find #"^\{" text))
+
+(defn xml? [text]
+  (re-find #"^<\?xml" text))
+
+(defn prepare-resource [res format]
+  (cond
+   (util/format-json? format) res
+   (util/format-xml? format) (conv/json->xml res)))
+
+(defn xml-body [{body :body :as req}]
+  (if body
+    (conv/xml->json body)
+    (throw (Exception. (str "Could not read body from request (it's empty): "  req)))))
+
+(defn parse-body [{body :body :as req}]
+  (cond
+   (json? body) (json-body req)
+   (xml? body) (xml-body req)))
+
+(defchecker body-contains [path sample]
   (checker
     [act]
-    (let [json (json-body act)
+    (let [json (parse-body act)
           testable (get-in json path)]
       (if (= testable sample)
         true
