@@ -2,11 +2,12 @@
   (:require [clojure.java.jdbc :as sql]
             [fhirplace.repositories.utils :as u]
             [honeysql.core :as honey]
+            [clojure.data.json :as json]
             [honeysql.helpers :as h])
   (:refer-clojure :exclude (delete cast)))
 
 (defn- table-name [res-type]
-  (str "fhir." (.toLowerCase res-type)))
+  (keyword (str "fhir." (.toLowerCase res-type))))
 
 (defmacro def-where
   "generate merge-where scope for chaining"
@@ -40,7 +41,7 @@
                 [(u/cast :_last_modified_date :varchar) "last-modified-date"]
                 [:_state "state"]
                 [:_logical_id "id"])
-      (h/from (keyword (table-name resource-type)))
+      (h/from (table-name resource-type))
       (where-logical-id id)
       (where-state-not "deleted")
       (h/order-by [:_last_modified_date :desc])))
@@ -147,3 +148,17 @@
       (where-state "current")
       (query-> db-spec)
       first :count zero?  not))
+
+(defn map-res [xs]
+  (map #(json/read-str (str %) :key-fn keyword)
+       (map :data xs)))
+
+;;FIXME: temporal
+(defn search [db-spec res-type]
+  (-> (h/select :*)
+      (h/from  (table-name res-type))
+      (where-state "current")
+      (h/limit 10)
+
+      (query-> db-spec)
+      ))

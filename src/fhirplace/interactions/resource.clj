@@ -21,9 +21,8 @@
       (catch Exception e
         {:status 400
          :body (oo/build-operation-outcome
-                "fatal"
-                (str "Resource cannot be parsed"))}))))
-
+                 "fatal"
+                 (str "Resource cannot be parsed"))}))))
 
 (defn- check-type [db type]
   (let [resource-types (map string/lower-case
@@ -163,10 +162,10 @@
     :as req}]
 
   (let [res (repo/select-latest-version db resource-type id)]
-      {:status 200
-       :headers {"Content-Location" (util/cons-url system resource-type id (:version_id res))
-                 "Last-Modified" (:last_modified_date res)}
-       :body (:data res)}))
+    {:status 200
+     :headers {"Content-Location" (util/cons-url system resource-type id (:version_id res))
+               "Last-Modified" (:last_modified_date res)}
+     :body (:data res)}))
 
 (def read
   (<- (check-if-deleted 410)
@@ -177,10 +176,19 @@
   [{{db :db} :system {:keys [resource-type id vid]} :params :as req}]
   (let [{lmd :last-modified-date
          resource :data} (repo/select-version db resource-type id vid)]
-      {:status 200
-       :headers {"Last-Modified" lmd}
-       :body resource}))
+    {:status 200
+     :headers {"Last-Modified" lmd}
+     :body resource}))
+
 (def vread
   (<- (check-if-deleted 410)
       wrap-with-existence-check
       vread*))
+
+
+;;FIXME: temporal
+(defn search
+  [{{db :db} :system {:keys [resource-type]} :params}]
+  {:status 200
+   :body (repo/search db resource-type)})
+
