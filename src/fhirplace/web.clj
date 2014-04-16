@@ -5,19 +5,31 @@
             [compojure.route :as route]
             [compojure.handler :as handler]
             [compojure.response :as response]
+            [ring.util.response :as resp]
             [ring.middleware.stacktrace :refer :all]
             [cheshire.core :as json]
             [clojure.xml :as xml]
             [fhirplace.resources.conversion :as conversion]
+            [fhirplace.views.metadata :as v-metadata]
             [ring.adapter.jetty :as jetty]))
 
 (def uuid-regexp
   #"[0-f]{8}-([0-f]{4}-){3}[0-f]{12}")
 
+(defn view [h view-fn]
+  (fn [req]
+    (let [resp (h req)]
+      (if (= (:format req) :html)
+        (-> (view-fn (:body resp))
+            (resp/response)
+            (resp/content-type "text/html; charset=utf-8"))
+        resp))))
+
 ;; TODO: Handle non-existed resource types
 (defroutes main-routes
+  (GET    "/"                                      []                 (view sys-int/conformance #'v-metadata/view)  )
   (GET    "/info"                                  []                 sys-int/info)
-  (GET    "/metadata"                              []                 sys-int/conformance)
+  (GET    "/metadata"                              []                 (view sys-int/conformance #'v-metadata/view)  )
   (POST   "/:resource-type"                        [resource-type]    res-int/create)
   (GET    ["/:resource-type/:id", :id uuid-regexp] [resource-type id] res-int/read)
   (GET    "/:resource-type/:id/_history/:vid"      [resource-type id vid] res-int/vread)
@@ -49,7 +61,7 @@
     (if format
       ({"application/json" :json
         "application/xml"  :xml} format)
-      :json)))
+      :html)))
 
 (defn wrap-with-format
   "Middleware for determining format of incoming request.
@@ -71,7 +83,9 @@
       (if (coll? body)
         (if (nil? format)
           (throw (Exception. "No request format specified."))
-          (assoc response :body ((format response-serializers) body)))
+          (if-let [fmt (get response-serializers format)]
+            (assoc response :body (fmt body))
+            response))
         response))))
 
 (defn wrap-copy-body
@@ -86,6 +100,7 @@
 (defn create-web-handler [system]
   (let [stacktrace-fn (if (= :dev (:env system)) (wrap-stacktrace) identity)]
     (stacktrace-fn (-> (wrap-with-response-serialization main-routes)
+                       (wrap-stacktrace)
                        (wrap-with-format)
                        (handler/api)
                        (wrap-with-system system)

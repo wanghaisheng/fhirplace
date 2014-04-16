@@ -22,6 +22,7 @@
                  [ring "1.2.1"]
                  [clj-time "0.6.0"]
                  [cheshire "5.3.1"]
+                 [garden "1.1.5"]
                  [clojure-saxon "0.9.3"]
                  [org.clojure/core.match  "0.2.1"]
                  [honeysql "0.4.3"]
