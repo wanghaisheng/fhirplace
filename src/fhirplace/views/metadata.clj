@@ -6,18 +6,6 @@
     [hiccup.page :as p]))
 
 
-(defn pretty-res
-  [obj]
-  (cond
-    (map? obj) [:ul.list
-                (for [[k v] obj]
-                  [:li
-                   [:b (name k)] " " (pretty-res v)])]
-    (vector? obj) [:ul.list
-                   (for [v obj]
-                     [:li (pretty-res v)])]
-
-    :else (str obj)))
 
 (defn view [conf]
   (let [info (dissoc conf :rest)
@@ -31,10 +19,10 @@
           [:a {:href "/metadata?_format=application/xml"} "XML"]
           " "
           [:a {:href "/metadata?_format=application/json"} "JSON"]]]
-        (pretty-res info)
+        (c/pretty-res info)
 
         [:h2 "Rest API"]
-        (pretty-res api)
+        (c/pretty-res api)
         [:h2 "Resources"]
         [:table.table
          [:thead
@@ -47,7 +35,7 @@
          [:tbody
           (for [res resources]
             [:tr
-             [:td [:b (str (:type res))]]
+             [:td [:a {:href (str "/" (:type res) "/_search") } (str (:type res))]]
              [:td (str (:readHistory res))]
              [:td (str (:updateCreate res))]
              [:td (str (:searchInclude res))]

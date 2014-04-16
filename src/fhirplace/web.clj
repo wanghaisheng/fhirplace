@@ -11,6 +11,7 @@
             [clojure.xml :as xml]
             [fhirplace.resources.conversion :as conversion]
             [fhirplace.views.metadata :as v-metadata]
+            [fhirplace.views.resources :as v-resources]
             [ring.adapter.jetty :as jetty]))
 
 (def uuid-regexp
@@ -31,7 +32,8 @@
   (GET    "/info"                                  []                 sys-int/info)
   (GET    "/metadata"                              []                 (view sys-int/conformance #'v-metadata/view)  )
   (POST   "/:resource-type"                        [resource-type]    res-int/create)
-  (GET    ["/:resource-type/:id", :id uuid-regexp] [resource-type id] res-int/read)
+  (GET    "/:resource-type/_search"                [resource-type]    (view res-int/search #'v-resources/view))
+  (GET    ["/:resource-type/:id", :id uuid-regexp] [resource-type id] (view res-int/read #'v-resources/show))
   (GET    "/:resource-type/:id/_history/:vid"      [resource-type id vid] res-int/vread)
   (GET    "/:resource-type/:id/_history"           [resource-type id] sys-int/history)
   (DELETE "/:resource-type/:id"                    [resource-type id] res-int/delete)

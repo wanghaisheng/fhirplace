@@ -21,5 +21,19 @@
     [:body
      [:div.container
       [:div.page-title
-       [:h1 "FHIRPlace REST service"]]
+       [:a {:href "/"}
+         [:h1 "FHIRPlace REST service"]]]
       content]]))
+
+(defn pretty-res
+  [obj]
+  (cond
+    (map? obj) [:ul.list
+                (for [[k v] obj]
+                  [:li
+                   [:b (name k)] " " (pretty-res v)])]
+    (vector? obj) [:ul.list
+                   (for [v obj]
+                     [:li (pretty-res v)])]
+
+    :else (str obj)))
