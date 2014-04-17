@@ -48,7 +48,7 @@
    :dup-chg-pt  (fnk [pt-loc pt-uri new-pt-json chg-pt]
                      (PUT pt-uri new-pt-json {"Content-Location" pt-loc}))
 
-   :chg->read-pt (fnk [chg-pt] (GET (get-header chg-pt "Location")))
+   :chg->read-pt (fnk [chg-pt format] (GET (str (get-header chg-pt "Location") "?_format=" format)))
 
    :del-pt      (fnk [pt-uri] (DELETE pt-uri))
 
