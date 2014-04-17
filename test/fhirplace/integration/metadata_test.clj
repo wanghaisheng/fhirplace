@@ -15,7 +15,7 @@
 
 (def-test-cases meta-case
   {:meta      (fnk []
-                   (GET "/metadata"))
+                   (GET "/metadata" {:_format "application/json"}))
    :meta-json (fnk [meta]
                    (json-body meta))
    :meta-xml  (fnk []
