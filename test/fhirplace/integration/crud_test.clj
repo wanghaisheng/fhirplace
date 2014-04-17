@@ -21,7 +21,7 @@
 
    :pt-uri       (fnk [pt-loc]
                       (first
-                        (clojure.string/split pt-loc #"/_history/")))
+                       (clojure.string/split pt-loc #"/_history/")))
 
    :read-pt     (fnk [pt-uri format]
                      (GET pt-uri {:_format format}))
@@ -35,6 +35,7 @@
 
    :new-pt      (fnk [pt new-telecom]
                      (assoc pt :telecom [new-telecom]))
+
 
    :new-pt-json (fnk [new-pt] (json/write-str new-pt))
 

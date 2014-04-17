@@ -12,14 +12,13 @@
 
 (def-test-cases test-case
   {:pt-str      (fnk [] (fixture-str "patient"))
-   :post        (fnk [pt-str] (POST "/Patient" pt-str))
+   :post        (fnk [pt-str] (POST "/Patient?_format=application/json" pt-str))
 
    :inv-pt-str  (fnk [] (fixture-str "invalid-patient"))
-   :inv-post    (fnk [inv-pt-str] (POST "/Patient" inv-pt-str))
+   :inv-post    (fnk [inv-pt-str] (POST "/Patient?_format=application/json" inv-pt-str))
 
    :bad-json    (fnk [] "hi there i'm invalid json lol")
-   :bad-post    (fnk [bad-json] (POST "/Patient" bad-json))})
-
+   :bad-post    (fnk [bad-json] (POST "/Patient?_format=application/json" bad-json))})
 
 (deftest validation-test
   (def res (test-case {}))
