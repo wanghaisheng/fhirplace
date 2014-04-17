@@ -54,7 +54,7 @@
 
    :del-2-pt    (fnk [pt-uri del-pt] (DELETE pt-uri))
 
-   :del->read   (fnk [pt-uri del-pt] (GET pt-uri)) })
+   :del->read   (fnk [pt-uri del-pt format] (GET (str pt-uri "?_format=" format))) })
 
 
 (defmacro defptest
