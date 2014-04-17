@@ -12,4 +12,4 @@
 
   (pt-validator
     (slurp "test/fixtures/invalid-patient.xml"))
-  => (contains "Invalid content was found"))
+  => (contains "org.xml.sax.SAXParseException"))
