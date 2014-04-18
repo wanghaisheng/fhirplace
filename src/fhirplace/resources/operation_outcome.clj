@@ -7,7 +7,7 @@
 (defn build-operation-outcome
   ([issues]
      (let [made-issues (remove nil? (map build-issue issues))]
-       (when-not (empty? made-issues)
+       (when (seq made-issues)
          {:issue made-issues
           :resourceType "OperationOutcome" })))
 
