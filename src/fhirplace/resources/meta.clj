@@ -44,7 +44,7 @@
 
     (let [el (lookup path-out)
           name-ref (and el (:nameRef el))]
-      (if (and name-ref (not (empty? name-ref)))
+      (if (and name-ref (seq name-ref))
         (normalize-path* path-in (reverse (into '() (string/split name-ref #"\."))))
         (normalize-path* (pop path-in) (concat path-out (list (first path-in))))))))
 
@@ -72,7 +72,7 @@
                      rawtype)]
         (cond
           (and eltype (empty? path-tail)) path
-          (and eltype (not (empty? path-tail))) (resolve-path* (conj path-tail eltype) '())
+          (and eltype (seq path-tail)) (resolve-path* (conj path-tail eltype) '())
           :else path))
 
       ; we don't have an element

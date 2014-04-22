@@ -11,7 +11,6 @@
 (use 'plumbing.core)
 
 (def re-xml  #"\<\?xml version='1\.0' encoding='UTF-8'\?\>")
-(def not-empty? (complement empty?))
 
 (def-test-cases meta-case
   {:meta      (fnk []
@@ -31,7 +30,7 @@
     (:meta-json res)
     => (every-checker
          (contains {:resourceType "Conformance" })
-         #(not-empty? (get-in % [:rest 0 :resources]))))
+         #(seq (get-in % [:rest 0 :resources]))))
 
   (fact
     "when requesting with mime-type=application/xml

@@ -25,7 +25,7 @@
 (defn convert-json-text-attr-to-xml
   [path value]
   (let [text (:text value)]
-    (if (and text (not (empty? text)))
+    (if (and text (seq text))
       (list
         (xml/element :text {}
           (xml/element :status {:value (:status text)})
