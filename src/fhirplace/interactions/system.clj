@@ -1,7 +1,7 @@
 (ns fhirplace.interactions.system
   (:use ring.util.response ring.util.request)
   (:require [fhirplace.resources.conformance :as conf]
-            [ring.util.codec]
+            [ring.util.codec :as codec]
             [fhirplace.resources.history :as hist]
             [fhirplace.resources.operation-outcome :as oo]
             [clj-time.format :as time]
@@ -41,13 +41,20 @@
        :body (oo/build-operation-outcome
               "fatal" "Request body could not be parsed")})))
 
+(defn- to-sql-time [since]
+  (when since
+    (let [formatter (time/formatter "YYYY-MM-dd HH:mm:ss.SSSSSSZZ")]
+      (time-coerce/to-sql-time
+       (time/parse formatter since)))))
+
 (defn history
   [{{db :db :as system} :system {:keys [id resource-type _count _since]} :params}]
-  (let [since-decoded (when _since (ring.util.codec/url-decode _since))
-        since-sql (time-coerce/to-sql-time (time/parse since-decoded))]
+  (let [since-decoded (when _since (codec/url-decode _since))
+        since-sql (to-sql-time since-decoded)
+        cnt (when _count (Integer. _count))]
     (if (repo/exists? db id)
       {:body (hist/build-history
-              (repo/select-history db resource-type id _count since-sql)
+              (repo/select-history db resource-type id cnt since-sql)
               system)}
       {:status 404
        :body (oo/build-operation-outcome

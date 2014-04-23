@@ -61,7 +61,8 @@
 (deffacts "`select-latest'"
   (let [patient (fixture "patient")
         id (repo/insert test-db patient)
-        vid (repo/select-latest-version-id test-db "Patient" id)]
+        meta (repo/select-latest-metadata test-db "Patient" id)
+        vid (:version_id meta)]
 
     (:data
       (repo/select-version test-db "Patient" id vid)) => (contains

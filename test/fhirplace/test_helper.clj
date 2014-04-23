@@ -96,7 +96,8 @@
 (defn parse-body [{body :body :as req}]
   (cond
    (json? body) (json-body req)
-   (xml? body) (xml-body req)))
+   (xml? body) (xml-body req)
+   :else body))
 
 (defchecker body-contains [path sample]
   (checker
@@ -111,7 +112,7 @@
 (defchecker count-in-body [path exp-count]
   (checker
     [act]
-    (let [json (json-body act)
+    (let [json (parse-body act)
           testable (get-in json path)
           testable-count (count testable)]
       (if (= testable-count exp-count)

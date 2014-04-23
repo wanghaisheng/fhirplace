@@ -56,15 +56,7 @@
 
    :del->read   (fnk [pt-uri del-pt format] (GET (str pt-uri "?_format=" format))) })
 
-
-(defmacro defptest
-  "Defines parametrized test"
-  [nm args & body]
-  `(defn ~nm ~args
-     (deftest ~(symbol (str nm "-test"))
-       ~@body)))
-
-(defptest integration-test [format]
+(defn integration* [format]
   (def res (test-cmp {:format format}))
   (facts
    "create"
@@ -118,7 +110,6 @@
    (:del-2-pt res)   => (status? 204)
    (:del->read res)  => (status? 410)))
 
-
-(integration-test "application/json")
-(integration-test "application/xml")
-
+(deftest integration
+  (integration* "application/json")
+  (integration* "application/xml"))

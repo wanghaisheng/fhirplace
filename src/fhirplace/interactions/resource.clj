@@ -61,7 +61,8 @@
         {id :id resource-type :resource-type} :params
         {content-location "Content-Location"} :headers :as req}]
     (let [version-id (last (string/split content-location #"_history/"))
-          last-version-id (repo/select-latest-version-id db resource-type id)]
+          meta (repo/select-latest-metadata db resource-type id)
+          last-version-id (:version_id meta)]
       (if (= version-id last-version-id)
         (h req)
         {:status 409
@@ -92,9 +93,12 @@
     {resource-type :resource-type} :params :as req}]
   (try
     (let [id (repo/insert db json-body)
-          vid (repo/select-latest-version-id db resource-type id)]
+          meta (repo/select-latest-metadata db resource-type id)
+          vid (:version_id meta)
+          lmd (:last_modified_date meta)]
       (-> {}
-          (header "Location" (util/cons-url system resource-type id vid))
+          (header "Location" (util/cons-url system resource-type id  vid))
+          (header "Last-Modified" lmd)
           (status 201)))
     (catch java.sql.SQLException e
       {:status 422
@@ -116,10 +120,12 @@
     body-str :body-str :as req}]
   (try
     (repo/update db id body-str)
-    (let [vid (repo/select-latest-version-id db resource-type id)
+    (let [meta (repo/select-latest-metadata db resource-type id)
+          vid (:version_id meta)
+          lmd (:last_modified_date meta)
           resource-loc (util/cons-url system resource-type id vid)]
       (-> {}
-          (header "Last-Modified" (java.util.Date.))
+          (header "Last-Modified" lmd)
           (header "Location" resource-loc)
           (header "Content-Location" resource-loc)
           (status 200)))

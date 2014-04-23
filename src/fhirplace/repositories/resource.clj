@@ -95,21 +95,19 @@
       (first)
       (fix-json)))
 
-(defn select-latest-version-id
-  "return latest version id"
+(defn select-latest-metadata
+  "return metadata of latest version"
   [db-spec resource-type id]
 
   (-> (base-scope resource-type id)
       (h/limit 1)
 
       (query-> db-spec)
-      (first)
-      :version_id))
+      (first)))
 
 (defn select-history
   "select whole history"
   [db-spec resource-type id cnt snc]
-
   (-> (base-scope resource-type id)
       (with-data)
       (h/limit cnt)
