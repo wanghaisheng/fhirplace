@@ -46,20 +46,19 @@
 (defn history* [format]
   (def res (test-case {:format format}))
   
-  (fact
-     "with no params"
-     (:res-history res) => (every-checker
-                            (body-contains [:resourceType] "Bundle")
-                            (status? 200)))
+  (fact "with no params"
+         (:res-history res) => (every-checker
+                                (body-contains [:resourceType] "Bundle")
+                                (status? 200)))
 
   (fact "version-aware put"
-          (:put res) => (status? 200))
+        (:put res) => (status? 200))
   (fact "history"
-          (:history res) => (count-in-body [:entry] 2))
+        (:history res) => (count-in-body [:entry] 2))
   (fact "history with _count"
         (:history-with-count res) => (count-in-body [:entry] 1))
   (fact "history with _since"
-          (:history-with-since res) => (count-in-body [:entry] 1)))
+        (:history-with-since res) => (count-in-body [:entry] 1)))
 
 (deffacts "History"
   (history* "application/json")

@@ -4,12 +4,10 @@
             [ring.util.codec :as codec]
             [fhirplace.resources.history :as hist]
             [fhirplace.resources.operation-outcome :as oo]
-            [clj-time.format :as time]
-            [clj-time.coerce :as time-coerce]
             [fhirplace.resources.conversion :as conversion]
             [fhirplace.resources.validation :as validation]
+            [fhirplace.util :as util]
             [fhirplace.repositories.resource :as repo])
-
   (:refer-clojure :exclude (read)))
 
 (defn conformance
@@ -41,21 +39,17 @@
        :body (oo/build-operation-outcome
               "fatal" "Request body could not be parsed")})))
 
-(defn- to-sql-time [since]
-  (when since
-    (let [formatter (time/formatter "YYYY-MM-dd HH:mm:ss.SSSSSSZZ")]
-      (time-coerce/to-sql-time
-       (time/parse formatter since)))))
-
 (defn history
   [{{db :db :as system} :system {:keys [id resource-type _count _since]} :params}]
   (let [since-decoded (when _since (codec/url-decode _since))
-        since-sql (to-sql-time since-decoded)
+        since (util/from-sql-time-string since-decoded)
+        since-sql (util/to-sql-time since)
         cnt (when _count (Integer. _count))]
     (if (repo/exists? db id)
       {:body (hist/build-history
               (repo/select-history db resource-type id cnt since-sql)
-              system)}
+              system
+              )}
       {:status 404
        :body (oo/build-operation-outcome
               "fatal"

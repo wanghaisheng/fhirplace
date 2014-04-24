@@ -1,13 +1,12 @@
 (ns fhirplace.resources.history
-  (require [fhirplace.util :as util]))
+  (require [fhirplace.util :as util]
+           [clj-time.coerce :as tc]))
 
-(defn entry-title
+(defn- entry-title
   [{{resource-type :resourceType} :json id :id version-id :version-id}]
   (str "Resource of type " resource-type
        ", with id = " id
        " and version-id = "  version-id))
-
-(def last-updated-date (comp :last-modified-date first))
 
 (defn build-entry
   [{:keys [json last-modified-date id state version-id] :as entry} system]
@@ -16,16 +15,23 @@
         result {:title (entry-title entry)
                 :link [{:rel "self" :href history-url}]
                 :id res-url
+                :published (java.util.Date.)
                 :content json}]
     (cond
-      (= state "deleted") (assoc result :deleted last-modified-date)
-      :else (assoc result :updated last-modified-date))))
+     (= state "deleted") (assoc result :deleted last-modified-date)
+     :else (assoc result :updated (tc/to-date
+                                   (util/from-sql-time-string last-modified-date))))))
 
 
 ;; `link' property not added, because don't know where to get it
 (defn build-history [entries system]
   {:resourceType "Bundle"
-   :title "History of Resource"
-   :updated (last-updated-date entries)
+   :title "History of Resource" ; content aware title
+   :id "2323"
+   :author {:name "Fhirplace Server by HealthSamurai."
+            :uri "http://healthsamurai.github.io"}
+   :link [;;{:rel "self" :href uri}
+          {:rel "fhir-base" :href (util/cons-url system)}]
+   :updated (java.util.Date.)
    :totalResults (count entries)
    :entry (map #(build-entry % system) entries)})

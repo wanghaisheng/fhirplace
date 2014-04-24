@@ -102,7 +102,7 @@
 (defn create-web-handler [system]
   (let [stacktrace-fn (if (= :dev (:env system)) (wrap-stacktrace) identity)]
     (stacktrace-fn (-> (wrap-with-response-serialization main-routes)
-                       (wrap-stacktrace)
+                       ;(wrap-stacktrace)
                        (wrap-with-format)
                        (handler/api)
                        (wrap-with-system system)

@@ -1,8 +1,8 @@
 (ns fhirplace.util
-  (:require
-   [clojure.java.io :as io]))
-
-(import 'java.io.File)
+  (:require [clj-time.format :as time]
+            [clj-time.coerce :as time-coerce]
+            [clojure.java.io :as io])
+  (:import java.io.File))
 
 (defn discard-nils [m]
   (reduce (fn [acc [k v]]
@@ -34,12 +34,14 @@
           {} m))
 
 (defn cons-url
-  ([{:keys [host protocol port]} resource-type id]
-    (-> (str protocol "://" host ":" port)
-        (str "/" resource-type "/" id)))
+  ([system resource-type id]
+     (str (cons-url system)
+          "/" resource-type "/" id))
   ([system resource-type id vid]
-    (-> (cons-url system resource-type id)
-        (str "/_history/" vid))))
+     (str (cons-url system resource-type id)
+          "/_history/" vid))
+  ([{:keys [host protocol port]}]
+     (str protocol "://" host ":" port)))
 
 (defn resource-to-file
   "Makes instance of File class for something
@@ -61,4 +63,13 @@
      "text/xml"
      "application/xml"
      "application/xml+fhir"} fmt))
+
+(defn from-sql-time-string [string]
+  (when string
+    (let [formatter (time/formatter "YYYY-MM-dd HH:mm:ss.SSSSSSZZ")]
+      (time/parse formatter string))))
+
+(defn to-sql-time [time]
+  (when time
+    (time-coerce/to-sql-time time)))
 
