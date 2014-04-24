@@ -168,10 +168,11 @@
     :as req}]
 
   (let [res (repo/select-latest-version db resource-type id)]
-    {:status 200
-     :headers {"Content-Location" (util/cons-url system resource-type id (:version_id res))
-               "Last-Modified" (:last_modified_date res)}
-     :body (:data res)}))
+    (-> (response (:data res))
+        (header "Content-Location"
+                (util/cons-url system resource-type id (:version_id res)))
+        (header "Last-Modified" (:last_modified_date res))
+        (status 200))))
 
 (def read
   (<- (check-if-deleted 410)
@@ -182,9 +183,9 @@
   [{{db :db} :system {:keys [resource-type id vid]} :params :as req}]
   (let [{lmd :last-modified-date
          resource :data} (repo/select-version db resource-type id vid)]
-    {:status 200
-     :headers {"Last-Modified" lmd}
-     :body resource}))
+    (-> (response resource)
+        (header "Last-Modified" lmd)
+        (status 200))))
 
 (def vread
   (<- (check-if-deleted 410)

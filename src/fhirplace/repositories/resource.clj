@@ -38,7 +38,7 @@
 
 (defn- base-scope [resource-type id]
   (-> (h/select [(u/cast :_version_id :varchar) "version-id"]
-                [(u/cast :_last_modified_date :varchar) "last-modified-date"]
+                [:_last_modified_date "last-modified-date"]
                 [:_state "state"]
                 [:_logical_id "id"])
       (h/from (table-name resource-type))
@@ -158,5 +158,4 @@
       (where-state "current")
       (h/limit 10)
 
-      (query-> db-spec)
-      ))
+      (query-> db-spec)))
