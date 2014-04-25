@@ -87,6 +87,11 @@
        :body (oo/build-operation-outcome
                "warning"
                (str "Resource with ID " id " was deleted"))})))
+(defn- last-modified-header [response ^java.sql.Timestamp lmd]
+  (->> lmd
+       (clj-time.coerce/from-date)
+       (clj-time.format/unparse (:date-time clj-time.format/formatters))
+       (header response "Last-Modified")))
 
 (defn create*
   [{ {db :db :as system} :system, json-body :json-body, uri :uri
@@ -98,7 +103,7 @@
           lmd (:last_modified_date meta)]
       (-> {}
           (header "Location" (util/cons-url system resource-type id  vid))
-          (header "Last-Modified" lmd)
+          (last-modified-header lmd)
           (status 201)))
     (catch java.sql.SQLException e
       {:status 422
@@ -125,7 +130,7 @@
           lmd (:last_modified_date meta)
           resource-loc (util/cons-url system resource-type id vid)]
       (-> {}
-          (header "Last-Modified" lmd)
+          (last-modified-header lmd)
           (header "Location" resource-loc)
           (header "Content-Location" resource-loc)
           (status 200)))
@@ -171,7 +176,7 @@
     (-> (response (:data res))
         (header "Content-Location"
                 (util/cons-url system resource-type id (:version_id res)))
-        (header "Last-Modified" (:last_modified_date res))
+        (last-modified-header (:last_modified_date res))
         (status 200))))
 
 (def read
@@ -181,10 +186,10 @@
 
 (defn vread*
   [{{db :db} :system {:keys [resource-type id vid]} :params :as req}]
-  (let [{lmd :last-modified-date
+  (let [{lmd :last_modified_date
          resource :data} (repo/select-version db resource-type id vid)]
     (-> (response resource)
-        (header "Last-Modified" lmd)
+        (last-modified-header lmd)
         (status 200))))
 
 (def vread

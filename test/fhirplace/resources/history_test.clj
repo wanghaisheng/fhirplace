@@ -7,10 +7,14 @@
 (def test-system (sys/create :test))
 (def datetime? (partial instance? java.util.Date))
 (def uri-regex #"https?://.+")
+(defn timestamp []
+  (-> (java.util.Date.)
+      (.getTime)
+      (java.sql.Timestamp.)))
 
 (facts "`build-history'"
-       (let [entries [{:last-modified-date "2014-04-24 14:48:37.881344+03"}
-                      {:last-modified-date "2013-04-24 14:48:37.881344+03"
+       (let [entries [{:last_modified_date (timestamp)}
+                      {:last_modified_date (timestamp)
                        :state "deleted"}]
              history (h/build-history entries test-system)]
 
@@ -29,7 +33,7 @@
 
 (facts "`build-entry'"
   (fact "Updated resource"
-    (let [entry {:last-modified-date "2014-04-24 14:48:37.881344+03"
+    (let [entry {:last_modified_date (timestamp)
                  :id 1111
                  :state "updated"
                  :version-id 2222
@@ -45,10 +49,10 @@
       entry-res => (contains {:updated datetime?})
       entry-res => (contains {:published datetime?})))
   (fact "Deleted resource"
-    (let [entry {:last-modified-date "2014-04-24 14:48:37.881344+03"
+    (let [entry {:last_modified_date (timestamp)
                  :id 1111
                  :version-id 2222
                  :state "deleted"
                  :json {:resourceType "Patient" }}
           entry-res (h/build-entry entry test-system)]
-      entry-res => (contains {:deleted "2014-04-24 14:48:37.881344+03"}))))
+      entry-res => (contains {:deleted (timestamp)}))))

@@ -66,7 +66,7 @@
 
 (defn from-sql-time-string [string]
   (when string
-    (let [formatter (time/formatter "YYYY-MM-dd HH:mm:ss.SSSSSSZZ")]
+    (let [formatter (:date-time time/formatters)]
       (time/parse formatter string))))
 
 (defn to-sql-time [time]

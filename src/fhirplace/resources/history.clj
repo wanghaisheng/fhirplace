@@ -9,7 +9,7 @@
        " and version-id = "  version-id))
 
 (defn build-entry
-  [{:keys [json last-modified-date id state version-id] :as entry} system]
+  [{:keys [json last_modified_date id state version-id] :as entry} system]
   (let [history-url (util/cons-url system (:resourceType json) id version-id)
         res-url (util/cons-url system (:resourceType json) id)
         result {:title (entry-title entry)
@@ -18,9 +18,8 @@
                 :published (java.util.Date.)
                 :content json}]
     (cond
-     (= state "deleted") (assoc result :deleted last-modified-date)
-     :else (assoc result :updated (tc/to-date
-                                   (util/from-sql-time-string last-modified-date))))))
+     (= state "deleted") (assoc result :deleted last_modified_date)
+     :else (assoc result :updated last_modified_date))))
 
 
 ;; `link' property not added, because don't know where to get it

@@ -68,7 +68,7 @@
          => (every-checker
              (status? 200)
              (header? "Content-Location" #"/Patient/.+/_history/.+")
-             (header? "Last-Modified" #"....-..-.. .+")
+             (header? "Last-Modified" #"....-..-...+")
              (contains {:body (complement nil?)})
              (body-contains [:name] (:name (:pt res)))))
 
