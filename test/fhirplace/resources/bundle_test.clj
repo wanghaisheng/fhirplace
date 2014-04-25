@@ -12,7 +12,7 @@
       (.getTime)
       (java.sql.Timestamp.)))
 
-(facts "`build-history'"
+(facts "`build-bundle'"
        (let [entries [{:last_modified_date (timestamp)}
                       {:last_modified_date (timestamp)
                        :state "deleted"}]
@@ -25,11 +25,17 @@
          => (just #{{:rel "fhir-base" :href (util/cons-url test-system)}
                     #_{:rel "self", :href uri}})
 
-         history => (contains {:title "History of Resource"})
          history => (contains {:updated datetime?})
          history => (contains {:entry anything})
          history => (contains {:totalResults 2})))
 
+(facts "`build-history'"
+       (let [entries [{:last_modified_date (timestamp)}
+                      {:last_modified_date (timestamp)
+                       :state "deleted"}]
+             history (b/build-history entries test-system)]
+
+         history => (contains {:title "History of Resource"})))
 
 (facts "`build-entry'"
   (fact "Updated resource"
