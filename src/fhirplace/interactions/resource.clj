@@ -87,10 +87,10 @@
        :body (oo/build-operation-outcome
                "warning"
                (str "Resource with ID " id " was deleted"))})))
-(defn- last-modified-header [response ^java.sql.Timestamp lmd]
+
+(defn- last-modified-header [response ^java.util.Date lmd]
   (->> lmd
-       (clj-time.coerce/from-date)
-       (clj-time.format/unparse (:date-time clj-time.format/formatters))
+       (util/unparse-time)
        (header response "Last-Modified")))
 
 (defn create*

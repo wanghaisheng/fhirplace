@@ -64,12 +64,15 @@
      "application/xml"
      "application/xml+fhir"} fmt))
 
-(defn from-sql-time-string [string]
-  (when string
-    (let [formatter (:date-time time/formatters)]
-      (time/parse formatter string))))
+(def ^:private xs-date-time-fmt
+  (:date-time time/formatters))
 
-(defn to-sql-time [time]
-  (when time
-    (time-coerce/to-sql-time time)))
+(defn parse-time [string]
+  (->> string
+       (time/parse xs-date-time-fmt)
+       (time-coerce/to-sql-time)))
 
+(defn unparse-time [^java.util.Date t]
+  (->> t
+       (time-coerce/from-date)
+       (time/unparse xs-date-time-fmt)))

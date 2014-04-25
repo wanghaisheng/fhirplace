@@ -39,17 +39,19 @@
        :body (oo/build-operation-outcome
               "fatal" "Request body could not be parsed")})))
 
+(defn- prepare-since [enc-since]
+  (when enc-since
+    (util/parse-time
+     (codec/url-decode enc-since))))
+
 (defn history
   [{{db :db :as system} :system {:keys [id resource-type _count _since]} :params}]
-  (let [since-decoded (when _since (codec/url-decode _since))
-        since (util/from-sql-time-string since-decoded)
-        since-sql (util/to-sql-time since)
+  (let [since (prepare-since _since)
         cnt (when _count (Integer. _count))]
     (if (repo/exists? db id)
       {:body (hist/build-history
-              (repo/select-history db resource-type id cnt since-sql)
-              system
-              )}
+              (repo/select-history db resource-type id cnt since)
+              system)}
       {:status 404
        :body (oo/build-operation-outcome
               "fatal"
