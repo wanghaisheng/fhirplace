@@ -55,4 +55,4 @@
                  :state "deleted"
                  :json {:resourceType "Patient" }}
           entry-res (h/build-entry entry test-system)]
-      entry-res => (contains {:deleted (timestamp)}))))
+      entry-res => (contains {:deleted datetime?}))))

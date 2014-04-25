@@ -35,7 +35,7 @@
    :totalResults (count entries)
    :entry (map #(build-entry % system) entries)})
 
-(defn build-history2 [entries system]
-  (build-bundle entries system
-                :title "History of Resource"
-                :link-self "TODO"))
+;; (defn build-history2 [entries system]
+;;   (build-bundle entries system
+;;                 :title "History of Resource"
+;;                 :link-self "TODO"))
