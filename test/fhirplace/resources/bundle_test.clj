@@ -1,7 +1,6 @@
-(ns fhirplace.resources.history-test
+(ns fhirplace.resources.bundle-test
   (:use midje.sweet)
   (:require [fhirplace.resources.bundle :as b]
-            [fhirplace.resources.history :as h]
             [fhirplace.system :as sys]
             [fhirplace.util :as util]))
 
@@ -17,7 +16,7 @@
        (let [entries [{:last_modified_date (timestamp)}
                       {:last_modified_date (timestamp)
                        :state "deleted"}]
-             history (h/build-history entries test-system)]
+             history (b/build-history entries test-system)]
 
          history => (contains {:resourceType "Bundle"})
          history => (contains {:id string?})
@@ -25,7 +24,7 @@
          (:link history)
          => (just #{{:rel "fhir-base" :href (util/cons-url test-system)}
                     #_{:rel "self", :href uri}})
-         
+
          history => (contains {:title "History of Resource"})
          history => (contains {:updated datetime?})
          history => (contains {:entry anything})

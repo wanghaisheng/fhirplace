@@ -30,3 +30,9 @@
    :updated (java.util.Date.)
    :totalResults (count entries)
    :entry (map #(build-entry % system) entries)})
+
+(defn build-history [entries system]
+  (-> (build-bundle entries system)
+      (assoc :title "History of Resource")
+      ;; (update-in [:link] conj {:rel "self" :href "TODO"})
+      ))

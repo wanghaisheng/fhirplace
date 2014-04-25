@@ -2,7 +2,7 @@
   (:use ring.util.response ring.util.request)
   (:require [fhirplace.resources.conformance :as conf]
             [ring.util.codec :as codec]
-            [fhirplace.resources.history :as hist]
+            [fhirplace.resources.bundle :as b]
             [fhirplace.resources.operation-outcome :as oo]
             [fhirplace.resources.conversion :as conversion]
             [fhirplace.resources.validation :as validation]
@@ -49,7 +49,7 @@
   (let [since (prepare-since _since)
         cnt (when _count (Integer. _count))]
     (if (repo/exists? db id)
-      {:body (hist/build-history
+      {:body (b/build-history
               (repo/select-history db resource-type id cnt since)
               system)}
       {:status 404
