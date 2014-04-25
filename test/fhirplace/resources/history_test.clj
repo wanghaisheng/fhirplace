@@ -1,6 +1,7 @@
 (ns fhirplace.resources.history-test
   (:use midje.sweet)
-  (:require [fhirplace.resources.history :as h]
+  (:require [fhirplace.resources.bundle :as b]
+            [fhirplace.resources.history :as h]
             [fhirplace.system :as sys]
             [fhirplace.util :as util]))
 
@@ -39,7 +40,7 @@
                  :version-id 2222
                  :json {:resourceType "Patient"
                         :other-patient-fields "and values"}}
-          entry-res (h/build-entry entry test-system)]
+          entry-res (b/build-entry entry test-system)]
 
       entry-res => (contains {:title "Resource of type Patient, with id = 1111 and version-id = 2222"})
       (first (:link entry-res)) => (contains {:rel "self" :href #"https?://.+/_history/.+"})
@@ -54,5 +55,5 @@
                  :version-id 2222
                  :state "deleted"
                  :json {:resourceType "Patient" }}
-          entry-res (h/build-entry entry test-system)]
+          entry-res (b/build-entry entry test-system)]
       entry-res => (contains {:deleted datetime?}))))
