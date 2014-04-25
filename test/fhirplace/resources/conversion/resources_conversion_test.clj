@@ -1,4 +1,4 @@
-(ns fhirplace.resources.conversion-test
+(ns fhirplace.resources.conversion.resources-conversion-test
   (:use midje.sweet)
   (:require
     [fhirplace.resources.conversion :as c]
