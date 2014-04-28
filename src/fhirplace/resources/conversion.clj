@@ -10,7 +10,9 @@
   (let [json (if (string? json-str)
                (json/read-str json-str :key-fn keyword)
                json-str)]
-    (json2xml/perform json)))
+    (condp = (:resourceType json)
+      "Bundle" (json2xml/bundle json)
+      :else (json2xml/perform json))))
 
 (defn xml->json
   "Converts XML with FHIR resource into JSON representation."

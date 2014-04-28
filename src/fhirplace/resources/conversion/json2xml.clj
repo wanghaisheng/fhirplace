@@ -136,3 +136,8 @@
   [json]
 
   (first (convert-json-value-to-xml (list (:resourceType json)) json)))
+
+(defn bundle
+  "Converts bundle to xml"
+  [json]
+  ())

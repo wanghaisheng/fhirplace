@@ -3,7 +3,6 @@
   (:require
     [fhirplace.resources.bundle :as b]
     [fhirplace.resources.conversion :as c]
-    [fhirplace.resources.validation :as v]
     [fhirplace.test-helper :as th]
     [clojure.data.json :as json])
   (:import [java.io File StringReader]
@@ -18,6 +17,8 @@
       (.getTime)
       (java.sql.Timestamp.)))
 
+(def patient (th/fixture "patient"))
+
 (defn valid-atom? [xml-string]
   (let [schema-file (File. "resources/json2xml/atom.xsd.xml")
         schema-factory (SchemaFactory/newInstance XMLConstants/W3C_XML_SCHEMA_NS_URI)
@@ -28,10 +29,11 @@
       (.validate validator source)
       true
       (catch Exception exp
+        (println exp)
         false))))
 
-(let [entries [{:last_modified_date (timestamp)}
-                      {:last_modified_date (timestamp)
-                       :state "deleted"}]
+(let [entries [(merge patient {:last_modified_date (timestamp)})
+               (merge patient {:last_modified_date (timestamp)
+                               :state "deleted"})]
       bundle (b/build-bundle entries th/test-system)]
-  (is (= true (valid-atom? (json2xml bundle)))))
+  (is (= true (valid-atom? (c/json->xml bundle)))))
