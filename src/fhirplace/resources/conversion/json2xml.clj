@@ -152,10 +152,13 @@
 
 (defn b-en [attr json]
   (map (fn [e] (b-el attr
-                     (b-at :title e)
-                     (b-at :id e)
-                     ;(b-dt :updated e)
-                     )) (attr json)))
+                     (map (fn [k]
+                            (cond (some #{k} '(:title :id))
+                                  (b-at k e)
+                                  (= k :updated)
+                                  (b-dt k e)))
+                          (keys e))))
+       (attr json)))
 
 (defn bundle
   "Converts bundle to xml"
