@@ -164,7 +164,11 @@
   "Converts bundle to xml"
   [json]
   (xml/emit-str (xml/element :feed {:xmlns "http://www.w3.org/2005/Atom"}
-                             (b-at :title json)
-                             (b-at :id json)
-                             (b-dt :updated json)
-                             (b-en :entry #spy/p json))))
+                             (map (fn [e]
+                                    (cond (some #{e} '(:title :id))
+                                          (b-at e json)
+                                          (= e :updated)
+                                          (b-dt e json)
+                                          (= e :entry)
+                                          (b-en e #spy/p json)))
+                                  (keys json)))))
