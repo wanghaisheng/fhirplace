@@ -3,7 +3,9 @@
   (:require
    [fhirplace.resources.meta :as meta]
    [fhirplace.util :as util]
-   [clojure.data.xml :as xml]))
+   [clojure.data.xml :as xml]
+   [clj-time.format :as c-format]
+   [clj-time.coerce :as c-coerce]))
 
 (defn convert-json-data-to-xml
   [path value]
@@ -138,10 +140,20 @@
 
   (first (convert-json-value-to-xml (list (:resourceType json)) json)))
 
-(defn b-el [attr json]
-  (xml/element attr {} (attr json)))
+(defn b-el [attr el]
+  (xml/element attr {} el))
+
+(defn b-at [attr json]
+  (b-el attr (str (attr json))))
+
+(defn b-dt [attr json]
+  (b-el attr
+        (c-format/unparse (c-format/formatters :date-time) (c-coerce/from-date (attr json)))))
 
 (defn bundle
   "Converts bundle to xml"
   [json]
-  (xml/emit-str (xml/element :feed {:xmlns "http://www.w3.org/2005/Atom"} (b-el :title json) (b-el :id #spy/p json))))
+  (xml/emit-str (xml/element :feed {:xmlns "http://www.w3.org/2005/Atom"}
+                             (b-at :title json)
+                             (b-at :id json)
+                             (b-dt :updated #spy/p json))))
