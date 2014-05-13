@@ -177,3 +177,11 @@
                              (b-dt :updated json)
                              (b-lk :link json)
                              (b-en :entry #spy/p json))))
+                            ; (map (fn [e]
+                             ;       (cond (some #{e} '(:title :id))
+                              ;            (b-at e json)
+                               ;           (= e :updated)
+                                ;          (b-dt e json)
+                                 ;         (= e :entry)
+                                  ;        (b-en e #spy/p json)))
+                                  ;(keys json)))))
