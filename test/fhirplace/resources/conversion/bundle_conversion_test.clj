@@ -1,10 +1,14 @@
 (ns fhirplace.resources.conversion.bundle-conversion-test
-  (:use [clojure.test :only (is)])
+  (:use
+    [clojure.test :only (is)]
+    [spyscope.core])
+        
   (:require
     [fhirplace.resources.bundle :as b]
     [fhirplace.resources.conversion :as c]
     [fhirplace.test-helper :as th]
     [clojure.data.json :as json])
+
   (:import [java.io File StringReader]
            [javax.xml XMLConstants]
            [javax.xml.transform.stream StreamSource]
@@ -36,4 +40,4 @@
                (merge patient {:last_modified_date (timestamp)
                                :state "deleted"})]
       bundle (b/build-bundle entries th/test-system)]
-  (is (= true (valid-atom? (c/json->xml bundle)))))
+  (is (= true (valid-atom? #spy/p (c/json->xml bundle)))))

@@ -1,4 +1,5 @@
 (ns fhirplace.resources.conversion.json2xml
+  (:use spyscope.core)
   (:require
    [fhirplace.resources.meta :as meta]
    [fhirplace.util :as util]
@@ -137,7 +138,10 @@
 
   (first (convert-json-value-to-xml (list (:resourceType json)) json)))
 
+(defn b-el [attr json]
+  (xml/element attr {} (attr json)))
+
 (defn bundle
   "Converts bundle to xml"
   [json]
-  ())
+  (xml/emit-str (xml/element :feed {:xmlns "http://www.w3.org/2005/Atom"} (b-el :title json) (b-el :id #spy/p json))))
