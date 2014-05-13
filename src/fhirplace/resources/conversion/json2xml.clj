@@ -150,10 +150,14 @@
   (b-el attr
         (c-format/unparse (c-format/formatters :date-time) (c-coerce/from-date (attr json)))))
 
+(defn b-lk [attr json]
+  (map (fn [l] (xml/element attr l)) (attr json)))
+
 (defn b-en [attr json]
   (map (fn [e] (b-el attr
                      (b-at :title e)
                      (b-at :id e)
+                     (b-lk :link e)
                      ;(b-dt :updated e)
                      )) (attr json)))
 
@@ -164,4 +168,5 @@
                              (b-at :title json)
                              (b-at :id json)
                              (b-dt :updated json)
+                             (b-lk :link json)
                              (b-en :entry #spy/p json))))
