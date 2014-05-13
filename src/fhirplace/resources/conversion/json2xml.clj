@@ -140,8 +140,8 @@
 
   (first (convert-json-value-to-xml (list (:resourceType json)) json)))
 
-(defn b-el [attr el]
-  (xml/element attr {} el))
+(defn b-el [attr & els]
+  (apply xml/element attr {} els))
 
 (defn b-at [attr json]
   (b-el attr (str (attr json))))
@@ -150,10 +150,18 @@
   (b-el attr
         (c-format/unparse (c-format/formatters :date-time) (c-coerce/from-date (attr json)))))
 
+(defn b-en [attr json]
+  (map (fn [e] (b-el attr
+                     (b-at :title e)
+                     (b-at :id e)
+                     ;(b-dt :updated e)
+                     )) (attr json)))
+
 (defn bundle
   "Converts bundle to xml"
   [json]
   (xml/emit-str (xml/element :feed {:xmlns "http://www.w3.org/2005/Atom"}
                              (b-at :title json)
                              (b-at :id json)
-                             (b-dt :updated #spy/p json))))
+                             (b-dt :updated json)
+                             (b-en :entry #spy/p json))))
