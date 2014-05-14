@@ -3,11 +3,15 @@
     [fhirplace.views.common :as c]
     [hiccup.core :as h]
     [clojure.string :as s]
-    [hiccup.page :as p]))
+    [hiccup.page :as p]
+    [hiccup.form :as f]))
 
 (defn view [xs]
+  (info "foo bar")
   (c/layout
-    [:h1 "Resources"]
+   [:h1 "Resources"]
+   (f/form-to [:post "/alert.json"] (f/text-area "resource" "{\"resourceType \": \"Alert \",\"text \": {\"status \": \"generated \",\"div \": \"<div>Large Dog warning</div> \"},\"category \": {\"coding \": [{\"system \": \"local \",\"code \": \"admin \",\"display \": \"Admin \"}],\"text \": \"admin \"},\"status \": \"active \",\"subject \": {\"reference \": \"Patient/example \",\"display \": \"Peter Patient \"},\"author \": {\"reference \": \"Practitioner/example \",\"display \": \"Nancy Nurse \"},\"note \": \"patient has a big dog at his home. Always always wear a suit of armor or take other active counter-measures \"}")
+              (f/submit-button "Create Alert"))
     [:table.table
      [:tr
       [:th.nowrap "Id"]
