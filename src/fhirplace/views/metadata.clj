@@ -35,7 +35,9 @@
          [:tbody
           (for [res resources]
             [:tr
-             [:td [:a {:href (str "/" (:type res) "/_search") } (str (:type res))]]
+             [:td [:a {:href (str "/"
+                                  (s/lower-case (s/replace (:type res) #"(.)([A-Z])" "$1_$2"))
+                                  "/_search") } (str (:type res))]]
              [:td (str (:readHistory res))]
              [:td (str (:updateCreate res))]
              [:td (str (:searchInclude res))]
