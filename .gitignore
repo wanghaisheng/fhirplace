@@ -11,3 +11,10 @@ pom.xml.asc
 /resources/config.clj
 *sw?
 **/.#*
+
+# JavaScript Single Page Application.
+spa-ui/.sass-cache
+spa-ui/.tmp
+spa-ui/app/bower_components
+spa-ui/dist
+spa-ui/node_modules
