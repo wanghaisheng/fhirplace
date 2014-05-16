@@ -14,8 +14,8 @@ pom.xml.asc
 
 # JavaScript Single Page Application.
 resources/public
-spa-ui/.sass-cache
-spa-ui/.tmp
-spa-ui/app/bower_components
-spa-ui/dist
-spa-ui/node_modules
+gui/.sass-cache
+gui/.tmp
+gui/app/bower_components
+gui/dist
+gui/node_modules
