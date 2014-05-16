@@ -1,6 +1,6 @@
 'use strict'
 
-angular.module('fhirplaceSpaUi')
+angular.module('fhirplaceGui')
   .controller 'MetadataIndexCtrl', ($scope, $http) ->
     $http({method: 'GET', url: '/metadata?_format=application/json'}).
       success((data, status, headers, config) ->

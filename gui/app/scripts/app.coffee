@@ -1,6 +1,6 @@
 'use strict'
 
-angular.module('fhirplaceSpaUi', [
+angular.module('fhirplaceGui', [
   'ngCookies',
   'ngResource',
   'ngSanitize',
