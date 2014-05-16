@@ -13,9 +13,9 @@ pom.xml.asc
 **/.#*
 
 # JavaScript Single Page Application.
-resources/public
 gui/.sass-cache
 gui/.tmp
 gui/app/bower_components
 gui/dist
 gui/node_modules
+resources/public
