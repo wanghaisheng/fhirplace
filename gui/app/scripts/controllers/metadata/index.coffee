@@ -2,7 +2,7 @@
 
 angular.module('fhirplaceSpaUi')
   .controller 'MetadataIndexCtrl', ($scope, $http) ->
-    $http({method: 'GET', url: 'http://localhost:8889/metadata?_format=application/json'}).
+    $http({method: 'GET', url: '/metadata?_format=application/json'}).
       success((data, status, headers, config) ->
         $scope.name = data.name
         $scope.resources = data.rest[0].resources
