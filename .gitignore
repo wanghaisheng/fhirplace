@@ -13,6 +13,7 @@ pom.xml.asc
 **/.#*
 
 # JavaScript Single Page Application.
+resources/public
 spa-ui/.sass-cache
 spa-ui/.tmp
 spa-ui/app/bower_components

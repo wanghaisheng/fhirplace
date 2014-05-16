@@ -22,7 +22,7 @@ module.exports = function (grunt) {
     yeoman: {
       // configurable paths
       app: require('./bower.json').appPath || 'app',
-      dist: 'dist'
+      dist: '../resources/public'
     },
 
     // Watches files for changes and runs tasks based on the changed files
@@ -52,6 +52,15 @@ module.exports = function (grunt) {
           '.tmp/scripts/**/*.js',
           '<%= yeoman.app %>/images/**/*.{png,jpg,jpeg,gif,webp,svg}'
         ]
+      },
+      reload: {
+        files: [
+          '<%= yeoman.app %>/**/*.html',
+          '.tmp/styles/**/*.css',
+          '.tmp/scripts/**/*.js',
+          '<%= yeoman.app %>/images/**/*.{png,jpg,jpeg,gif,webp,svg}'
+        ],
+        tasks: ['build']
       }
     },
 
@@ -103,6 +112,7 @@ module.exports = function (grunt) {
     // Empties folders to start fresh
     clean: {
       dist: {
+        options: { force: true },
         files: [{
           dot: true,
           src: [
@@ -288,6 +298,12 @@ module.exports = function (grunt) {
         cwd: '<%= yeoman.app %>/styles',
         dest: '.tmp/styles/',
         src: '**/*.css'
+      },
+      js: {
+        expand: true,
+        cwd: '.tmp/scripts',
+        dest: '<%= yeoman.dist %>/scripts',
+        src: '**/*.js'
       }
     },
 
@@ -307,6 +323,10 @@ module.exports = function (grunt) {
         'imagemin',
         'svgmin'
       ]
+    },
+
+    concat: {
+      dist: {}
     },
 
     // By default, your `index.html`'s <!-- Usemin block --> will take care of
@@ -374,6 +394,17 @@ module.exports = function (grunt) {
   ]);
 
   grunt.registerTask('build', [
+    'clean:dist',
+    'bower-install',
+    'concurrent:dist',
+    'autoprefixer',
+    'concat',
+    'copy:dist',
+    'copy:js',
+    'cdnify'
+  ]);
+
+  grunt.registerTask('deploy', [
     'clean:dist',
     'bower-install',
     'useminPrepare',

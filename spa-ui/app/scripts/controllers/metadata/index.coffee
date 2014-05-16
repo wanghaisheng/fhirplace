@@ -9,3 +9,4 @@ angular.module('fhirplaceSpaUi')
       error (data, status, headers, config) ->
         # called asynchronously if an error occurs
         # or server returns response with an error status.
+        console.log 'karamba'

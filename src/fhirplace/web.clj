@@ -7,6 +7,7 @@
             [compojure.response :as response]
             [ring.util.response :as resp]
             [ring.middleware.stacktrace :refer :all]
+            [ring.middleware.file :refer :all]
             [cheshire.core :as json]
             [clojure.xml :as xml]
             [fhirplace.resources.conversion :as conversion]
@@ -106,7 +107,9 @@
                        (wrap-with-format)
                        (handler/api)
                        (wrap-with-system system)
-                       (wrap-copy-body)))))
+                       (wrap-copy-body)
+                       (wrap-file "resources/public") ;<http://clojuredocs.org/ring/ring.middleware.file/wrap-file>
+                       ))))
 
 (defn start-server
   [handler port]
