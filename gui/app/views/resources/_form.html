@@ -1,0 +1,15 @@
+<fs-form-for model="rawResource" ng-submit="save()"
+             ng-controller="ResourcesFormCtrl">
+  <fieldset class="form-horizontal">
+    <fs-input as="text" name="json" required="" label="JSON"></fs-input>
+  </fieldset>
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+      <input type="submit"
+             value="Save"
+             class="btn btn-primary"/>
+      <a class="btn btn-default"
+         href="/#/resources/{{ resourceId }}">Cancel</a>
+    </div>
+  </div>
+</fs-form-for>
