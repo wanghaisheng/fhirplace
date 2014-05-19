@@ -35,8 +35,8 @@ module.exports = function (grunt) {
         files: ['test/spec/**/*.{coffee,litcoffee,coffee.md}'],
         tasks: ['newer:coffee:test', 'karma']
       },
-      styles: {
-        files: ['<%= yeoman.app %>/styles/**/*.css'],
+      less: {
+        files: ['<%= yeoman.app %>/less/**/*.less'],
         tasks: ['newer:copy:styles', 'autoprefixer']
       },
       gruntfile: {
@@ -177,6 +177,19 @@ module.exports = function (grunt) {
 
 
 
+    less: {
+      dist: {
+        files: [{
+          expand: true,
+          cwd: '<%= yeoman.app %>/less',
+          src: ['**/*.less', '!**/*#.less'],
+          dest: '.tmp/styles',
+          ext: '.css'
+        }]
+      }
+    },
+
+
     // Renames files for browser caching purposes
     rev: {
       dist: {
@@ -295,8 +308,8 @@ module.exports = function (grunt) {
       },
       styles: {
         expand: true,
-        cwd: '<%= yeoman.app %>/styles',
-        dest: '.tmp/styles/',
+        cwd: '.tmp/styles',
+        dest: '<%= yeoman.dist %>/styles',
         src: '**/*.css'
       },
       js: {
@@ -311,14 +324,20 @@ module.exports = function (grunt) {
     concurrent: {
       server: [
         'coffee:dist',
+        'less:dist',
+        'autoprefixer',
         'copy:styles'
       ],
       test: [
         'coffee',
+        'less',
+        'autoprefixer',
         'copy:styles'
       ],
       dist: [
         'coffee',
+        'less',
+        'autoprefixer',
         'copy:styles',
         'imagemin',
         'svgmin'
@@ -374,7 +393,6 @@ module.exports = function (grunt) {
       'clean:server',
       'bower-install',
       'concurrent:server',
-      'autoprefixer',
       'connect:livereload',
       'watch'
     ]);
@@ -388,7 +406,6 @@ module.exports = function (grunt) {
   grunt.registerTask('test', [
     'clean:server',
     'concurrent:test',
-    'autoprefixer',
     'connect:test',
     'karma'
   ]);
@@ -397,7 +414,6 @@ module.exports = function (grunt) {
     'clean:dist',
     'bower-install',
     'concurrent:dist',
-    'autoprefixer',
     'concat',
     'copy:dist',
     'copy:js',
@@ -409,7 +425,6 @@ module.exports = function (grunt) {
     'bower-install',
     'useminPrepare',
     'concurrent:dist',
-    'autoprefixer',
     'concat',
     'ngmin',
     'copy:dist',
