@@ -13,10 +13,10 @@ angular.module('fhirplaceGui', [
       .when '/',
         templateUrl: 'views/metadata/index.html'
         controller: 'MetadataIndexCtrl'
-      .when '/resources/:resourceId',
+      .when '/resources/:resourceType',
         templateUrl: 'views/resources/index.html'
         controller: 'ResourcesIndexCtrl'
-      .when '/resources/:resourceId/new',
+      .when '/resources/:resourceType/new',
         templateUrl: 'views/resources/new.html'
         controller: 'ResourcesNewCtrl'
       .otherwise

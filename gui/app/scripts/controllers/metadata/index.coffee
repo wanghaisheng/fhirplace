@@ -2,7 +2,7 @@
 
 angular.module('fhirplaceGui')
   .controller 'MetadataIndexCtrl', ($scope, $http) ->
-    $http({method: 'GET', url: '/metadata?_format=application/json'}).
+    $http.get('/metadata?_format=application/json').
       success((data, status, headers, config) ->
         $scope.name = data.name
         $scope.resources = data.rest[0].resources.sort (a, b) ->

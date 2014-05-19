@@ -2,5 +2,5 @@
 
 angular.module('fhirplaceGui')
   .controller 'ResourcesIndexCtrl', ($scope, $routeParams) ->
-    $scope.resourceId    = $routeParams.resourceId
-    $scope.resourceLabel = $routeParams.resourceId
+    $scope.resourceType  = $routeParams.resourceType
+    $scope.resourceLabel = $routeParams.resourceType
