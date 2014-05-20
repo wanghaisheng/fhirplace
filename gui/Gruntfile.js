@@ -182,7 +182,7 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           cwd: '<%= yeoman.app %>/less',
-          src: ['**/*.less', '!**/*#.less'],
+          src: '**/*.less',
           dest: '.tmp/styles',
           ext: '.css'
         }]
@@ -324,21 +324,15 @@ module.exports = function (grunt) {
     concurrent: {
       server: [
         'coffee:dist',
-        'less:dist',
-        'autoprefixer',
-        'copy:styles'
+        'less:dist'
       ],
       test: [
         'coffee',
-        'less',
-        'autoprefixer',
-        'copy:styles'
+        'less'
       ],
       dist: [
         'coffee',
         'less',
-        'autoprefixer',
-        'copy:styles',
         'imagemin',
         'svgmin'
       ]
@@ -393,6 +387,7 @@ module.exports = function (grunt) {
       'clean:server',
       'bower-install',
       'concurrent:server',
+      'autoprefixer',
       'connect:livereload',
       'watch'
     ]);
@@ -406,6 +401,7 @@ module.exports = function (grunt) {
   grunt.registerTask('test', [
     'clean:server',
     'concurrent:test',
+    'autoprefixer',
     'connect:test',
     'karma'
   ]);
@@ -417,6 +413,8 @@ module.exports = function (grunt) {
     'concat',
     'copy:dist',
     'copy:js',
+    'autoprefixer',
+    'copy:styles',
     'cdnify'
   ]);
 
@@ -428,6 +426,9 @@ module.exports = function (grunt) {
     'concat',
     'ngmin',
     'copy:dist',
+    'copy:js',
+    'autoprefixer',
+    'copy:styles',
     'cdnify',
     'cssmin',
     'uglify',
