@@ -1,6 +1,3 @@
-<ol class="breadcrumb">
-  <li><a href="/#/">Resources list</a></li>
-  <li><a href="/#/resources/{{ resourceType }}">{{ resourceLabel }}</a></li>
-</ol>
+<div ng-include="'views/resources/_breadcrumbs.html'"></div>
 <h1>New {{ resourceLabel }}</h1>
 <div ng-include="'views/resources/_form.html'"></div>
