@@ -19,5 +19,8 @@ angular.module('fhirplaceGui', [
       .when '/resources/:resourceType/new',
         templateUrl: 'views/resources/new.html'
         controller: 'ResourcesNewCtrl'
+      .when '/resources/:resourceType/:resourceId',
+        templateUrl: 'views/resources/edit.html'
+        controller: 'ResourcesEditCtrl'
       .otherwise
         redirectTo: '/'
