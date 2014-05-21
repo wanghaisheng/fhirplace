@@ -1,4 +1,5 @@
 FHIRPLACE
+=========
 
 Internal format is “JSON”.
 Should validate before insert, update.
@@ -42,8 +43,11 @@ Search
   xml support
 
 Errors
-  Return errors from any action
-  xml support
+------
+
+* Return errors from any action
+* Xml support
+* Explicite response output if request format is not defined
 
 Transactions
   Not done at all
