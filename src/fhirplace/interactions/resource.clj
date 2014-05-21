@@ -108,8 +108,10 @@
     (catch java.sql.SQLException e
       {:status 422
        :body (oo/build-operation-outcome
-               "fatal"
-               "Insertion of resource has failed on DB server")})))
+              [{:severity "fatal"
+                :details "Insertion of resource has failed on DB server"}
+               {:severity "fatal"
+                :details (oo/exception-with-message e)}])})))
 
 (defmacro <- [& forms]
   `(-> ~@(reverse forms)))

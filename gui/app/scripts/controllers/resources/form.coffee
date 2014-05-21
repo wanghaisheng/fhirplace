@@ -8,7 +8,10 @@ angular.module('fhirplaceGui')
    $routeParams) ->
     $scope.save = ->
       if $scope.form.$valid
-        $http.post("/#{$routeParams.resourceType}", $scope.rawResource.json).
+        $http.post(
+          "/#{$routeParams.resourceType}?_format=application/json",
+          $scope.rawResource.json
+          ).
           success((data, status, headers, config) ->
             console.log 'me hapy'
             $location.path("/resources/#{$routeParams.resourceType}")
