@@ -1,5 +1,5 @@
 <div ng-include="'views/resources/_breadcrumbs.html'"></div>
-<h1>{{ resourceTypeLabel }} <small>{{ resourceLogicalId }}</small></h1>
+<h1>{{ resourceTypeLabel }} <small>{{ resourceLabel }}</small></h1>
 <ul class="nav nav-tabs">
   <li class="active">
     <a href="#">Show</a>
@@ -9,6 +9,6 @@
   </li>
 </ul>
 <p>
-  <pre>GET /{{ resourceType }}/{{resourceLogicalId}}?_format=application/json</pre>
+  <div ng-include="'views/shared/_rest_address.html'"></div>
   <pre>{{ resource }}</pre>
 </p>

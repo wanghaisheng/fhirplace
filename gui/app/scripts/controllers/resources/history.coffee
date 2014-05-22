@@ -6,9 +6,10 @@ angular.module('fhirplaceGui')
     $scope.resourceTypeLabel = $scope.resourceType
     $scope.resourceLogicalId = $routeParams.resourceLogicalId
     $scope.resourceLabel     = $scope.resourceLogicalId
-
-    $http.get(
+    $scope.restRequestMethod = 'GET'
+    $scope.restUri =
       "/#{$scope.resourceType}/#{$scope.resourceLogicalId}/_history?_format=application/json"
-    ).success (data, status, headers, config) ->
+
+    $http.get($scope.restUri).success (data, status, headers, config) ->
       $scope.resourceHistory  = angular.toJson(angular.fromJson(data), true)
       $scope.resourceVersions = data.entry

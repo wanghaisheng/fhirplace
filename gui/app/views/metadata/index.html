@@ -1,5 +1,5 @@
 <h1>{{ serverName }}'s resources list</h1>
-<pre>GET /metadata?_format=application/json</pre>
+<div ng-include="'views/shared/_rest_address.html'"></div>
 <ul>
   <li ng-repeat="resourceType in resourceTypes">
     <a href="/#/resources/{{ resourceType.type }}">{{ resourceType.type }}</a>

@@ -9,7 +9,7 @@
     <a href="/#/resources/{{ resourceType }}/{{resourceLogicalId}}">{{resourceLabel}}</a>
   </li>
 </ol>
-<h1>{{ resourceTypeLabel }} <small>{{ resourceLogicalId }}</small></h1>
+<h1>{{ resourceTypeLabel }} <small>{{ resourceLabel }}</small></h1>
 <ul class="nav nav-tabs">
   <li>
     <a href="/#/resources/{{ resourceType }}/{{resourceLogicalId}}">Show</a>
@@ -17,7 +17,7 @@
   <li class="active"><a href="#">History</a></li>
 </ul>
 <p>
-  <pre>GET /{{ resourceType }}/{{resourceLogicalId}}/_history?_format=application/json</pre>
+  <div ng-include="'views/shared/_rest_address.html'"></div>
   <pre>{{ resourceHistory }}</pre>
 </p>
 

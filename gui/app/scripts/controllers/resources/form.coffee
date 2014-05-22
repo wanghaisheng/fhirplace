@@ -2,23 +2,15 @@
 
 angular.module('fhirplaceGui')
   .controller 'ResourcesFormCtrl',
-  ($scope,
-   $http,
-   $location,
-   $routeParams) ->
-    $scope.resourceType = $routeParams.resourceType
+  ($scope, $http, $location) ->
 
     $scope.save = ->
       if $scope.form.$valid
-        $http.post(
-          "/#{$scope.resourceType}?_format=application/json",
-          $scope.resource.json
-          ).
-          success((data, status, headers, config) ->
+        $http.post($scope.restUri, $scope.resource.json)
+          .success((data, status, headers, config) ->
             console.log 'me hapy'
             $location.path("/resources/#{$scope.resourceType}")
-          ).
-          error (data, status, headers, config) ->
+          ).error (data, status, headers, config) ->
             console.log 'digital gods do not love our json post'
       else
         # Show all invalid fields.
