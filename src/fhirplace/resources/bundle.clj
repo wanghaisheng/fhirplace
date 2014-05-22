@@ -8,14 +8,14 @@
        " and version-id = "  version-id))
 
 (defn build-entry
-  [{:keys [json last_modified_date id state version-id] :as entry} system]
-  (let [history-url (util/cons-url system (:resourceType json) id version-id)
-        res-url (util/cons-url system (:resourceType json) id)
+  [{:keys [data last_modified_date id state version-id] :as entry} system]
+  (let [history-url (util/cons-url system (:resourceType data) id version-id)
+        res-url (util/cons-url system (:resourceType data) id)
         result {:title (entry-title entry)
                 :link [{:rel "self" :href history-url}]
                 :id res-url
                 :published (java.util.Date.)
-                :content json}]
+                :content data}]
     (cond
      (= state "deleted") (assoc result :deleted last_modified_date)
      :else (assoc result :updated last_modified_date))))
