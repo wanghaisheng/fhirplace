@@ -7,4 +7,4 @@ angular.module('fhirplaceGui')
 
     $http.get("/#{$scope.resourceType}/_search?_format=application/json").
       success (data, status, headers, config) ->
-        $scope.collection = data
+        $scope.resources = data

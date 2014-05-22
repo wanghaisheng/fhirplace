@@ -7,7 +7,7 @@
   <a href="/#/resources/{{ resourceType }}/new"
      class="btn btn-primary">New {{ resourceTypeLabel }}</a>
 </p>
-<table>
+<table ng-if="resources">
   <thead>
     <tr>
       <th>logicalId</th>
@@ -16,14 +16,14 @@
     </tr>
   </thead>
   <tbody>
-    <tr ng-repeat="item in collection">
+    <tr ng-repeat="resource in resources">
       <td>
-        <a href="/#/resources/{{ resourceType }}/{{ item.logicalId }}">
-          {{ item.logicalId }}
+        <a href="/#/resources/{{ resourceType }}/{{ resource.logicalId }}">
+          {{ resource.logicalId }}
         </a>
       </td>
-      <td>{{ item.versionId }}</td>
-      <td><pre>{{ item.data }}</pre></td>
+      <td>{{ resource.versionId }}</td>
+      <td><pre>{{ resource.data }}</pre></td>
     </tr>
   </tbody>
 </table>
