@@ -2,6 +2,6 @@
 
 angular.module('fhirplaceGui')
   .controller 'ResourcesNewCtrl', ($scope, $routeParams) ->
-    $scope.resourceType  = $routeParams.resourceType
-    $scope.resourceLabel = $routeParams.resourceType
-    $scope.rawResource   = {}
+    $scope.resourceType      = $routeParams.resourceType
+    $scope.resourceTypeLabel = $routeParams.resourceType
+    $scope.resource       = {}

@@ -5,7 +5,7 @@ angular.module('fhirplaceGui')
     $http.get('/metadata?_format=application/json').
       success((data, status, headers, config) ->
         $scope.serverName = data.name
-        $scope.resources = data.rest[0].resources.sort (a, b) ->
+        $scope.resourceTypes = data.rest[0].resources.sort (a, b) ->
           return -1 if a.type < b.type
           return 1 if a.type > b.type
           0

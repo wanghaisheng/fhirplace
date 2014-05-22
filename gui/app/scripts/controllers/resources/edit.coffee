@@ -2,12 +2,12 @@
 
 angular.module('fhirplaceGui')
   .controller 'ResourcesEditCtrl', ($scope, $routeParams) ->
-    $scope.resourceType  = $routeParams.resourceType
-    $scope.resourceId    = $routeParams.resourceId
-    $scope.resourceLabel = $routeParams.resourceType + ' ' +
-      $routeParams.resourceId
-    $scope.rawResource = {
+    $scope.resourceType      = $routeParams.resourceType
+    $scope.resourceLogicalId = $routeParams.resourceLogicalId
+    $scope.resourceTypeLabel = $routeParams.resourceType + ' ' +
+      $routeParams.resourceLogicalId
+    $scope.resource = {
       json: JSON.stringify({
-        ggg: $routeParams.resourceId, xyz: 'jjj'
+        ggg: $scope.resourceLogicalId, xyz: 'jjj'
       })
     }

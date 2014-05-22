@@ -1,14 +1,29 @@
 <ol class="breadcrumb">
   <li><a href="/#/">Resources list</a></li>
 </ol>
-<h1>{{ resourceLabel }}'s list</h1>
+<h1>{{ resourceTypeLabel }}'s list</h1>
 <pre>GET /{{ resourceType }}/_search?_format=application/json</pre>
 <p>
-  New
-  <a href="/#/resources/{{ resourceType }}/new">{{ resourceLabel }}</a>
+  <a href="/#/resources/{{ resourceType }}/new"
+     class="btn btn-primary">New {{ resourceTypeLabel }}</a>
 </p>
-<ul>
-  <li ng-repeat="item in collection">
-    <pre>{{ item }}</pre>
-  </li>
-</ul>
+<table>
+  <thead>
+    <tr>
+      <th>logicalId</th>
+      <th>versionId</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="item in collection">
+      <td>
+        <a href="/#/resources/{{ resourceType }}/{{ item.logicalId }}">
+          {{ item.logicalId }}
+        </a>
+      </td>
+      <td>{{ item.versionId }}</td>
+      <td><pre>{{ item.data }}</pre></td>
+    </tr>
+  </tbody>
+</table>

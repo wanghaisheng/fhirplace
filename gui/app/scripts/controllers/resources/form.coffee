@@ -12,7 +12,7 @@ angular.module('fhirplaceGui')
       if $scope.form.$valid
         $http.post(
           "/#{$scope.resourceType}?_format=application/json",
-          $scope.rawResource.json
+          $scope.resource.json
           ).
           success((data, status, headers, config) ->
             console.log 'me hapy'
