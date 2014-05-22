@@ -1,9 +1,14 @@
 <div ng-include="'views/resources/_breadcrumbs.html'"></div>
 <h1>{{ resourceTypeLabel }} <small>{{ resourceLogicalId }}</small></h1>
-<pre>GET /{{ resourceType }}/{{resourceLogicalId}}?_format=application/json</pre>
-<pre>{{ resource }}</pre>
-<pre>GET /{{ resourceType }}/{{resourceLogicalId}}/_history?_format=application/json</pre>
-<pre>{{ pretty }}</pre>
-<li ng-repeat="item in history">
-  <pre>{{ item.link }}</pre>
-</li>
+<ul class="nav nav-tabs">
+  <li class="active">
+    <a href="#">Show</a>
+  </li>
+  <li>
+    <a href="/#/resources/{{ resourceType }}/{{resourceLogicalId}}/history">History</a>
+  </li>
+</ul>
+<p>
+  <pre>GET /{{ resourceType }}/{{resourceLogicalId}}?_format=application/json</pre>
+  <pre>{{ resource }}</pre>
+</p>

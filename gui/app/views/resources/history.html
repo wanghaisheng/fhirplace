@@ -1,0 +1,29 @@
+<ol class="breadcrumb">
+  <li>
+    <a href="/#/">Resources list</a>
+  </li>
+  <li>
+    <a href="/#/resources/{{ resourceType }}">{{ resourceTypeLabel }}s</a>
+  </li>
+  <li>
+    <a href="/#/resources/{{ resourceType }}/{{resourceLogicalId}}">{{resourceLabel}}</a>
+  </li>
+</ol>
+<h1>{{ resourceTypeLabel }} <small>{{ resourceLogicalId }}</small></h1>
+<ul class="nav nav-tabs">
+  <li>
+    <a href="/#/resources/{{ resourceType }}/{{resourceLogicalId}}">Show</a>
+  </li>
+  <li class="active"><a href="#">History</a></li>
+</ul>
+<p>
+  <pre>GET /{{ resourceType }}/{{resourceLogicalId}}/_history?_format=application/json</pre>
+  <pre>{{ resourceHistory }}</pre>
+</p>
+
+<h2>Versions</h2>
+<ul>
+  <li ng-repeat="version in resourceVersions">
+    <pre>{{ version.link }}</pre>
+  </li>
+</ul>
