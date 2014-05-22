@@ -199,10 +199,9 @@
       wrap-with-existence-check
       vread*))
 
-
-;;FIXME: temporal
 (defn search
   [{{db :db} :system {:keys [resource-type]} :params}]
   {:status 200
-   :body (repo/search db resource-type)})
-
+   :body (json/write-str
+          (map #(json/read-str (str (get % :data)))
+               (vec (repo/search db resource-type))))})

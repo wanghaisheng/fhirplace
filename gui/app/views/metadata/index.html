@@ -1,4 +1,5 @@
-<h1>{{ name }}</h1>
+<h1>{{ serverName }}'s resources list</h1>
+<pre>GET /metadata?_format=application/json</pre>
 <ul>
   <li ng-repeat="resource in resources">
     <a href="/#/resources/{{ resource.type }}">{{ resource.type }}</a>

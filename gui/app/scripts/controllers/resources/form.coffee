@@ -6,15 +6,17 @@ angular.module('fhirplaceGui')
    $http,
    $location,
    $routeParams) ->
+    $scope.resourceType = $routeParams.resourceType
+
     $scope.save = ->
       if $scope.form.$valid
         $http.post(
-          "/#{$routeParams.resourceType}?_format=application/json",
+          "/#{$scope.resourceType}?_format=application/json",
           $scope.rawResource.json
           ).
           success((data, status, headers, config) ->
             console.log 'me hapy'
-            $location.path("/resources/#{$routeParams.resourceType}")
+            $location.path("/resources/#{$scope.resourceType}")
           ).
           error (data, status, headers, config) ->
             console.log 'digital gods do not love our json post'

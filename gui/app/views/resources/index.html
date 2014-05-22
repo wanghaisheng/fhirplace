@@ -1,8 +1,14 @@
 <ol class="breadcrumb">
   <li><a href="/#/">Resources list</a></li>
 </ol>
-<h1>{{ resourceLabel }}</h1>
+<h1>{{ resourceLabel }}'s list</h1>
+<pre>GET /{{ resourceType }}/_search?_format=application/json</pre>
 <p>
   New
   <a href="/#/resources/{{ resourceType }}/new">{{ resourceLabel }}</a>
 </p>
+<ul>
+  <li ng-repeat="item in collection">
+    <pre>{{ item }}</pre>
+  </li>
+</ul>

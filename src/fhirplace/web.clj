@@ -33,7 +33,7 @@
   (GET    "/info"                                  []                 sys-int/info)
   (GET    "/metadata"                              []                 (view sys-int/conformance #'v-metadata/view)  )
   (POST   "/:resource-type"                        [resource-type]    res-int/create)
-  (GET    "/:resource-type/_search"                [resource-type]    (view res-int/search #'v-resources/view))
+  (GET    "/:resource-type/_search"                [resource-type]    res-int/search) ;(view res-int/search #'v-resources/view))
   (GET    ["/:resource-type/:id", :id uuid-regexp] [resource-type id] (view res-int/read #'v-resources/show))
   (GET    "/:resource-type/:id/_history/:vid"      [resource-type id vid] res-int/vread)
   (GET    "/:resource-type/:id/_history"           [resource-type id] sys-int/history)
