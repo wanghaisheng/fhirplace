@@ -199,7 +199,7 @@
       wrap-with-existence-check
       vread*))
 
-(defn b-i [item]
+(defn to-json-from-db-data [item]
   (let [data (json/read-str (str (:data item)))
         logical-id (str (:_logical_id item))
         version-id (str (:_version_id item))]
@@ -209,4 +209,4 @@
   [{{db :db} :system {:keys [resource-type]} :params}]
   {:status 200
    :body (json/write-str
-          (map b-i (vec (repo/search db resource-type))))})
+          (map to-json-from-db-data (vec (repo/search db resource-type))))})
