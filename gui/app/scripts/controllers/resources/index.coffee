@@ -9,4 +9,9 @@ angular.module('fhirplaceGui')
       "/#{$scope.resourceType}/_search?_format=application/json"
 
     $http.get($scope.restUri).success (data, status, headers, config) ->
-      $scope.resources = data
+      $scope.resources = data.map (resource) ->
+        resource.prettyData = angular.toJson(
+          angular.fromJson(resource.data),
+          true
+        )
+        resource

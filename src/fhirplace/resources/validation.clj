@@ -27,12 +27,13 @@
 (defn errors
   "validate resource and return vec of errors
   or nil"
-  [xml]
+  ([xml]
+     (let [xml-str (if (string? xml) xml (cljxml/emit-str xml))
+           xmldoc (xml/compile-xml xml-str)
+           res-type (xml/query "local-name(/*)" xmldoc)]
 
-  (let [xml-str (if (string? xml) xml (cljxml/emit-str xml))
-        xmldoc (xml/compile-xml xml-str)
-        res-type (xml/query "local-name(/*)" xmldoc)]
-
-    (if-let [error (@xsd-validator xmldoc)]
-      [{:type "xsd" :message error}]
-      ((get-schematron-validator res-type) xmldoc))))
+       (if-let [error (@xsd-validator xmldoc)]
+         [{:type "xsd" :message error}]
+         ((get-schematron-validator res-type) xmldoc))))
+  ([resource-type xml]
+     (errors xml)))

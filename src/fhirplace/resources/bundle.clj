@@ -2,7 +2,7 @@
   (:require [fhirplace.util :as util]))
 
 (defn- entry-title
-  [{{resource-type :resourceType} :json id :id version-id :version-id}]
+  [{{resource-type :resourceType} :data id :id version-id :version-id}]
   (str "Resource of type " resource-type
        ", with id = " id
        " and version-id = "  version-id))

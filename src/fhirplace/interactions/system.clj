@@ -37,7 +37,8 @@
     (catch Exception e
       {:status 400
        :body (oo/build-operation-outcome
-              "fatal" "Request body could not be parsed")})))
+              [{:severity "fatal" :details "Request body could not be parsed"}
+               {:severity "fatal" :details (oo/exception-with-message e)}])})))
 
 (defn- prepare-since [enc-since]
   (when enc-since

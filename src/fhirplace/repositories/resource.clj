@@ -37,7 +37,7 @@
   (h/limit exp limit))
 
 (defn- base-scope [resource-type id]
-  (-> (h/select [(u/cast :_version_id :varchar) "version-id"]
+  (-> (h/select [:_version_id "version-id"]
                 [:_last_modified_date "last-modified-date"]
                 [:_state "state"]
                 [:_logical_id "id"])

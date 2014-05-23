@@ -20,3 +20,30 @@ angular.module('fhirplaceGui')
           angular.forEach type, (item) ->
             item.$dirty    = true
             item.$pristine = false
+
+    $scope.validateUri =
+      "/#{$scope.resourceType}/_validate?_format=application/json"
+    $scope.validate = ->
+      console.log 'validating'
+      if $scope.form.$valid
+        console.log $scope.validateUri
+        console.log $scope.resource.json
+        $scope.resourceValidation = 'Validating ...'
+        $http.post($scope.validateUri, $scope.resource.json)
+          .success((data, status, headers, config) ->
+            console.log 'me happy to'
+            if data
+              $scope.resourceValidation = angular.toJson(
+                angular.fromJson(data),
+                true
+              )
+            else
+              $scope.resourceValidation = 'Everything is good'
+          ).error (data, status, headers, config) ->
+            console.log 'not happy at all'
+            $scope.resourceValidation = angular.toJson(
+              angular.fromJson(data),
+              true
+            )
+            console.log data
+            console.log status

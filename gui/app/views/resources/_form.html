@@ -10,6 +10,11 @@
              class="btn btn-primary"/>
       <a class="btn btn-default"
          href="/#/resources/{{ resourceType }}">Cancel</a>
+      <!-- <button ng-click="validate()" type="submit" -->
+      <!--         class="btn btn-success">Validate</button> -->
+      <a ng-click="validate()" class="btn btn-success">Validate</a>
     </div>
   </div>
+<pre>POST {{ validateUri }}</pre>
+<pre>{{ resourceValidation }}</pre>
 </fs-form-for>

@@ -7,7 +7,7 @@
   <a href="/#/resources/{{ resourceType }}/new"
      class="btn btn-primary">New {{ resourceTypeLabel }}</a>
 </p>
-<table ng-if="resources">
+<table ng-if="resources" class="resources-collection-container">
   <thead>
     <tr>
       <th>logicalId</th>
@@ -23,7 +23,7 @@
         </a>
       </td>
       <td>{{ resource.versionId }}</td>
-      <td><pre>{{ resource.data }}</pre></td>
+      <td><pre class="resource-container">{{ resource.prettyData }}</pre></td>
     </tr>
   </tbody>
 </table>
