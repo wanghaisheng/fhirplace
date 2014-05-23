@@ -5,10 +5,17 @@
     <a href="#">Show</a>
   </li>
   <li>
+    <a href="/#/resources/{{ resourceType }}/{{resourceLogicalId}}/edit">Edit</a>
+  </li>
+  <li>
     <a href="/#/resources/{{ resourceType }}/{{resourceLogicalId}}/history">History</a>
   </li>
 </ul>
 <p>
   <div ng-include="'views/shared/_rest_address.html'"></div>
+  <p class="patients-actions-container btn-group">
+    <button ng-click="destroy()" type="submit"
+            class="btn btn-danger">Destroy</button>
+  </p>
   <pre>{{ resource }}</pre>
 </p>

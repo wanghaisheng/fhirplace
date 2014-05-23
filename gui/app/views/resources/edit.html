@@ -1,3 +1,22 @@
-<div ng-include="'views/resources/_breadcrumbs.html'"></div>
-<h1>Edit {{ resourceTypeLabel }}</h1>
+<ol class="breadcrumb">
+  <li>
+    <a href="/#/">Resources list</a>
+  </li>
+  <li>
+    <a href="/#/resources/{{ resourceType }}">{{ resourceTypeLabel }}s</a>
+  </li>
+  <li>
+    <a href="/#/resources/{{ resourceType }}/{{resourceLogicalId}}">{{resourceLabel}}</a>
+  </li>
+</ol>
+<h1>{{ resourceTypeLabel }} <small>{{ resourceLabel }}</small></h1>
+<ul class="nav nav-tabs">
+  <li>
+    <a href="/#/resources/{{ resourceType }}/{{resourceLogicalId}}">Show</a>
+  </li>
+  <li class="active"><a href="#">Edit</a></li>
+  <li>
+    <a href="/#/resources/{{ resourceType }}/{{resourceLogicalId}}/history">History</a>
+  </li>
+</ul>
 <div ng-include="'views/resources/_form.html'"></div>

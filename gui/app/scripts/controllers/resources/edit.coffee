@@ -5,6 +5,7 @@ angular.module('fhirplaceGui')
     $scope.resourceType      = $routeParams.resourceType
     $scope.resourceTypeLabel = $scope.resourceType
     $scope.resourceLogicalId = $routeParams.resourceLogicalId
+    $scope.resourceLabel     = $scope.resourceLogicalId
     $scope.restRequestMethod = 'POST'
     $scope.restUri = '?????????????????????'
     $scope.resource = {
