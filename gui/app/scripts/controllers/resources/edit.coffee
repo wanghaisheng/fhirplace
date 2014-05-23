@@ -1,15 +1,7 @@
 'use strict'
 
 angular.module('fhirplaceGui')
-  .controller 'ResourcesEditCtrl', ($scope, $routeParams) ->
-    $scope.resourceType      = $routeParams.resourceType
-    $scope.resourceTypeLabel = $scope.resourceType
-    $scope.resourceLogicalId = $routeParams.resourceLogicalId
-    $scope.resourceLabel     = $scope.resourceLogicalId
-    $scope.restRequestMethod = 'POST'
-    $scope.restUri = '?????????????????????'
-    $scope.resource = {
-      json: JSON.stringify({
-        ggg: $scope.resourceLogicalId, xyz: 'jjj'
-      })
-    }
+  .controller 'ResourcesEditCtrl', ($scope, $http) ->
+    $scope.restRequestMethod = 'PUT'
+    $scope.restUri =
+      "/#{$scope.resourceType}/#{$scope.resourceLogicalId}?_format=application/json"

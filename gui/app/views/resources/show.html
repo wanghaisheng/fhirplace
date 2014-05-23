@@ -14,8 +14,11 @@
 <p>
   <div ng-include="'views/shared/_rest_address.html'"></div>
   <p class="patients-actions-container btn-group">
-    <button ng-click="destroy()" type="submit"
-            class="btn btn-danger">Destroy</button>
+    <button ng-controller="ResourcesDestroyCtrl" ng-click="destroy()"
+            type="submit" class="btn btn-danger">Destroy</button>
   </p>
-  <pre>{{ resource }}</pre>
+  <h2>ContentLocation</h2>
+  <pre>{{ resourceContentLocation }}</pre>
+  <h2>JSON</h2>
+  <pre>{{ resource.prettyData }}</pre>
 </p>

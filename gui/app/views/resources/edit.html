@@ -19,4 +19,7 @@
     <a href="/#/resources/{{ resourceType }}/{{resourceLogicalId}}/history">History</a>
   </li>
 </ul>
-<div ng-include="'views/resources/_form.html'"></div>
+<div ng-controller="ResourcesEditCtrl">
+  <div ng-include="'views/shared/_rest_address.html'"></div>
+  <div ng-include="'views/resources/_form.html'"></div>
+</div>

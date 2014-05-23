@@ -6,5 +6,4 @@ angular.module('fhirplaceGui')
     $scope.resourceTypeLabel = $routeParams.resourceType
     $scope.restRequestMethod = 'POST'
     $scope.restUri = "/#{$scope.resourceType}?_format=application/json"
-
     $scope.resource = {}

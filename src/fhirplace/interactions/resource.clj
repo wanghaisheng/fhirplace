@@ -48,7 +48,7 @@
                (str "Resource with ID " id " doesn't exist"))})))
 
 (defn wrap-resource-has-content-location [h]
-  (fn [{{content-location "Content-Location"} :headers :as req}]
+  (fn [{{content-location "content-location"} :headers :as req}]
     (if content-location
       (h req)
       {:status 412
@@ -59,16 +59,19 @@
 (defn wrap-resource-has-latest-version [h]
   (fn [{{db :db} :system
         {id :id resource-type :resource-type} :params
-        {content-location "Content-Location"} :headers :as req}]
+        {content-location "content-location"} :headers :as req}]
     (let [version-id (last (string/split content-location #"_history/"))
           meta (repo/select-latest-metadata db resource-type id)
-          last-version-id (:version_id meta)]
+          last-version-id (str (:version_id meta))]
       (if (= version-id last-version-id)
         (h req)
         {:status 409
          :body (oo/build-operation-outcome
                  "fatal"
-                 (str "Version id is not equal to latest version '" last-version-id "'"))}))))
+                 (str "Version id '"
+                      version-id
+                      "' is not equal to latest version '"
+                      last-version-id "'"))}))))
 
 (defn wrap-with-existence-check [h]
   (fn [{{db :db} :system {id :id} :params :as req}]
@@ -134,7 +137,7 @@
       (-> {}
           (last-modified-header lmd)
           (header "Location" resource-loc)
-          (header "Content-Location" resource-loc)
+          (header "content-location" resource-loc)
           (status 200)))
     (catch java.sql.SQLException e
       {:status 422
@@ -176,7 +179,7 @@
 
   (let [res (repo/select-latest-version db resource-type id)]
     (-> (response (:data res))
-        (header "Content-Location"
+        (header "content-location"
                 (util/cons-url system resource-type id (:version_id res)))
         (last-modified-header (:last_modified_date res))
         (status 200))))

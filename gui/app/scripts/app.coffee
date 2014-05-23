@@ -24,7 +24,7 @@ angular.module('fhirplaceGui', [
         controller: 'ResourcesShowCtrl'
       .when '/resources/:resourceType/:resourceLogicalId/edit',
         templateUrl: 'views/resources/edit.html'
-        controller: 'ResourcesEditCtrl'
+        controller: 'ResourcesShowCtrl'
       .when '/resources/:resourceType/:resourceLogicalId/history',
         templateUrl: 'views/resources/history.html'
         controller: 'ResourcesHistoryCtrl'
