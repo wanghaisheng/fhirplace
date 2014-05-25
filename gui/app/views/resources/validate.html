@@ -14,19 +14,18 @@
   <li>
     <a href="/#/resources/{{ resourceType }}/{{resourceLogicalId}}">Show</a>
   </li>
-  <li class="active"><a href="#">Edit</a></li>
   <li>
-    <a href="/#/resources/{{ resourceType }}/{{resourceLogicalId}}/validate">Validation</a>
+    <a href="/#/resources/{{ resourceType }}/{{resourceLogicalId}}/edit">Edit</a>
   </li>
+  <li class="active"><a href="#">Validation</a></li>
   <li>
     <a href="/#/resources/{{ resourceType }}/{{resourceLogicalId}}/history">History</a>
   </li>
 </ul>
-<div ng-controller="ResourcesEditCtrl">
+<div ng-controller="ResourcesValidateCtrl">
   <div ng-include="'views/shared/_rest_address.html'"></div>
 
-  <fs-form-for model="resource" ng-submit="save()"
-               ng-controller="ResourcesFormCtrl"
+  <fs-form-for model="resource" ng-submit="validate()"
                class="resource-edit-container">
     <fieldset class="form-horizontal">
       <fs-input as="text" name="prettyData"
@@ -35,11 +34,12 @@
     <div class="form-group">
       <div class="col-sm-offset-2 col-sm-10">
         <input type="submit"
-               value="Save"
+               value="Validate"
                class="btn btn-primary"/>
       </div>
     </div>
   </fs-form-for>
 
+  <pre ng-if="resourceValidation">{{ resourceValidation }}</pre>
   <div ng-include="'views/shared/_content_location.html'"></div>
 </div>

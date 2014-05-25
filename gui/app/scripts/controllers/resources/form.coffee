@@ -11,11 +11,8 @@ angular.module('fhirplaceGui')
           url: $scope.restUri,
           data: $scope.resource.prettyData,
           headers: {'Content-Location': $scope.resourceContentLocation}
-        }).success((data, status, headers, config) ->
-          console.log 'me hapy'
+        }).success (data, status, headers, config) ->
           $location.path("/resources/#{$scope.resourceType}")
-        ).error (data, status, headers, config) ->
-          console.log 'digital gods do not love our json post'
       else
         # Show all invalid fields.
         # Black magic) <http://stackoverflow.com/questions/18776496/angular-js-validation-programatically-set-form-fields-properties#18778314>.
@@ -24,28 +21,3 @@ angular.module('fhirplaceGui')
           angular.forEach type, (item) ->
             item.$dirty    = true
             item.$pristine = false
-
-    $scope.validateUri =
-      "/#{$scope.resourceType}/_validate?_format=application/json"
-    $scope.validate = ->
-      console.log 'validating'
-      if $scope.form.$valid
-        $scope.resourceValidation = 'Validating ...'
-        $http.post($scope.validateUri, $scope.resource.prettyData)
-          .success((data, status, headers, config) ->
-            console.log 'me happy to'
-            if data
-              $scope.resourceValidation = angular.toJson(
-                angular.fromJson(data),
-                true
-              )
-            else
-              $scope.resourceValidation = 'Everything is good'
-          ).error (data, status, headers, config) ->
-            console.log 'not happy at all'
-            $scope.resourceValidation = angular.toJson(
-              angular.fromJson(data),
-              true
-            )
-            console.log data
-            console.log status

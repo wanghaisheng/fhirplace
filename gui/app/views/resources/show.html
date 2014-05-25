@@ -8,6 +8,9 @@
     <a href="/#/resources/{{ resourceType }}/{{resourceLogicalId}}/edit">Edit</a>
   </li>
   <li>
+    <a href="/#/resources/{{ resourceType }}/{{resourceLogicalId}}/validate">Validation</a>
+  </li>
+  <li>
     <a href="/#/resources/{{ resourceType }}/{{resourceLogicalId}}/history">History</a>
   </li>
 </ul>
@@ -18,9 +21,8 @@
             type="submit" class="btn btn-danger">Destroy</button>
   </p>
 
-  <h2>ContentLocation</h2>
-  <pre>{{ resourceContentLocation }}</pre>
-
   <h2>JSON</h2>
   <pre>{{ resource.prettyData }}</pre>
+
+  <div ng-include="'views/shared/_content_location.html'"></div>
 </p>
