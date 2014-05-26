@@ -19,3 +19,4 @@ gui/app/bower_components
 gui/dist
 gui/node_modules
 resources/public
+gui/lib/

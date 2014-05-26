@@ -1,0 +1,31 @@
+<div class="small-jumbotron">
+  <div class="container">
+    <div class="row">
+      <div class='col-sm-9'>
+        <h4>
+          <a href="/#/">Resources list</a>
+          /
+          <a href="/#/resources/{{ resourceType }}">{{ resourceTypeLabel }}s</a>
+          /
+          New {{ resourceTypeLabel }}
+        </h4>
+      </div>
+      <div class='col-sm-3'>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container">
+  <div ng-include="'/views/shared/_rest_address.html'"></div>
+
+  <textarea style="min-height: 500px;"
+    ui-codemirror="{mode: 'javascript', lineWrapping: true, lineNumbers: true, json: true}"
+    ng-model='resource.content'></textarea>
+
+  <br/>
+  <button ng-click="save()" class="form-control btn btn-success">Save</button>
+
+  <br/>
+  <hr/>
+  <pre> {{ resource | json }}</pre>
+</div>

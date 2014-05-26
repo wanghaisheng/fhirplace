@@ -1,0 +1,30 @@
+<div class="bcrmp">
+  <div class="container">
+    <a href="/#/conformance">Resources list</a>
+    <i class="fa fa-chevron-right"></i>
+    <a>{{ resourceType}}</a>
+  </div>
+</div>
+<br/>
+<div class="container">
+  <div class="row">
+    <div class="col-xs-9">
+      <a class="item row"
+        ng-repeat="resource in resources"
+        href="#/resources/{{resourceType}}/{{resource.logicalId}}">
+        <code>{{resource.logicalId | uuid}}</code>
+        <code>{{resource.versionId | uuid}}</code>
+        TODO: last modified date
+        <code>{{resource.lastModifiedDate}}</code>
+      </a>
+    </div>
+    <div class="col-xs-3">
+      <br/>
+      <div class="well">
+        <a href="/#/resources/{{ resourceType }}/new"
+          class="btn btn-primary">New {{ resourceTypeLabel }}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

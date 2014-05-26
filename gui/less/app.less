@@ -1,0 +1,244 @@
+body {
+  padding-top: 50px;
+  padding-bottom: 50px;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  border-top: 1px solid #eee;
+  background: #fff;
+  opacity: 0.7;
+  p {
+    text-align: right;
+    margin: 0;
+    padding: 4px 0;
+  }
+}
+.bcrmp {
+  background: #463F3F;
+  color: #aaa;
+  padding: 0px;
+  font-size: 1.2em;
+  a, a:hover, {
+    display: inline-block;
+    color: #ddd;
+    padding: 15px 20px;
+  }
+}
+
+.small-jumbotron {
+  background: #463F3F;
+  color: white;
+  padding: 20px;
+  font-size: 1.2em;
+}
+.jumbotron {
+  background: #463F3F;
+  color: white;
+  border-radius: 0 !important;
+  padding: 40px 0;
+  h1 {
+    text-shadow: -1px -1px 1px #555;
+    font-size: 63px;
+    a {
+      text-shadow: none;
+    }
+    sup {
+      font-size: 30%;
+      vertical-align: super;
+      color: lightgreen;
+      text-shadow: none;
+    }
+  }
+  h3 {
+    text-shadow: none;
+    font-size: 21px;
+  }
+}
+
+/* Customize the nav-justified links to be fill the entire space of the .navbar */
+
+.nav-justified {
+  background-color: #eee;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+.nav-justified > li > a {
+  margin-bottom: 0;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  color: #777;
+  font-weight: bold;
+  text-align: center;
+  border-bottom: 1px solid #d5d5d5;
+  background-color: #e5e5e5; /* Old browsers */
+  background-repeat: repeat-x; /* Repeat the gradient */
+  background-image: -moz-linear-gradient(top, #f5f5f5 0%, #e5e5e5 100%); /* FF3.6+ */
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f5f5f5), color-stop(100%,#e5e5e5)); /* Chrome,Safari4+ */
+  background-image: -webkit-linear-gradient(top, #f5f5f5 0%,#e5e5e5 100%); /* Chrome 10+,Safari 5.1+ */
+  background-image: -o-linear-gradient(top, #f5f5f5 0%,#e5e5e5 100%); /* Opera 11.10+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f5f5f5', endColorstr='#e5e5e5',GradientType=0 ); /* IE6-9 */
+  background-image: linear-gradient(top, #f5f5f5 0%,#e5e5e5 100%); /* W3C */
+}
+.nav-justified > .active > a,
+.nav-justified > .active > a:hover,
+.nav-justified > .active > a:focus {
+  background-color: #ddd;
+  background-image: none;
+  box-shadow: inset 0 3px 7px rgba(0,0,0,.15);
+}
+.nav-justified > li:first-child > a {
+  border-radius: 5px 5px 0 0;
+}
+.nav-justified > li:last-child > a {
+  border-bottom: 0;
+  border-radius: 0 0 5px 5px;
+}
+
+@media (min-width: 768px) {
+  .nav-justified {
+    max-height: 52px;
+  }
+  .nav-justified > li > a {
+    border-left: 1px solid #fff;
+    border-right: 1px solid #d5d5d5;
+  }
+  .nav-justified > li:first-child > a {
+    border-left: 0;
+    border-radius: 5px 0 0 5px;
+  }
+  .nav-justified > li:last-child > a {
+    border-radius: 0 5px 5px 0;
+    border-right: 0;
+  }
+}
+
+/* Responsive: Portrait tablets and up */
+@media screen and (min-width: 768px) {
+  /* Remove the padding we set earlier */
+  .masthead,
+  .marketing,
+  .footer {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+.resources .item {
+  border-bottom: 1px solid #ddd;
+  padding: 1em 0;
+}
+.gray-column {
+  color: gray;
+}
+.tbl-tree {
+  ul {
+    padding-left: 20px;
+  }
+}
+.wizard {
+  a {
+    display: inline-block;
+    border: 1px solid #ddd;
+    padding:10px;
+  }
+}
+.resources {
+  column-count:5;
+  -moz-column-count:5; /* Firefox */
+  -webkit-column-count:5; /* Safari and Chrome */
+  a {
+    display: block;
+  }
+}
+.boxes {
+  font-size: 1.2em;
+  .fa {
+    color: brown;
+  }
+}
+big.fa.logo {
+  color: gold;
+}
+
+.view.ng-enter,
+.view.ng-leave {
+  -webkit-transition: 455ms cubic-bezier(0.190, 1.000, 0.220, 1.000) all;
+  -moz-transition: 455ms cubic-bezier(0.190, 1.000, 0.220, 1.000) all;
+  -ms-transition: 455ms cubic-bezier(0.190, 1.000, 0.220, 1.000) all;
+  -o-transition: 455ms cubic-bezier(0.190, 1.000, 0.220, 1.000) all;
+  transition: 455ms cubic-bezier(0.190, 1.000, 0.220, 1.000) all;
+}
+
+.view.ng-enter {
+  opacity: 0.4;
+}
+
+.view.ng-enter.ng-enter-active {
+  opacity: 1;
+}
+
+.view.ng-leave { }
+
+.view.ng-leave.ng-leave-active {
+  display: none;
+}
+
+.navbar-nav.nav a {
+  position: relative;
+}
+.trg {
+  height: 0;
+  margin: 0 auto;
+  display: none;
+}
+.active .trg {
+  display: block;
+}
+.svg-triangle {
+  left: 40%;
+  width: 20px;
+  height: 20px;
+  position: absolute;
+}
+@font-face {
+  font-family: 'LogosFont';
+  src: url('/assets/fonts/LogosFont.ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+.icon {
+  display: inline-block;
+  font-family: LogosFont ;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+@-webkit-keyframes rotate {
+  from {
+      -webkit-transform: rotate(0deg);
+    }
+  to {
+      -webkit-transform: rotate(360deg);
+    }
+}
+.spinner {
+  -webkit-animation-name:             rotate;
+  -webkit-animation-duration:         1s;
+  -webkit-animation-iteration-count:  infinite;
+  -webkit-animation-timing-function:  linear;
+}
+.CodeMirror {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.CodeMirror-focused {
+  border-color: #66afe9;
+  outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 5px rgba(102,175,233,.6);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 5px rgba(102,175,233,.6);
+}
