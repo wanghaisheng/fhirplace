@@ -5,6 +5,11 @@
     <a href="/#/resources/{{ resourceType }}">{{ resourceType}}</a>
     <i class="fa fa-chevron-right"></i>
     <a> {{ resourceLabel | uuid }}</a>
+    <i class="fa fa-chevron-right"></i>
+    <a href="/#/resources/{{ resourceType }}/{{resourceLogicalId}}/history">
+      <i class="fa fa-history" style="color: green;"></i>
+      history
+    </a>
   </div>
 </div>
 <div class="container">

@@ -72,7 +72,7 @@ app.controller 'ResourcesIndexCtrl', ($scope, $routeParams, $http) ->
       resource.prettyData = angular.toJson(angular.fromJson(resource.data), true)
       resource
 
-app.controller 'ResourcesNewCtrl', ($scope, $routeParams, $http) ->
+app.controller 'ResourcesNewCtrl', ($scope, $routeParams, $http, $location) ->
   $scope.resourceType      = $routeParams.resourceType
   $scope.resourceTypeLabel = $routeParams.resourceType
   $scope.restRequestMethod = 'POST'
@@ -83,9 +83,13 @@ app.controller 'ResourcesNewCtrl', ($scope, $routeParams, $http) ->
   $scope.save = ->
     $http(method: $scope.restRequestMethod, url: $scope.restUri, data: $scope.resource.content, headers: headers)
       .success (data, status, headers, config) ->
+        console.log(data)
         $location.path("/resources/#{$scope.resourceType}")
+      .error (data)->
+        $scope.error = data
 
-app.controller 'ResourceCtrl', ($scope, $routeParams, $http) ->
+
+app.controller 'ResourceCtrl', ($scope, $routeParams, $http, $location) ->
   $scope.resourceType       = $routeParams.resourceType
   $scope.resourceLogicalId = $routeParams.resourceLogicalId
   $scope.resourceLabel     = $scope.resourceLogicalId
