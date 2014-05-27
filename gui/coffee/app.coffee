@@ -5,7 +5,6 @@ app = angular.module 'fhirplaceGui', [
   'ngAnimate',
   'ngSanitize',
   'ngRoute',
-  'formstamp',
   "ui.codemirror"
 ], ($routeProvider) ->
     $routeProvider
@@ -40,15 +39,16 @@ app.run ($rootScope)->
     delete $rootScope.error
     $rootScope.loading = 'Loading'
     $rootScope.progressCls = 'prgrss'
-    v.success (vv)->
-      $rootScope.loading = null
-      console.log('progress success', vv)
-      delete $rootScope.progressCls
-     .error (vv)->
-      $rootScope.loading = null
-      $rootScope.error = vv
-      console.log('progress error', vv)
-      delete $rootScope.progressCls
+    v.success (vv, status, _, req)->
+       $rootScope.loading = null
+       $rootScope.success = "#{new Date()} - #{req.method} #{req.url}"
+       delete $rootScope.progressCls
+       console.log('progress success', req)
+     .error (vv, status, _, req)->
+       $rootScope.loading = null
+       $rootScope.error = vv || "Server error #{status} while loading:  #{req.url}"
+       console.log('progress error', arguments)
+       delete $rootScope.progressCls
 
 cropUuid = (id)->
   sid = id.substring(id.length - 6, id.length)
@@ -63,7 +63,6 @@ keyComparator = (key)->
      when a[key] > b[key] then 1
      else 0
 
-
 app.controller 'ConformanceCtrl', ($rootScope, $scope, $http) ->
   $scope.restRequestMethod = 'GET'
   $scope.restUri = '/metadata?_format=application/json'
@@ -74,9 +73,6 @@ app.controller 'ConformanceCtrl', ($rootScope, $scope, $http) ->
       $scope.resources = (data.rest[0] || []).resources.sort(keyComparator('type'))
       data.rest = null
       $scope.conformance = data
-    .error (data, status, headers, config) ->
-      console.log data
-
 
 app.controller 'ResourcesIndexCtrl', ($rootScope, $scope, $routeParams, $http) ->
   angular.extend($scope, $routeParams)
@@ -117,8 +113,7 @@ app.controller 'ResourcesNewCtrl', ($rootScope, $scope, $routeParams, $http, $lo
   $scope.validate = ()->
     url = "/#{rt}/_validate?_format=application/json"
     $rootScope.progress = $http.post(url, $scope.resource.content)
-      .success (data)->
-        console.log(data)
+      .success (data)-> alert('Valid input')
 
 app.controller 'ResourceCtrl', ($rootScope, $scope, $routeParams, $http, $location) ->
   angular.extend($scope, $routeParams)
@@ -141,14 +136,20 @@ app.controller 'ResourceCtrl', ($rootScope, $scope, $routeParams, $http, $locati
 
   loadResource()
   $scope.save = ->
-    $http(method: "PUT", url: $scope.restUri, data: $scope.resource.content, headers: {'Content-Location': $scope.resourceContentLocation})
-      .success (data, status, headers, config) ->
-        loadResource()
+    $rootScope.progress = $http(method: "PUT", url: $scope.restUri, data: $scope.resource.content, headers: {'Content-Location': $scope.resourceContentLocation})
+      .success (data,status,headers,req)->
+        $scope.resourceContentLocation = headers('content-location')
+
 
   $scope.destroy = ->
     if window.confirm("Destroy #{$scope.resourceTypeLabel} #{$scope.resourceLabel}?")
-      $http.delete($scope.restUri).success (data, status, headers, config) ->
+      $rootScope.progress = $http.delete($scope.restUri).success (data, status, headers, config) ->
         $location.path("/resources/#{$scope.resourceType}")
+
+  $scope.validate = ()->
+    url = "/#{rt}/_validate?_format=application/json"
+    $rootScope.progress = $http.post(url, $scope.resource.content)
+      .success (data)-> alert('Valid input')
 
 app.controller 'ResourcesHistoryCtrl', ($rootScope, $scope, $routeParams, $http) ->
   angular.extend($scope, $routeParams)
@@ -164,30 +165,8 @@ app.controller 'ResourcesHistoryCtrl', ($rootScope, $scope, $routeParams, $http)
     {url: "/resources/#{rt}/#{id}/history", label: 'History', icon: 'fa-history'})
 
   $rootScope.progress = $http.get($scope.restUri).success (data, status, headers, config) ->
-    $scope.resourceHistory  = angular.toJson(angular.fromJson(data), true)
-    $scope.resourceVersions = data.entry
-
-
-# angular.module('fhirplaceGui')
-#   .controller 'ResourcesValidateCtrl', ($scope, $http) ->
-#     $scope.restRequestMethod = 'POST'
-#     $scope.restUri =
-#       "/#{$scope.resourceType}/_validate?_format=application/json"
-
-#     $scope.validate = ->
-#       if $scope.form.$valid
-#         $scope.resourceValidation = 'Validating ...'
-#         $http.post($scope.restUri, $scope.resource.prettyData)
-#           .success((data, status, headers, config) ->
-#             if data
-#               $scope.resourceValidation = angular.toJson(
-#                 angular.fromJson(data),
-#                 true
-#               )
-#             else
-#               $scope.resourceValidation = 'Everything is good'
-#           ).error (data, status, headers, config) ->
-#             $scope.resourceValidation = angular.toJson(
-#               angular.fromJson(data),
-#               true
-#             )
+    $scope.entries = data.entry.map (e)->
+      e.json = angular.toJson(e, true)
+      e
+    $scope.history  = data
+    delete $scope.history.entry

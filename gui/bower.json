@@ -10,7 +10,6 @@
     "angular-sanitize": "latest",
     "angular-route": "latest",
     "angular-animate": "latest",
-    "angular-formstamp": "latest",
     "components-font-awesome": "latest",
     "angular-local-storage": "latest",
     "angular-ui-codemirror": "latest"

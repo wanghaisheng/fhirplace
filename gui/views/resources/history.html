@@ -1,14 +1,23 @@
 <h3>History</h3>
-<table class="table">
-  <tr ng-repeat="version in resourceVersions">
-    <td>
-      {{version.updated}}
-    </td>
-    <td>
-      {{ version.link[0].href | json }}
-    </td>
-  </tr>
-</table>
-<textarea style="min-height: 1000px;"
-  ui-codemirror="{mode: 'javascript', lineWrapping: true, lineNumbers: true, json: true}"
-  ng-model='resourceHistory'></textarea>
+<hr/>
+<ul>
+  <li ng-repeat="(k,v) in history">
+  <b>{{k}}</b> <code>{{v | json}}</code>
+  </li>
+</ul>
+
+<h3>Entry</h3>
+<hr/>
+<div class="item"
+  ng-click="version._open = ! version._open"
+  ng-repeat="version in entries">
+  <strong>{{version.updated}}</strong>
+  <span class="text-muted">{{version.link[0].href}}</span>
+  <i ng-hide="version._open" class="fa fa-chevron-down"></i>
+  <i ng-show="version._open" class="fa fa-chevron-up"></i>
+  <div>
+    <pre ng-show="version._open">
+    {{ version | json }}
+    </pre>
+  </div>
+</div>

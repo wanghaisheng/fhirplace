@@ -1,3 +1,4 @@
+<h3> {{resourceType}} <small>{{resourceLogicalId}}</small></h3>
 <textarea
   style="min-height: 500px"
   ui-codemirror="{mode: 'javascript', lineWrapping: true, lineNumbers: true, json: true}"
@@ -6,5 +7,5 @@
 <div class="btns">
   <button ng-click="save()" class="btn btn-success">Update</button>
   <button ng-click="destroy()" class="btn btn-danger">Destroy</button>
-  <button class="btn btn-info">Validate</button>
+  <button ng-click="validate()" class="btn btn-info">Validate</button>
 </div>
