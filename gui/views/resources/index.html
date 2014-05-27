@@ -1,23 +1,8 @@
-<div class="bcrmp">
-  <div class="container">
-    <a href="/#/conformance">Resources list</a>
-    <i class="fa fa-chevron-right"></i>
-    <a>{{ resourceType}}</a>
-    <i class="fa fa-chevron-right"></i>
-    <a href="/#/resources/{{ resourceType }}/new">
-      <i class="fa fa-plus" style="color: green;"></i>
-      Create
-    </a>
-  </div>
-</div>
-<br/>
-<div class="container">
-  <a class="item row"
-    ng-repeat="resource in resources"
-    href="#/resources/{{resourceType}}/{{resource.logicalId}}">
-    <code>{{resource.logicalId | uuid}}</code>
-    <code>{{resource.versionId | uuid}}</code>
-    TODO: last modified date
-    <code>{{resource.lastModifiedDate}}</code>
-  </a>
-</div>
+<a class="item"
+  ng-repeat="resource in resources"
+  href="#/resources/{{resourceType}}/{{resource.logicalId}}">
+  <code>{{resource.logicalId | uuid}}</code>
+  <code>{{resource.versionId | uuid}}</code>
+  TODO: last modified date
+  <code>{{resource.lastModifiedDate}}</code>
+</a>

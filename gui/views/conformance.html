@@ -1,51 +1,36 @@
-<!-- <div class="small-jumbotron"> -->
-<!--   <div class="container"> -->
-<!--     <div class="row"> -->
-<!--       <div class='col-sm-9'> -->
-<!--         <b> Conformance </b> -->
-<!--       </div> -->
-<!--       <div class='col-sm-3'> -->
-<!--         Saved queries <span style="color: greenyellow;">&#8628;</span> -->
-<!--       </div> -->
-<!--     </div> -->
-<!--   </div> -->
-<!-- </div> -->
-<br/>
-<div class="container">
-  <div class="row">
-    <div class="col-xs-8">
-      <h3> Rest Resources </h3>
-      <hr/>
-      <table class="table">
-        <thead>
-          <tr>
-            <th> Type </th>
-            <th> History </th>
-            <th> Update/Create </th>
-            <th> Search </th>
-            <th> Operations </th>
-          </tr>
-        </thead>
-        <tr ng-repeat="item in resources">
-          <th> <a href="/#/resources/{{item.type}}">{{item.type}}</a></th>
-          <td> {{item.readHistory}}</td>
-          <td> {{item.updateCreate}}</td>
-          <td> {{item.searchInclude}}</td>
-          <td>
-            <b ng-repeat="op in item.operation"> {{op.type}} </b>
-          </td>
+<div class="row">
+  <div class="col-xs-4">
+    <h2> Conformance </h2>
+    <hr/>
+    <ul>
+      <li ng-repeat="(k,v) in conformance">
+      <b>{{k}}</b>  {{v | json}}
+      </li>
+    </ul>
+    <br/>
+  </div>
+  <div class="col-xs-8">
+    <h3> Rest Resources </h3>
+    <hr/>
+    <table class="table">
+      <thead>
+        <tr>
+          <th> Type </th>
+          <th> History </th>
+          <th> Update/Create </th>
+          <th> Search </th>
+          <th> Operations </th>
         </tr>
-      </table>
-    </div>
-    <div class="col-xs-4">
-      <h2> Conformance </h2>
-      <hr/>
-      <ul>
-        <li ng-repeat="(k,v) in conformance">
-        <b>{{k}}</b>  {{v | json}}
-        </li>
-      </ul>
-      <br/>
-    </div>
+      </thead>
+      <tr ng-repeat="item in resources">
+        <th> <a href="#/resources/{{item.type}}">{{item.type}}</a></th>
+        <td> {{item.readHistory}}</td>
+        <td> {{item.updateCreate}}</td>
+        <td> {{item.searchInclude}}</td>
+        <td>
+          <b ng-repeat="op in item.operation"> {{op.type}} </b>
+        </td>
+      </tr>
+    </table>
   </div>
 </div>
