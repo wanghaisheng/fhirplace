@@ -12,7 +12,7 @@
 <body>
 <div class="brcrmp">
   <a href="#/">
-    <span class="icon" style="color: red; font-size: 25px;">&#x4C;</span>
+    <span class="icon logo" ng-class="progressCls">&#x4C;</span>
   </a>
   <div class="menu-item" ng-repeat="item in menu">
     <i class="fa fa-chevron-right"></i>
@@ -22,13 +22,22 @@
       {{item.label}}
     </a>
   </div>
+  <div style="float:right;">
+    <a href="https://github.com/fhirbase/fhirplace"> Source Code <big class="fa fa-github"></big></a>
+    <a href="http://healthsamurai.github.io/">coded by <span class="icon" style="font-size: 20px;">&#x53;</span></a>
+    <a href="http://choice-hs.com/">sponsored by <span class="icon" style="font-size: 20px;">&#x43;</span></a>
+  </div>
+</div>
+<div ng-dblclick="error=null" class="alert alert-danger srv-error" ng-show="error">
+  <button ng-click="error=null" type="button" class="close">&times;</button>
+  <h3>
+    Error
+  </h3>
+  {{error | json}}
 </div>
 <!-- <div class="footer"> -->
 <!--   <div class="container"> -->
 <!--     <p> -->
-<!--     <a href="https://github.com/fhirbase/fhirbase"> Source Code <big class="fa fa-github"></big></a> -->
-<!--     <a href="http://healthsamurai.github.io/">coded by <span class="icon" style="font-size: 20px;">&#x53;</span></a> -->
-<!--     <a href="http://choice-hs.com/">sponsored by <span class="icon" style="font-size: 20px;">&#x43;</span></a> -->
 <!--     </p> -->
 <!--   </div> -->
 <!-- </div> -->

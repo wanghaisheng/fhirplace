@@ -3,22 +3,11 @@ body {
   padding-bottom: 50px;
 }
 
-/* .footer { */
-/*   position: fixed; */
-/*   bottom: 0; */
-/*   right: 0; */
-/*   left: 0; */
-/*   border-top: 1px solid #eee; */
-/*   background: #fff; */
-/*   opacity: 0.9; */
-/*   p { */
-/*     text-align: right; */
-/*     margin: 0; */
-/*     padding: 4px 0; */
-/*   } */
-/* } */
 .brcrmp {
-  background: #eee;
+  background: #ddd;
+  background-image: linear-gradient(#eee, #ddd);
+  background-repeat: repeat-x;
+  box-shadow: 0px 2px 3px #ccc;
   color: black;
   padding: 0px;
   position: fixed;
@@ -27,7 +16,6 @@ body {
   right: 0;
   font-size: 1.2em;
   z-index: 1000;
-  border-bottom: 1px solid #ddd;
   color: #555;
   text-shadow: 1px 1px 1px white;
 
@@ -76,7 +64,7 @@ body {
 /* Customize the nav-justified links to be fill the entire space of the .navbar */
 
 .nav-justified {
-  background-color: #eee;
+  background-color: #ddd;
   border-radius: 5px;
   border: 1px solid #ccc;
 }
@@ -100,7 +88,7 @@ body {
 .nav-justified > .active > a,
 .nav-justified > .active > a:hover,
 .nav-justified > .active > a:focus {
-  background-color: #ddd;
+  background-color: #aaa;
   background-image: none;
   box-shadow: inset 0 3px 7px rgba(0,0,0,.15);
 }
@@ -130,54 +118,8 @@ body {
   }
 }
 
-/* Responsive: Portrait tablets and up */
-@media screen and (min-width: 768px) {
-  /* Remove the padding we set earlier */
-  .masthead,
-  .marketing,
-  .footer {
-    padding-left: 0;
-    padding-right: 0;
-  }
-}
-.resources .item {
-  border-bottom: 1px solid #ddd;
-  padding: 1em 0;
-}
-.gray-column {
-  color: gray;
-}
-.tbl-tree {
-  ul {
-    padding-left: 20px;
-  }
-}
-.wizard {
-  a {
-    display: inline-block;
-    border: 1px solid #ddd;
-    padding:10px;
-  }
-}
-.resources {
-  column-count:5;
-  -moz-column-count:5; /* Firefox */
-  -webkit-column-count:5; /* Safari and Chrome */
-  a {
-    display: block;
-  }
-}
-.boxes {
-  font-size: 1.2em;
-  .fa {
-    color: brown;
-  }
-}
-big.fa.logo {
-  color: gold;
-}
 .view {
-  padding: 10px 20px;
+  padding: 20px 50px;
 }
 
 .view.ng-enter,
@@ -203,23 +145,6 @@ big.fa.logo {
   display: none;
 }
 
-.navbar-nav.nav a {
-  position: relative;
-}
-.trg {
-  height: 0;
-  margin: 0 auto;
-  display: none;
-}
-.active .trg {
-  display: block;
-}
-.svg-triangle {
-  left: 40%;
-  width: 20px;
-  height: 20px;
-  position: absolute;
-}
 @font-face {
   font-family: 'LogosFont';
   src: url('/assets/fonts/LogosFont.ttf');
@@ -250,7 +175,7 @@ big.fa.logo {
   -webkit-animation-timing-function:  linear;
 }
 .CodeMirror {
-  border: 1px solid #ddd;
+  border: 1px solid #aaa;
   height: auto;
 }
 .CodeMirror-scroll {
@@ -266,20 +191,53 @@ big.fa.logo {
 .item {
   display: block;
   padding: 10px 20px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #aaa;
 }
 .btns {
+  background: #ddd;
+  background-image: linear-gradient(#ddd, #eee);
+  background-repeat: repeat-x;
+  border-top: 1px solid #ccc;
   position: fixed;
   bottom: 0;
   right: 0;
   left: 0;
   z-index: 1000;
-  border-top: 1px solid #ddd;
-  padding: 10px 20px 20px;
-  background: #eee;
+  padding: 10px 50px 20px;
   .btn {
     width: 10em;
     display: inline-block;
     margin-right: 10px;
+  }
+}
+@-webkit-keyframes pran
+{
+  from {color: green;}
+  to   {color: red;}
+}
+.logo {
+  font-size: 25px;
+  display: inline-block;
+  color: green;
+}
+
+.logo.prgrss {
+  color: red;
+  webkit-animation: pran 1s;
+  animation: pran 1s;
+}
+.srv-error {
+  position: absolute;
+  padding: 15px;
+  z-index: 1000;
+  left: 40px;
+  right: 40px;
+  bottom: 74px;
+  top: 50px;
+  border: 1px solid;
+  box-shadow: 0px 0px 7px gray;
+  .close {
+    font-size: 50px;
+    color: red;
   }
 }

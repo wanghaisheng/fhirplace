@@ -1,7 +1,4 @@
-<div ng-include="'/views/shared/_rest_address.html'"></div>
-<div ng-if="error" class="alert alert-danger">
-  {{error | json}}
-</div>
+<!-- <div ng-include="'/views/shared/_rest_address.html'"></div> -->
 
 <textarea style="min-height: 1000px;"
   ui-codemirror="{mode: 'javascript', lineWrapping: true, lineNumbers: true, json: true}"
@@ -9,8 +6,5 @@
 
 <div class="btns">
   <button ng-click="save()" class="btn btn-success">Save</button>
-  <button class="btn btn-info">Validate</button>
-  <span class="progress">
-    {{progress | json}}
-  </span>
+  <button ng-click="validate()" class="btn btn-info">Validate</button>
 </div>

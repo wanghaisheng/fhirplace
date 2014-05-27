@@ -8,8 +8,6 @@ app = angular.module 'fhirplaceGui', [
   'formstamp',
   "ui.codemirror"
 ], ($routeProvider) ->
-    console.log('Im here')
-
     $routeProvider
       .when '/',
         templateUrl: '/views/welcome.html'
@@ -25,45 +23,59 @@ app = angular.module 'fhirplaceGui', [
       .when '/resources/:resourceType/:resourceLogicalId',
         templateUrl: '/views/resources/show.html'
         controller: 'ResourceCtrl'
-      .when '/resources/:resourceType/:resourceLogicalId/edit',
-        templateUrl: '/views/resources/edit.html'
-        controller: 'ResourcesShowCtrl'
-      .when '/resources/:resourceType/:resourceLogicalId/validate',
-        templateUrl: '/views/resources/validate.html'
-        controller: 'ResourcesShowCtrl'
       .when '/resources/:resourceType/:resourceLogicalId/history',
         templateUrl: '/views/resources/history.html'
         controller: 'ResourcesHistoryCtrl'
       .otherwise
         redirectTo: '/'
 
+defaultMenu = [{url: '/conformance', label: 'Conformance'}]
+menu = (args...)->
+  defaultMenu.slice(0).concat(args)
+
 app.run ($rootScope)->
-  $rootScope._menu = [{url: '/conformance', label: 'Conformance'}]
-  $rootScope.menu = [{url: '/conformance', label: 'Conformance'}]
+  $rootScope.menu = menu()
+  $rootScope.$watch 'progress', (v)->
+    return unless v && v.success
+    delete $rootScope.error
+    $rootScope.loading = 'Loading'
+    $rootScope.progressCls = 'prgrss'
+    v.success (vv)->
+      $rootScope.loading = null
+      console.log('progress success', vv)
+      delete $rootScope.progressCls
+     .error (vv)->
+      $rootScope.loading = null
+      $rootScope.error = vv
+      console.log('progress error', vv)
+      delete $rootScope.progressCls
 
 cropUuid = (id)->
   sid = id.substring(id.length - 6, id.length)
   "...#{sid}"
 
-app.filter 'uuid', ()->
-  cropUuid
+app.filter 'uuid', ()-> cropUuid
+
+keyComparator = (key)->
+ (a, b) ->
+   switch
+     when a[key] < b[key] then -1
+     when a[key] > b[key] then 1
+     else 0
+
 
 app.controller 'ConformanceCtrl', ($rootScope, $scope, $http) ->
-    $scope.restRequestMethod = 'GET'
-    $scope.restUri = '/metadata?_format=application/json'
-    $rootScope.menu = $scope._menu.slice(0)
+  $scope.restRequestMethod = 'GET'
+  $scope.restUri = '/metadata?_format=application/json'
+  $rootScope.menu = menu()
 
-    $http.get($scope.restUri)
-      .success (data, status, headers, config) ->
-        $scope.resources = (data.rest[0] || []).resources.sort (a, b) ->
-          return -1 if a.type < b.type
-          return 1 if a.type > b.type
-          0
-        data.rest = null
-        $scope.conformance = data
-        $scope.serverName = data.name
-      .error (data, status, headers, config) ->
-        console.log 'karamba'
+  $rootScope.progress = $http.get($scope.restUri)
+    .success (data, status, headers, config) ->
+      $scope.resources = (data.rest[0] || []).resources.sort(keyComparator('type'))
+      data.rest = null
+      $scope.conformance = data
+    .error (data, status, headers, config) ->
+      console.log data
 
 
 app.controller 'ResourcesIndexCtrl', ($rootScope, $scope, $routeParams, $http) ->
@@ -73,11 +85,11 @@ app.controller 'ResourcesIndexCtrl', ($rootScope, $scope, $routeParams, $http) -
 
   $scope.restUri = "/#{rt}/_search?_format=application/json"
 
-  $rootScope.menu = $rootScope._menu.slice(0)
-  $rootScope.menu.push(url: "/resources/#{rt}", label: rt)
-  $rootScope.menu.push(url: "/resources/#{rt}/new", label: "New", icon: "fa-plus")
+  $rootScope.menu = menu(
+    {url: "/resources/#{rt}", label: rt},
+    {url: "/resources/#{rt}/new", label: "New", icon: "fa-plus"})
 
-  $http.get($scope.restUri).success (data, status, headers, config) ->
+  $rootScope.progress = $http.get($scope.restUri).success (data, status, headers, config) ->
     $scope.resources = data.map (resource) ->
       resource.prettyData = angular.toJson(angular.fromJson(resource.data), true)
       resource
@@ -87,27 +99,26 @@ app.controller 'ResourcesNewCtrl', ($rootScope, $scope, $routeParams, $http, $lo
 
   rt = $scope.resourceType
 
-  $rootScope.menu = $rootScope._menu.slice(0)
-  $rootScope.menu.push(url: "/resources/#{rt}", label: rt)
-  $rootScope.menu.push(url: "/resources/#{rt}/new", label: "New", icon: "fa-plus")
+  $rootScope.menu = menu(
+    {url: "/resources/#{rt}", label: rt},
+    {url: "/resources/#{rt}/new", label: "New", icon: "fa-plus"})
+
 
   $scope.restRequestMethod = 'POST'
   $scope.restUri = "/#{$scope.resourceType}?_format=application/json"
   $scope.resource = {}
 
-  $scope.progress || = {}
-
   headers = {'Content-Location': $scope.resourceContentLocation}
   $scope.save = ->
-    $scope.progress['save'] = 'Creating...'
-    $http(method: $scope.restRequestMethod, url: $scope.restUri, data: $scope.resource.content, headers: headers)
+    $rootScope.progress = $http(method: $scope.restRequestMethod, url: $scope.restUri, data: $scope.resource.content, headers: headers)
       .success (data, status, headers, config) ->
-        delete $scope.progress['save']
         $location.path("/resources/#{$scope.resourceType}")
-      .error (data)->
-        delete $scope.progress['save']
-        $scope.error = data
 
+  $scope.validate = ()->
+    url = "/#{rt}/_validate?_format=application/json"
+    $rootScope.progress = $http.post(url, $scope.resource.content)
+      .success (data)->
+        console.log(data)
 
 app.controller 'ResourceCtrl', ($rootScope, $scope, $routeParams, $http, $location) ->
   angular.extend($scope, $routeParams)
@@ -116,33 +127,25 @@ app.controller 'ResourceCtrl', ($rootScope, $scope, $routeParams, $http, $locati
 
   rt = $scope.resourceType
   id = $scope.resourceLogicalId
-  $rootScope.menu = $rootScope._menu.slice(0)
-  $rootScope.menu.push(url: "/resources/#{rt}", label: rt)
-  $rootScope.menu.push(url: "/resources/#{rt}/#{id}", label: cropUuid(id))
-  $rootScope.menu.push(url: "/resources/#{rt}/#{id}/history", label: 'History', icon: 'fa-history')
+  $rootScope.menu = menu(
+    {url: "/resources/#{rt}", label: rt},
+    {url: "/resources/#{rt}/#{id}", label: cropUuid(id)},
+    {url: "/resources/#{rt}/#{id}/history", label: 'History', icon: 'fa-history'})
 
   loadResource = ()->
-    $http.get($scope.restUri).success (data, status, headers, config) ->
+    $rootScope.progress = $http.get($scope.restUri).success (data, status, headers, config) ->
       $scope.resource = {
         content: angular.toJson(angular.fromJson(data), true)
       }
       $scope.resourceContentLocation = headers('content-location')
 
   loadResource()
-  $scope.progress || = {}
-
   $scope.save = ->
-    $scope.progress['save'] = 'Updating...'
     $http(method: "PUT", url: $scope.restUri, data: $scope.resource.content, headers: {'Content-Location': $scope.resourceContentLocation})
       .success (data, status, headers, config) ->
-        delete $scope.progress['save']
         loadResource()
-      .error (data)->
-        delete $scope.progress['save']
-        $scope.error = data
 
   $scope.destroy = ->
-    $scope.progress['delete'] = 'Deleting...'
     if window.confirm("Destroy #{$scope.resourceTypeLabel} #{$scope.resourceLabel}?")
       $http.delete($scope.restUri).success (data, status, headers, config) ->
         $location.path("/resources/#{$scope.resourceType}")
@@ -155,36 +158,36 @@ app.controller 'ResourcesHistoryCtrl', ($rootScope, $scope, $routeParams, $http)
 
   rt = $scope.resourceType
   id = $scope.resourceLogicalId
-  $rootScope.menu = $rootScope._menu.slice(0)
-  $rootScope.menu.push(url: "/resources/#{rt}", label: rt)
-  $rootScope.menu.push(url: "/resources/#{rt}/#{id}", label: cropUuid(id))
-  $rootScope.menu.push(url: "/resources/#{rt}/#{id}/history", label: 'History', icon: 'fa-history')
+  $rootScope.menu = menu(
+    {url: "/resources/#{rt}", label: rt},
+    {url: "/resources/#{rt}/#{id}", label: cropUuid(id)},
+    {url: "/resources/#{rt}/#{id}/history", label: 'History', icon: 'fa-history'})
 
-  $http.get($scope.restUri).success (data, status, headers, config) ->
+  $rootScope.progress = $http.get($scope.restUri).success (data, status, headers, config) ->
     $scope.resourceHistory  = angular.toJson(angular.fromJson(data), true)
     $scope.resourceVersions = data.entry
 
 
-angular.module('fhirplaceGui')
-  .controller 'ResourcesValidateCtrl', ($scope, $http) ->
-    $scope.restRequestMethod = 'POST'
-    $scope.restUri =
-      "/#{$scope.resourceType}/_validate?_format=application/json"
+# angular.module('fhirplaceGui')
+#   .controller 'ResourcesValidateCtrl', ($scope, $http) ->
+#     $scope.restRequestMethod = 'POST'
+#     $scope.restUri =
+#       "/#{$scope.resourceType}/_validate?_format=application/json"
 
-    $scope.validate = ->
-      if $scope.form.$valid
-        $scope.resourceValidation = 'Validating ...'
-        $http.post($scope.restUri, $scope.resource.prettyData)
-          .success((data, status, headers, config) ->
-            if data
-              $scope.resourceValidation = angular.toJson(
-                angular.fromJson(data),
-                true
-              )
-            else
-              $scope.resourceValidation = 'Everything is good'
-          ).error (data, status, headers, config) ->
-            $scope.resourceValidation = angular.toJson(
-              angular.fromJson(data),
-              true
-            )
+#     $scope.validate = ->
+#       if $scope.form.$valid
+#         $scope.resourceValidation = 'Validating ...'
+#         $http.post($scope.restUri, $scope.resource.prettyData)
+#           .success((data, status, headers, config) ->
+#             if data
+#               $scope.resourceValidation = angular.toJson(
+#                 angular.fromJson(data),
+#                 true
+#               )
+#             else
+#               $scope.resourceValidation = 'Everything is good'
+#           ).error (data, status, headers, config) ->
+#             $scope.resourceValidation = angular.toJson(
+#               angular.fromJson(data),
+#               true
+#             )

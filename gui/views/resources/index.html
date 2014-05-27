@@ -1,3 +1,7 @@
+<div class="text-muted"
+  ng-if="resources.length == 0">
+  Nothing to show
+</div>
 <a class="item"
   ng-repeat="resource in resources"
   href="#/resources/{{resourceType}}/{{resource.logicalId}}">
