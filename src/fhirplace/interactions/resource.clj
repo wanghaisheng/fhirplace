@@ -4,8 +4,10 @@
   (:require [fhirplace.resources.operation-outcome :as oo]
             [fhirplace.repositories.resource :as repo]
             [fhirplace.resources.conversion :as conv]
+            [fhirplace.db :as db]
             [fhirplace.util :as util]
             [clojure.data.json :as json]
+            [fhirplace.json :as fj]
             [clojure.string :as string])
   (:refer-clojure :exclude (read)))
 
@@ -13,34 +15,35 @@
   (fn [{body-str :body-str {format :_format} :params :as req}]
     (try
       (let [json-body (cond
-                       (util/format-json? format) (json/read-str body-str)
-                       (util/format-xml? format)  (conv/xml->json body-str)
-                       ;;TODO return OUTCOME
-                       :else {})]
+                        (util/format-json? format) (json/read-str body-str)
+                        (util/format-xml? format)  (conv/xml->json body-str)
+                        ;;TODO return OUTCOME
+                        :else {})]
         (h (assoc req :json-body json-body)))
       (catch Exception e
         {:status 400
          :body (oo/build-operation-outcome
-                 "fatal"
-                 (str "Resource cannot be parsed"))}))))
+                 [{:severity "fatal"
+                   :details "Resource cannot be parsed"}
+                  {:severity "fatal"
+                   :details (oo/exception-with-message e)}])}))))
 
-(defn- check-type [db type]
-  (let [resource-types (map string/lower-case
-                            (repo/resource-types db))]
-    (contains? (set resource-types) (string/lower-case type))))
+(defn- check-type [type]
+  ;; TODO: check types from profile
+  true)
 
 (defn wrap-with-check-type [h]
   (fn [{{db :db} :system {resource-type :resource-type} :params :as req}]
-    (if (check-type db resource-type)
+    (if (check-type resource-type)
       (h req)
       {:status 404
        :body (oo/build-operation-outcome
-              "fatal"
-              (str "Resource type " resource-type " isn't supported"))})))
+               "fatal"
+               (str "Resource type " resource-type " isn't supported"))})))
 
 (defn wrap-resource-not-exist [h status]
   (fn [{{db :db} :system, {id :id} :params :as req}]
-    (if (repo/exists? db id)
+    (if (db/exists? id)
       (h req)
       {:status status
        :body (oo/build-operation-outcome
@@ -73,18 +76,9 @@
                       "' is not equal to latest version '"
                       last-version-id "'"))}))))
 
-(defn wrap-with-existence-check [h]
-  (fn [{{db :db} :system {id :id} :params :as req}]
-    (if (repo/exists? db id)
-      (h req)
-      {:status 404
-       :body (oo/build-operation-outcome
-               "fatal"
-               (str "Resource with ID " id " doesn't exist"))})))
-
 (defn check-if-deleted [h status]
   (fn [{{db :db} :system {id :id} :params :as req}]
-    (if-not (repo/deleted? db id)
+    (if-not false ;;(repo/deleted? db id)
       (h req)
       {:status status
        :body (oo/build-operation-outcome
@@ -97,24 +91,23 @@
        (header response "Last-Modified")))
 
 (defn create*
-  [{ {db :db :as system} :system, json-body :json-body, uri :uri
-    {resource-type :resource-type} :params :as req}]
+  [{system :system json-body :body-str, uri :uri {resource-type :resource-type} :params :as req}]
   (try
-    (let [id (repo/insert db json-body)
-          meta (repo/select-latest-metadata db resource-type id)
+    (let [meta (db/create-resource resource-type json-body)
+          id  (:logical_id meta)
           vid (:version_id meta)
           lmd (:last_modified_date meta)]
-      (-> {}
+      (-> {:body meta}
           (header "Location" (util/cons-url system resource-type id  vid))
           (last-modified-header lmd)
           (status 201)))
     (catch java.sql.SQLException e
       {:status 422
        :body (oo/build-operation-outcome
-              [{:severity "fatal"
-                :details "Insertion of resource has failed on DB server"}
-               {:severity "fatal"
-                :details (oo/exception-with-message e)}])})))
+               [{:severity "fatal"
+                 :details "Insertion of resource has failed on DB server"}
+                {:severity "fatal"
+                 :details (oo/exception-with-message e)}])})))
 
 (defmacro <- [& forms]
   `(-> ~@(reverse forms)))
@@ -173,11 +166,10 @@
       delete*))
 
 (defn read*
-  [{{db :db :as system} :system
+  [{system :system
     {:keys [id resource-type]} :params
     :as req}]
-
-  (let [res (repo/select-latest-version db resource-type id)]
+  (let [res (db/find-resource resource-type id)]
     (-> (response (:data res))
         (header "content-location"
                 (util/cons-url system resource-type id (:version_id res)))
@@ -186,7 +178,7 @@
 
 (def read
   (<- (check-if-deleted 410)
-      wrap-with-existence-check
+      (wrap-resource-not-exist 404)
       read*))
 
 (defn vread*
@@ -199,17 +191,10 @@
 
 (def vread
   (<- (check-if-deleted 410)
-      wrap-with-existence-check
+      (wrap-resource-not-exist 404)
       vread*))
 
-(defn to-json-from-db-data [item]
-  (let [data (json/read-str (str (:data item)))
-        logical-id (str (:_logical_id item))
-        version-id (str (:_version_id item))]
-    {:data data :logicalId logical-id :versionId version-id}))
-
 (defn search
-  [{{db :db} :system {:keys [resource-type]} :params}]
+  [{{:keys [resource-type]} :params}]
   {:status 200
-   :body (json/write-str
-          (map to-json-from-db-data (vec (repo/search db resource-type))))})
+   :body (fj/generate (db/search resource-type))})

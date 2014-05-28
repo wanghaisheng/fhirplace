@@ -6,8 +6,8 @@
 </div>
 <a class="item"
   ng-repeat="resource in resources"
-  href="#/resources/{{resourceType}}/{{resource.logicalId}}">
-  <code>{{resource.logicalId | uuid}}</code>
-  <code>{{resource.versionId | uuid}}</code>
-  TODO: last modified date
+  href="#/resources/{{resource.resource_type}}/{{resource.logical_id}}">
+  <code>{{resource.logical_id | uuid}}</code>
+  <code>{{resource.version_id | uuid}}</code>
+  <span>LMD: {{resource.last_modified_date}}</span>
 </a>

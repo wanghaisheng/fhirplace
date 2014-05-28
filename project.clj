@@ -8,7 +8,15 @@
   :ring {:handler fhirplace.app/app}
 
   :plugins [[lein-ring "0.8.10"]
+            [clj-sql-up "0.3.1"]
             [lein-midje "3.0.0"]]
+
+  :clj-sql-up  {:database {:subprotocol "postgresql"
+                           :subname "//127.0.0.1:5433/fhirplace"
+                           :classname "org.postgresql.Driver"
+                           :user "fhir"
+                           :password "fhir"}
+                :deps  [[org.postgresql/postgresql "9.3-1101-jdbc41"]]}
 
   :resource-paths ["resources"]
   :java-source-paths ["java"]
@@ -22,6 +30,7 @@
 
                  [honeysql "0.4.3"]
                  [org.clojure/java.jdbc "0.3.3"]
+                 [clj-sql-up "0.3.1"]
                  [org.postgresql/postgresql "9.3-1101-jdbc41"]
 
                  [prismatic/plumbing "0.2.2"]

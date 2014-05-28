@@ -51,6 +51,7 @@ app.run ($rootScope)->
        delete $rootScope.progressCls
 
 cropUuid = (id)->
+  return "ups no uuid :(" unless id
   sid = id.substring(id.length - 6, id.length)
   "...#{sid}"
 
