@@ -13,10 +13,10 @@
 (defn perform
   "Performs XML => JSON conversion of FHIR resource"
   [xml]
-
-  (let [xml-str (if (string? xml) xml (xml/emit-str xml))]
+  (let [xml (cond (string? xml) (xslt/compile-xslt xml)
+                      (map? xml) (xslt/compile-xml (xml/emit-str xml))
+                      :else xml)]
     (json/parse-string
       (.getStringValue
-        (@fhir-xml2json-xsl
-          (xslt/compile-xml xml-str)))
+        (@fhir-xml2json-xsl xml))
       keyword)))

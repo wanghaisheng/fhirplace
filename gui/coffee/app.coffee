@@ -70,7 +70,7 @@ app.controller 'ConformanceCtrl', ($rootScope, $scope, $http) ->
 
   $rootScope.progress = $http.get($scope.restUri)
     .success (data, status, headers, config) ->
-      $scope.resources = (data.rest[0] || []).resources.sort(keyComparator('type'))
+      $scope.resources = data.rest[0].resource.sort(keyComparator('type'))
       data.rest = null
       $scope.conformance = data
 

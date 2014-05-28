@@ -1,22 +1,20 @@
 (ns fhirplace.interactions.system
   (:use ring.util.response ring.util.request)
   (:require [fhirplace.resources.conformance :as conf]
+            [fhir :as f]
             [ring.util.codec :as codec]
             [fhirplace.resources.bundle :as b]
             [fhirplace.resources.operation-outcome :as oo]
             [fhirplace.resources.conversion :as conversion]
+            [fhirplace.resources.profiles :as frp]
             [fhirplace.resources.validation :as validation]
             [fhirplace.util :as util]
             [fhirplace.repositories.resource :as repo])
   (:refer-clojure :exclude (read)))
 
-(defn conformance
+(defn conformance [_]
   "Handler for CONFORMANCE interaction."
-  [{ system :system params :params :as request }]
-
-  {:body (conf/build-conformance
-          (repo/resource-types (:db system))
-          system)})
+  {:body (f/to-json (frp/profile :Conformance))})
 
 (defn info
   "Handler for debug purposes (displays system info)."

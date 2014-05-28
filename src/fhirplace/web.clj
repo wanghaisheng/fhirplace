@@ -11,30 +11,19 @@
             [cheshire.core :as json]
             [clojure.xml :as xml]
             [fhirplace.resources.conversion :as conversion]
-            [fhirplace.views.metadata :as v-metadata]
-            [fhirplace.views.resources :as v-resources]
             [ring.adapter.jetty :as jetty]))
 
 (def uuid-regexp
   #"[0-f]{8}-([0-f]{4}-){3}[0-f]{12}")
 
-(defn view [h view-fn]
-  (fn [req]
-    (let [resp (h req)]
-      (if (= (:format req) :html)
-        (-> (view-fn (:body resp))
-            (resp/response)
-            (resp/content-type "text/html; charset=utf-8"))
-        resp))))
-
 ;; TODO: Handle non-existed resource types
 (defroutes main-routes
-  (GET    "/"                                      []                 (view sys-int/conformance #'v-metadata/view)  )
+  (GET    "/"                                      []                 sys-int/conformance)
   (GET    "/info"                                  []                 sys-int/info)
-  (GET    "/metadata"                              []                 (view sys-int/conformance #'v-metadata/view)  )
+  (GET    "/metadata"                              []                 sys-int/conformance)
   (POST   "/:resource-type"                        [resource-type]    res-int/create)
-  (GET    "/:resource-type/_search"                [resource-type]    res-int/search) ;(view res-int/search #'v-resources/view))
-  (GET    ["/:resource-type/:id", :id uuid-regexp] [resource-type id] (view res-int/read #'v-resources/show))
+  (GET    "/:resource-type/_search"                [resource-type]    res-int/search)
+  (GET    ["/:resource-type/:id", :id uuid-regexp] [resource-type id] res-int/read)
   (GET    "/:resource-type/:id/_history/:vid"      [resource-type id vid] res-int/vread)
   (GET    "/:resource-type/:id/_history"           [resource-type id] sys-int/history)
   (DELETE "/:resource-type/:id"                    [resource-type id] res-int/delete)

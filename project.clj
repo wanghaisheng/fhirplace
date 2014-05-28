@@ -11,24 +11,31 @@
             [lein-midje "3.0.0"]]
 
   :resource-paths ["resources"]
+  :java-source-paths ["java"]
 
   :dependencies [[org.clojure/clojure "1.5.1"]
+
                  [org.clojure/data.json "0.2.4"]
+                 [org.clojure/data.zip "0.1.1"]
+                 [org.clojure/data.xml "0.0.7"]
+                 [clojure-saxon "0.9.3"]
+
+                 [honeysql "0.4.3"]
                  [org.clojure/java.jdbc "0.3.3"]
                  [org.postgresql/postgresql "9.3-1101-jdbc41"]
+
+                 [prismatic/plumbing "0.2.2"]
                  [ring-mock "0.1.5"]
                  [compojure "1.1.6"]
-                 [org.clojure/algo.monads "0.1.5"]
+                 ;;[org.clojure/algo.monads "0.1.5"]
                  [ring "1.2.1"]
                  [clj-time "0.6.0"]
                  [cheshire "5.3.1"]
-                 [garden "1.1.5"]
-                 [clojure-saxon "0.9.3"]
-                 [org.clojure/core.match  "0.2.1"]
-                 [honeysql "0.4.3"]
-                 [org.clojure/data.xml "0.0.7"]
-                 [prismatic/plumbing "0.2.2"]
-                 [org.clojure/data.zip "0.1.1"]]
+                 [commons-codec "1.3"]
+                 [com.google.code.gson/gson "2.2.4"]
+                 [xpp3 "1.1.3.4.O"]
+                 ;;[org.clojure/core.match  "0.2.1"]
+                 ]
 
   :profiles {:dev {:source-paths ["dev"]
                    :dependencies [[org.clojure/tools.namespace "0.2.4"]
@@ -41,19 +48,4 @@
                                   [criterium "0.4.1"]
                                   [leiningen "2.3.4"]
                                   [org.clojure/java.classpath "0.2.0"]]
-                   :plugins [[lein-kibit "0.0.8"]]
-                   :injections [(require '[vinyasa.inject :as inj])
-                                (inj/inject 'clojure.core
-                                            '[[vinyasa.inject inject]
-                                              [vinyasa.pull pull]
-                                              [vinyasa.lein lein]
-                                              [vinyasa.reimport reimport]
-                                              [midje.repl load-facts autotest]])
-
-                                (require 'io.aviso.repl
-                                         'clojure.repl
-                                         'clojure.main)
-                                (alter-var-root #'clojure.main/repl-caught
-                                                (constantly @#'io.aviso.repl/pretty-pst))
-                                (alter-var-root #'clojure.repl/pst
-                                                (constantly @#'io.aviso.repl/pretty-pst))] }})
+                   :plugins [[lein-kibit "0.0.8"]] }})
