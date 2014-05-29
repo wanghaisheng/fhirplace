@@ -1,6 +1,6 @@
 (ns user
   "Namespace to support hacking at the REPL."
-  (:require [fhirplace.system :as system]
+  (:require [fhirplace.core :as fc]
             [clojure.tools.namespace.repl :as ns-repl]
             [clojure.tools.namespace.move :refer :all]
             [clojure.repl :refer :all]
@@ -10,47 +10,5 @@
             [clojure.java.classpath :as cjc]
             [criterium.core :as crit]))
 
-(defonce the-system
-  ;; "A container for the current instance of the application.
-  ;; Only used for interactive development."
-  ;;
-  ;; Don't want to lose this value if this file is recompiled (when
-  ;; changes are made to the useful additional utilities for the REPL
-  ;; at the end of the file), so use `defonce`.
-  ;; But note that this /is/ blatted when a `reset` is done.
-  nil)
-
-(defn init
-  "Creates a system and makes it the current development system."
-  []
-  (alter-var-root #'the-system
-                  (constantly (system/create))))
-
-(defn start
-  "Starts the current development system."
-  []
-  (alter-var-root #'the-system system/start))
-
-(defn stop
-  "Shuts down and destroys the current development system."
-  []
-  (alter-var-root #'the-system
-                  (fn [s] (when s (system/stop s)))))
-
-(defn go
-  "Creates a system, makes it the current development system and starts it."
-  []
-  (init)
-  (start))
-
-(defn refresh []
-  (ns-repl/refresh))
-
 (defn reset []
-  "Stop, refresh and go."
-  (stop)
-  ;;(ns-repl/set-refresh-dirs "./src" "./dev")
-  (ns-repl/refresh)
-  (ns-repl/refresh :after 'user/go))
-
-;;;; Useful additional utilities for the REPL
+  (ns-repl/refresh))

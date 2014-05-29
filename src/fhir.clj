@@ -1,31 +1,33 @@
 (ns fhir
-  (:require [clojure.string :as string]
-            [clojure.xml :as cx]
-            [clojure.java.io :as cji]))
+  (:require
+    [fhir.conv :as fc]
+    [fhir.validation :as fv]
+    [fhir.bundle :as fb]
+    [fhir.profiles :as fp]))
 
-(import 'java.io.File)
+(def re-xml #"(?m)^<.*>")
+(def re-json #"(?m)^[{].*")
 
-(import 'org.hl7.fhir.instance.formats.JsonParser)
-(import 'org.hl7.fhir.instance.formats.XmlParser)
-(import 'org.hl7.fhir.instance.formats.JsonComposer)
-(import 'org.hl7.fhir.instance.formats.XmlComposer)
+(defn parse [x]
+  "parse xml or json string
+   throw error"
+  (cond
+    (re-seq re-xml x) (fc/from-xml x)
+    (re-seq re-json x) (fc/from-json x)
+    :else (throw (Exception. "Don't know how to parse: " x))))
 
+(defn serialize [fmt x]
+  (cond
+    (= fmt :xml) (fc/to-xml x)
+    (= fmt :json) (fc/to-json x)))
 
-(defn- str->input-stream [s]
-  (java.io.ByteArrayInputStream. (.getBytes s)))
+(defn errors [x]
+  (fv/errors x))
 
-(defn from-xml [x]
-  (.parse (XmlParser.) (str->input-stream x)))
+(defn conformance []
+  fp/conformance)
 
-(defn from-json [x]
-  (.parse (JsonParser.) (str->input-stream x)))
-
-(defn to-json [res]
-  (let [out (java.io.ByteArrayOutputStream.)]
-    (.compose (JsonComposer.) out res true)
-    (.toString out)))
-
-(defn to-xml [res]
-  (let [out (java.io.ByteArrayOutputStream.)]
-    (.compose (XmlComposer.) out res true)
-    (.toString out)))
+(defn bundle [attrs]
+  "build bundle from hash-map
+  with entry :content parsed to fhir.model.Resource"
+  (fb/bundle attrs))

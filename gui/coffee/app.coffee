@@ -87,9 +87,7 @@ app.controller 'ResourcesIndexCtrl', ($rootScope, $scope, $routeParams, $http) -
     {url: "/resources/#{rt}/new", label: "New", icon: "fa-plus"})
 
   $rootScope.progress = $http.get($scope.restUri).success (data, status, headers, config) ->
-    $scope.resources = data.map (resource) ->
-      resource.prettyData = angular.toJson(angular.fromJson(resource.data), true)
-      resource
+    $scope.resources = data.entry
 
 app.controller 'ResourcesNewCtrl', ($rootScope, $scope, $routeParams, $http, $location) ->
   angular.extend($scope, $routeParams)
@@ -166,8 +164,6 @@ app.controller 'ResourcesHistoryCtrl', ($rootScope, $scope, $routeParams, $http)
     {url: "/resources/#{rt}/#{id}/history", label: 'History', icon: 'fa-history'})
 
   $rootScope.progress = $http.get($scope.restUri).success (data, status, headers, config) ->
-    $scope.entries = data.entry.map (e)->
-      e.json = angular.toJson(e, true)
-      e
+    $scope.entries = data.entry
     $scope.history  = data
     delete $scope.history.entry

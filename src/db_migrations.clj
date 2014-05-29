@@ -1,10 +1,10 @@
-(ns db
-  (:require [fhirplace.system :as fs]
+(ns db-migrations
+  (:require [fhirplace.db :as db]
             [clj-sql-up.create  :as create]
             [clj-sql-up.migrate :as migrate]))
 
 
-(def db (:db (fs/load-config :dev)))
+(def db db/db)
 
 (defn migrate []
   (migrate/migrate db))
@@ -30,6 +30,7 @@
         (= command "rollback") (rollback args)
         :else (println "No such command: " command)))))
 
-
+(rollback nil)
 (migrate)
+#_(migrate)
 #_(create-migration ["offer_statuses"])

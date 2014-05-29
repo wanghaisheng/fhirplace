@@ -1,13 +1,12 @@
-(ns fhirplace.resources.schematron
+(ns fhir.schematron
   (:require
     [clojure.java.io :as io]
     [saxon :as xml]
-    [fhirplace.util :as util]))
+    [fhir.util :as fu]))
 
 (def ^{:private true} iso-svrl-xsl
   (delay
-    (xml/compile-xslt
-      (util/resource-to-file "schematron/iso_svrl_for_xslt2.xsl"))))
+    (fu/load-xslt "schematron/iso_svrl_for_xslt2.xsl")))
 
 (def ^{:private true} name-spaces
   {:svrl "http://purl.oclc.org/dsdl/svrl"})
@@ -23,10 +22,9 @@
 
 (defn compile-sch
   "return schematron validation function
-  which get string and return schematron result xml"
-  [path]
-  (let [sch (-> (util/resource-to-file path)
-                (xml/compile-xml)
+  which get schematron string and return schematron result xml"
+  [sch-path]
+  (let [sch (-> (fu/load-xml sch-path)
                 (@iso-svrl-xsl)
                 (xml/compile-xslt))]
     (fn [doc-str]

@@ -1,6 +1,7 @@
-(ns fhirplace.resources.xsd
+(ns fhir.xsd
   (:require
-    [clojure.java.io :as io]))
+    [clojure.java.io :as io]
+    [fhir.util :as fu]))
 
 (import 'javax.xml.XMLConstants)
 (import 'org.xml.sax.SAXException)
@@ -11,18 +12,16 @@
 
 (defn mk-validator
   "create validation fn [xml-str]
-   which return nil if all is ok and error message else
-   schema - path to xsd schema"
-  [schema]
+  which return nil if all is ok and error message else
+  schema-path - path to xsd schema"
+  [schema-path]
   (let [schema-factory (SchemaFactory/newInstance XMLConstants/W3C_XML_SCHEMA_NS_URI)
-        schema-src     (StreamSource. (File. (.getPath (io/resource schema))))
+        schema-src     (StreamSource. (fu/load-resource schema-path))
         schema         (.newSchema schema-factory schema-src)
         validator      (.newValidator schema)]
-    (fn [xmldoc]
+    (fn [xml-str]
       (try
-        (->> (StringReader. (if (string? xmldoc)
-                              xmldoc
-                              (.toString xmldoc)))
+        (->> (StringReader. xml-str)
              (StreamSource.)
              (.validate validator))
         nil
