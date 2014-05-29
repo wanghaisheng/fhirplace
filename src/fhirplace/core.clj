@@ -75,9 +75,7 @@
   (cr/files  "/"                                      {:root "resources/public"}))
 
 
-(def app
-  (-> routes
-      (ch/api)))
+(def app (-> routes (ch/api)))
 
 (defn start-server []
   (jetty/run-jetty #'app {:port 3000 :join? false}))

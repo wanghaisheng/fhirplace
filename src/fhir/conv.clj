@@ -9,7 +9,6 @@
 (import 'org.hl7.fhir.instance.formats.XmlParser)
 (import 'org.hl7.fhir.instance.formats.JsonComposer)
 (import 'org.hl7.fhir.instance.formats.XmlComposer)
-(import 'java.util.regex.Pattern)
 
 (import 'org.hl7.fhir.instance.model.AtomFeed)
 

@@ -11,6 +11,11 @@
             [clj-sql-up "0.3.1"]
             [lein-midje "3.0.0"]]
 
+  :source-paths  ["lib/route-map/test"
+                  "lib/route-map/src"
+                  "lib/bouncer/src"
+                  "src"]
+
   :clj-sql-up  {:database {:subprotocol "postgresql"
                            :subname "//127.0.0.1:5433/fhirplace"
                            :classname "org.postgresql.Driver"
