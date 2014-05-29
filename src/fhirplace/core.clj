@@ -1,84 +1,56 @@
 (ns fhirplace.core
-  (:use ring.util.response
-        ring.util.request)
-  (:require [compojure.core :as cc]
-            [compojure.route :as cr]
+  (:require [route-map :as rm]
             [compojure.handler :as ch]
-            [fhir :as f]
-            [fhirplace.db :as db]
+            [ring.middleware.file :as rmf]
+            [fhirplace.app]
             [ring.adapter.jetty :as jetty]))
 
-;; TODO outcomes
-;; TODO vread validate
-;; TODO search
+(def GET :GET)
+(def POST :POST)
+(def PUT :PUT)
+(def DELETE :DELETE)
 
-(def uuid-regexp
-  #"[0-f]{8}-([0-f]{4}-){3}[0-f]{12}")
+(def routes
+  {GET {:fn '=info}
+   "metadata" {GET {:fn '=metadata}}
+   [:type] {:-> ['->type-supported!]
+            :<- ['<-format '<-outcome-on-exception]
+            POST       {:-> ['->valid-input!] :fn '=create}
+            "_validate" {POST {:fn '=validate}}
+            "_search"   {GET  {:fn '=search}}
+            [:id] {:-> ['->resource-exists! '->check-deleted!]
+                   :<- ['<-last-modified-header '<-location-header]
+                   GET       {:fn '=read}
+                   DELETE    {:fn '=delete}
+                   PUT       {:-> ['->valid-input! '->has-content-location! '->has-latest-version!]
+                              :fn '=update}
+                   "_history" {GET {:fn '=history}
+                               [:vid] {GET {:fn '=hread}}}}}})
 
-(defn url [& parts]
-  (apply str (interpose "/" parts)))
+(defn match [meth path]
+  (rm/match [meth path] routes))
 
-(defn -metadata [req]
-  {:body (f/serialize :json (f/conformance))})
+(match :get "/")
 
-(defn -search [{{rt :resource-type} :params}]
-  {:body (f/serialize :json (db/-search rt))})
+(defn collect [k match]
+  (filterv (complement nil?)
+           (mapcat k (conj (:parents match) (:match match)))))
 
-(defn -history [{{rt :resource-type id :id} :params}]
-  {:body (f/serialize :json (db/-history rt id))})
+(defn dispatch [{uri :uri meth :request-method :as req}]
+  (if-let [route (match meth uri)]
+    (let [handler-sym (get-in route [:match :fn])
+          handler (ns-resolve (find-ns 'fhirplace.app) handler-sym)
+          filters (collect :-> route)
+          trans (collect :<- route)]
+      (if handler
+        #_{:status 200 :body (str "\n HANDLER: " (pr-str handler) "\nROUTE:" (pr-str route) "\n FILTERS:" (pr-str filters) "\n TRANSFORMS: " (pr-str trans))}
+        (handler (update-in req [:params] merge (:params route)))
+        {:status 404 :body (str "No handler " handler-sym)})
+      )
+    {:status 404 :body (str "No route " meth " " uri)}))
 
-(defn resource-resp [res]
-  (-> (response (f/serialize :json (:data res)))
-      (header "content-location" (url (:resource_type res) (:logical_id res) (:version_id res)))
-      (header "Last-Modified" (:last_modified_date res))))
+(def app (-> dispatch (ch/site) (rmf/wrap-file "resources/public")))
 
-(defn -create
-  [{{rt :resource-type} :params body :body}]
-  (let [body (slurp body)
-        res (f/parse body)
-        json (f/serialize :json res)
-        item (db/-create rt json)]
-    (-> (resource-resp res)
-        (status 201))))
+(defn start-server [] (jetty/run-jetty #'app {:port 3000 :join? false}))
 
-(defn -update
-  [{{rt :resource-type id :id} :params body :body}]
-  (let [body (slurp body)
-        res (f/parse body)
-        json (f/serialize :json res)
-        item (db/-update rt id json)]
-    (-> (resource-resp res)
-        (status 200))))
-
-(defn -delete
-  [{{rt :resource-type id :id} :params body :body}]
-  (-> (response (db/-delete rt id))
-      (status 204)))
-
-;;TODO add checks
-(defn -read [{{rt :resource-type id :id} :params}]
-  (let [res (db/-read rt id)]
-    (-> (resource-resp res)
-        (status 200))))
-
-(cc/defroutes routes
-  (cc/GET    "/"                                      []                 identity)
-  (cc/GET    "/metadata"                              []                 #'-metadata)
-  (cc/POST   "/:resource-type"                        [resource-type]    #'-create)
-  (cc/GET    "/:resource-type/_search"                [resource-type]    #'-search)
-  (cc/GET    ["/:resource-type/:id", :id uuid-regexp] [resource-type id] #'-read)
-  (cc/GET    "/:resource-type/:id/_history"           [resource-type id] #'-history)
-  (cc/DELETE "/:resource-type/:id"                    [resource-type id] #'-delete)
-  (cc/PUT    "/:resource-type/:id"                    [resource-type id] #'-update)
-  ; (cc/POST   "/:resource-type/_validate"              [resource-type id] 'sys-int/validate)
-  ; (cc/GET    "/:resource-type/:id/_history/:vid"      [resource-type id vid] 'res-int/vread)
-  (cr/files  "/"                                      {:root "resources/public"}))
-
-
-(def app (-> routes (ch/api)))
-
-(defn start-server []
-  (jetty/run-jetty #'app {:port 3000 :join? false}))
-
-(defn stop-server [server]
-  (.stop server))
+(defn stop-server [server] (.stop server))
