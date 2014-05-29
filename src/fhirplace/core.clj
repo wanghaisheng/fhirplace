@@ -36,20 +36,30 @@
   (filterv (complement nil?)
            (mapcat k (conj (:parents match) (:match match)))))
 
-(defn dispatch [{uri :uri meth :request-method :as req}]
-  (if-let [route (match meth uri)]
-    (let [handler-sym (get-in route [:match :fn])
-          handler (ns-resolve (find-ns 'fhirplace.app) handler-sym)
-          filters (collect :-> route)
-          trans (collect :<- route)]
-      (if handler
-        #_{:status 200 :body (str "\n HANDLER: " (pr-str handler) "\nROUTE:" (pr-str route) "\n FILTERS:" (pr-str filters) "\n TRANSFORMS: " (pr-str trans))}
-        (handler (update-in req [:params] merge (:params route)))
-        {:status 404 :body (str "No handler " handler-sym)})
-      )
-    {:status 404 :body (str "No route " meth " " uri)}))
+(defn resolve-route [h]
+  (fn [{uri :uri meth :request-method :as req}]
+    (if-let [route (match meth uri)]
+      (h (assoc req :route route))
+      {:status 404 :body (str "No route " meth " " uri)})))
 
-(def app (-> dispatch (ch/site) (rmf/wrap-file "resources/public")))
+(defn resolve-handler [h]
+  (fn [{route :route :as req}]
+    (let [handler-sym (get-in route [:match :fn])
+          handler     (ns-resolve (find-ns 'fhirplace.app) handler-sym)]
+      (if handler
+        (h (assoc req :handler handler))
+        {:status 500 :body (str "No handler " handler-sym)}))))
+
+(defn dispatch [{handler :handler route :route :as req}]
+  (let [filters     (collect :-> route)
+        trans       (collect :<- route)]
+    (handler (update-in req [:params] merge (:params route)))))
+
+(def app (-> dispatch
+             (resolve-handler)
+             (resolve-route)
+             (ch/site)
+             (rmf/wrap-file "resources/public")))
 
 (defn start-server [] (jetty/run-jetty #'app {:port 3000 :join? false}))
 
