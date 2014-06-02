@@ -3,15 +3,17 @@
             [honeysql.core :as hc]
             [clojure.data.json :as json]
             [fhir :as f]
-            [honeysql.helpers :as hh]))
+            [honeysql.helpers :as hh]
+            [environ.core :as env]))
 
 (import ' org.postgresql.util.PGobject)
 
-(def db {:subprotocol "postgresql"
-         :subname "//127.0.0.1:5433/fhirplace"
-         :user "fhir"
-         :stringtype "unspecified"
-         :password "fhir"})
+(defn db []
+  {:subprotocol (or (env/env :fhirplace-subprotocol) "postgresql")
+         :subname (or (env/env :fhirplace-subname) "//127.0.0.1:5455/fhirplace")
+         :user (or (env/env :fhirplace-user) "fhir")
+         :stringtype (or (env/env :fhirplace-stringtype) "unspecified")
+         :password (or (env/env :fhirplace-password) "fhir")})
 
 (defn uuid  [] (java.util.UUID/randomUUID))
 
@@ -33,16 +35,16 @@
 (defn q [hsql]
   (let [sql (hc/format hsql)]
     (println "SQL:" sql)
-    (cjj/query db sql)))
+    (cjj/query (db) sql)))
 
 (defn e [sql]
   (let [sql sql]
     (println "SQL:" sql)
-    (cjj/execute! db sql)))
+    (cjj/execute! (db) sql)))
 
 (defn i [tbl attrs]
   (first
-    (cjj/insert! db tbl attrs)))
+    (cjj/insert! (db) tbl attrs)))
 
 (import 'java.sql.Timestamp)
 

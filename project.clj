@@ -5,11 +5,12 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
-  :ring {:handler fhirplace.app/app}
+ ;; :ring {:handler fhirplace.app/app}
 
   :plugins [[lein-ring "0.8.10"]
             [clj-sql-up "0.3.1"]
-            [lein-midje "3.0.0"]]
+            [lein-midje "3.0.0"]
+            [lein-environ  "0.5.0"]]
 
   :source-paths  ["lib/route-map/test"
                   "lib/route-map/src"
@@ -50,6 +51,7 @@
                  [com.google.code.gson/gson "2.2.4"]
                  [xpp3 "1.1.3.4.O"]
                  ;;[org.clojure/core.match  "0.2.1"]
+                 [environ  "0.5.0"]
                  ]
 
   :profiles {:dev {:source-paths ["dev"]
