@@ -55,8 +55,7 @@
 (defn build-stack [h mws]
   (loop [h h [m & mws] (reverse mws)]
     (if m
-      (recur (m h) mws)
-      h)))
+      (recur (m h) mws) h)))
 
 (defn dispatch [{handler :handler route :route :as req}]
   (let [filters  (map resolve-filter (collect :-> route))

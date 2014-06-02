@@ -12,7 +12,6 @@
 
 (fact
   "Build stack wrap all midlewares"
-
   ((fc/build-stack
      identity
      [mw1 mw2]) {}) => {:a 1 :b 2 :last 2})
