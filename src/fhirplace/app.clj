@@ -5,6 +5,7 @@
             [compojure.route :as cr]
             [compojure.handler :as ch]
             [fhir :as f]
+            [fhir.operation-outcome :as fo]
             [fhirplace.db :as db]
             [ring.adapter.jetty :as jetty]))
 
@@ -12,23 +13,97 @@
 ;; TODO vread validate
 ;; TODO search
 
-(def uuid-regexp
-  #"[0-f]{8}-([0-f]{4}-){3}[0-f]{12}")
-
 (defn url [& parts]
   (apply str (interpose "/" parts)))
 
+(defn- determine-format
+  "Determines request format (:xml or :json)."
+  [{{fmt :_format} :params}]
+  (or (get {"application/json" :json
+            "application/xml"  :xml} fmt)
+      :json))
+
+(defn <-format [h]
+  "formatting midle-ware
+  expected body is instance of fhir reference impl"
+  (fn [req]
+    (let [{bd :body :as resp} (h req)
+          fmt (determine-format req)]
+      ;; TODO set right headers
+      (println "Formating: " bd)
+      (if bd
+        (assoc resp :body (f/serialize fmt bd))
+        (assoc resp :body "empty body")))))
+
+(defn- get-stack-trace [e]
+  (let [sw (java.io.StringWriter.)]
+    (.printStackTrace e (java.io.PrintWriter. sw))
+    (println "ERROR: " sw)
+    (str sw)))
+
+(defn <-outcome-on-exception [h]
+  (fn [req]
+    (try
+      (h req)
+      (catch Exception e
+        (println "<-outcome-on-exception")
+        {:status 500
+         :body (fo/operation-outcome
+                 {:text {:status "generated" :div "<div></div>"}
+                  :issue [{:severity "fatal"
+                           :details (str "Unexpected server error " (get-stack-trace e))}]})}))))
+
+(defn ->type-supported! [h]
+  (fn [{{tp :type} :params :as req}]
+    (println "->type-supported!")
+    (if tp
+      (h req)
+      {:status 404
+       :body (fo/operation-outcome
+               {:text {:status "generated" :div "<div></div>"}
+                :issue [{:severity "fatal"
+                         :details (str "Resource type [" tp "] isn't supported")}]})})))
+
+(defn ->resource-exists! [h]
+  (fn [req]
+    (println "->resource-exists!")
+    (h req)))
+
+(defn ->valid-input! [h]
+  (fn [req]
+    (println "->valid-input!")
+    (h req)))
+
+(defn ->check-deleted! [h]
+  (fn [req]
+    (println "->check-deleted!")
+    (h req)))
+
+(defn ->has-content-location! [h]
+  (fn [req]
+    (println "->has-content-location!")
+    (h req)))
+
+(defn ->has-latest-version! [h]
+  (fn [req]
+    (println "->has-latest-version!")
+    (h req)))
+
+(def uuid-regexp
+  #"[0-f]{8}-([0-f]{4}-){3}[0-f]{12}")
+
+
 (defn =metadata [req]
-  {:body (f/serialize :json (f/conformance))})
+  {:body (f/conformance)})
 
 (defn =search [{{rt :type} :params}]
-  {:body (f/serialize :json (db/-search rt))})
+  {:body (db/-search rt)})
 
 (defn =history [{{rt :type id :id} :params}]
-  {:body (f/serialize :json (db/-history rt id))})
+  {:body (db/-history rt id)})
 
 (defn resource-resp [res]
-  (-> (response (f/serialize :json (:data res)))
+  (-> {:body (:data res)}
       (header "content-location" (url (:resource_type res) (:logical_id res) (:version_id res)))
       (header "Last-Modified" (:last_modified_date res))))
 
@@ -37,7 +112,7 @@
   (let [body (slurp body)
         res (f/parse body)
         json (f/serialize :json res)
-        item (db/-create rt json)]
+        item (db/-create (str (.getResourceType res)) json)]
     (-> (resource-resp res)
         (status 201))))
 

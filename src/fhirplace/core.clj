@@ -14,12 +14,11 @@
   {GET {:fn '=info}
    "metadata" {GET {:fn '=metadata}}
    [:type] {:-> ['->type-supported!]
-            :<- ['<-format '<-outcome-on-exception]
+            :<- ['<-outcome-on-exception]
             POST       {:-> ['->valid-input!] :fn '=create}
             "_validate" {POST {:fn '=validate}}
             "_search"   {GET  {:fn '=search}}
             [:id] {:-> ['->resource-exists! '->check-deleted!]
-                   :<- ['<-last-modified-header '<-location-header]
                    GET       {:fn '=read}
                    DELETE    {:fn '=delete}
                    PUT       {:-> ['->valid-input! '->has-content-location! '->has-latest-version!]
@@ -29,8 +28,6 @@
 
 (defn match [meth path]
   (rm/match [meth path] routes))
-
-(match :get "/")
 
 (defn collect [k match]
   (filterv (complement nil?)
@@ -50,14 +47,30 @@
         (h (assoc req :handler handler))
         {:status 500 :body (str "No handler " handler-sym)}))))
 
+(defn- resolve-filter [nm]
+  (if-let [fltr (ns-resolve (find-ns 'fhirplace.app) nm)]
+    fltr
+    (throw (Exception. (str "Could not resolve filter " nm)))))
+
+(defn build-stack [h mws]
+  (loop [h h [m & mws] (reverse mws)]
+    (if m
+      (recur (m h) mws)
+      h)))
+
 (defn dispatch [{handler :handler route :route :as req}]
-  (let [filters     (collect :-> route)
-        trans       (collect :<- route)]
-    (handler (update-in req [:params] merge (:params route)))))
+  (let [filters  (map resolve-filter (collect :-> route))
+        trans    (map resolve-filter (collect :<- route))
+        req      (update-in req [:params] merge (:params route))]
+    (println "Dispatching " (:request-method req) " " (:uri req) " to " (pr-str handler))
+    (println "Filters " (pr-str filters))
+    (println "Transformers " (pr-str trans))
+    ((build-stack handler (concat trans filters)) req)))
 
 (def app (-> dispatch
              (resolve-handler)
              (resolve-route)
+             (fhirplace.app/<-format)
              (ch/site)
              (rmf/wrap-file "resources/public")))
 

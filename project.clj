@@ -13,7 +13,6 @@
 
   :source-paths  ["lib/route-map/test"
                   "lib/route-map/src"
-                  "lib/bouncer/src"
                   "src"]
 
   :clj-sql-up  {:database {:subprotocol "postgresql"
@@ -39,6 +38,7 @@
                  [org.postgresql/postgresql "9.3-1101-jdbc41"]
 
                  [prismatic/plumbing "0.2.2"]
+                 [prismatic/schema "0.2.2"]
                  [ring-mock "0.1.5"]
                  [compojure "1.1.6"]
                  ;;[org.clojure/algo.monads "0.1.5"]

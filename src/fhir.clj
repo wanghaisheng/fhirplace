@@ -14,7 +14,7 @@
   (cond
     (re-seq re-xml x) (fc/from-xml x)
     (re-seq re-json x) (fc/from-json x)
-    :else (throw (Exception. "Don't know how to parse: " x))))
+    :else (throw (Exception. "Don't know how to parse: " (pr-str x)))))
 
 (defn serialize [fmt x]
   (cond
