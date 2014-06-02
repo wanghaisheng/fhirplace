@@ -35,6 +35,9 @@
     (println "SQL:" sql)
     (cjj/query db sql)))
 
+(defn q-one [hsql]
+  (first (q hsql)))
+
 (defn e [sql]
   (let [sql sql]
     (println "SQL:" sql)
@@ -74,15 +77,37 @@
 (defn -delete [tp id]
   (move-to-history tp id))
 
-(defn -read [tp id]
-  (let [row (first (q {:select [:*]
-                       :from [(tbl-name tp)]
-                       :where [:and
-                               [:= :resource_type tp]
-                               [:= :logical_id id]]
-                       :limit 1}))]
-    (update-in row [:data] f/parse)))
+(defn- find-by-id [tp id]
+  (q-one {:select [:*]
+          :from [(tbl-name tp)]
+          :where [:and
+                  [:= :resource_type tp]
+                  [:= :logical_id id]]
+          :limit 1}))
 
+(defn- find-hist-by-id [tp id vid]
+  (or
+    (q-one {:select [:*]
+            :from [(tbl-name tp)]
+            :where [:and
+                    [:= :resource_type tp]
+                    [:= :logical_id id]
+                    [:= :version_id vid] ]
+            :limit 1})
+    (q-one {:select [:*]
+            :from [(htbl-name tp)]
+            :where [:and
+                    [:= :resource_type tp]
+                    [:= :logical_id id]
+                    [:= :version_id vid]]
+            :limit 1})))
+
+
+(defn -read [tp id]
+  (find-by-id tp id))
+
+(defn -vread [tp id vid]
+  (find-hist-by-id tp id vid))
 
 (defn exists? [id]
   (->

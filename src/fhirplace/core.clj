@@ -23,6 +23,7 @@
                    DELETE    {:fn '=delete}
                    PUT       {:-> ['->valid-input! '->has-content-location! '->has-latest-version!]
                               :fn '=update}
+                   [:vid]    {GET {:fn '=vread}} ;; TODO read version
                    "_history" {GET {:fn '=history}
                                [:vid] {GET {:fn '=hread}}}}}})
 
@@ -52,7 +53,10 @@
     fltr
     (throw (Exception. (str "Could not resolve filter " nm)))))
 
-(defn build-stack [h mws]
+(defn build-stack
+  "build stack from h - handler
+  and mws - seq of middlewares"
+  [h mws]
   (loop [h h [m & mws] (reverse mws)]
     (if m
       (recur (m h) mws) h)))
@@ -61,7 +65,7 @@
   (let [filters  (map resolve-filter (collect :-> route))
         trans    (map resolve-filter (collect :<- route))
         req      (update-in req [:params] merge (:params route))]
-    (println "Dispatching " (:request-method req) " " (:uri req) " to " (pr-str handler))
+    (println "\n\nDispatching " (:request-method req) " " (:uri req) " to " (pr-str handler))
     (println "Filters " (pr-str filters))
     (println "Transformers " (pr-str trans))
     ((build-stack handler (concat trans filters)) req)))

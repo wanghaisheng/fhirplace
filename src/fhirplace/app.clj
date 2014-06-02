@@ -9,6 +9,9 @@
             [fhirplace.db :as db]
             [ring.adapter.jetty :as jetty]))
 
+(import 'org.hl7.fhir.instance.model.Resource)
+(import 'org.hl7.fhir.instance.model.AtomFeed)
+
 ;; TODO outcomes
 ;; TODO vread validate
 ;; TODO search
@@ -31,9 +34,9 @@
           fmt (determine-format req)]
       ;; TODO set right headers
       (println "Formating: " bd)
-      (if bd
+      (if (and bd (or (instance? Resource bd) (instance? AtomFeed bd)))
         (assoc resp :body (f/serialize fmt bd))
-        (assoc resp :body "empty body")))))
+        resp))))
 
 (defn- get-stack-trace [e]
   (let [sw (java.io.StringWriter.)]
@@ -103,8 +106,8 @@
   {:body (db/-history rt id)})
 
 (defn resource-resp [res]
-  (-> {:body (:data res)}
-      (header "content-location" (url (:resource_type res) (:logical_id res) (:version_id res)))
+  (-> {:body (f/parse (:data res))}
+      (header "Content-Location" (url (:resource_type res) (:logical_id res) (:version_id res)))
       (header "Last-Modified" (:last_modified_date res))))
 
 (defn =create
@@ -113,7 +116,7 @@
         res (f/parse body)
         json (f/serialize :json res)
         item (db/-create (str (.getResourceType res)) json)]
-    (-> (resource-resp res)
+    (-> (resource-resp item)
         (status 201))))
 
 (defn =update
@@ -122,7 +125,7 @@
         res (f/parse body)
         json (f/serialize :json res)
         item (db/-update rt id json)]
-    (-> (resource-resp res)
+    (-> (resource-resp item)
         (status 200))))
 
 (defn =delete
@@ -133,5 +136,11 @@
 ;;TODO add checks
 (defn =read [{{rt :type id :id} :params}]
   (let [res (db/-read rt id)]
+    (-> (resource-resp res)
+        (status 200))))
+
+(defn =vread [{{rt :type id :id vid :vid} :params}]
+  (let [res (db/-vread rt id vid)]
+    (println res)
     (-> (resource-resp res)
         (status 200))))
