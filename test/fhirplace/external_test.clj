@@ -10,8 +10,10 @@
 
 (import 'org.hl7.fhir.instance.model.Conformance)
 (import 'org.hl7.fhir.instance.model.AtomFeed)
+(import 'org.hl7.fhir.instance.model.Alert)
+(import 'org.hl7.fhir.instance.model.OperationOutcome)
 
-(defmacro def-scenario  [nm m]
+(defmacro def-scenario [nm m]
   `(def ~nm  (pg/lazy-compile ~m)))
 
 (def base-url (env/env :fhirplace-test-url))
@@ -29,6 +31,10 @@
 (defn POST [url attrs]
   (println "POST: " url)
   (cc/post url (merge {:throw-exceptions false}  attrs)))
+
+(defn PUT [url attrs]
+  (println "PUT: " url)
+  (cc/put url (merge {:throw-exceptions false}  attrs)))
 
 (def-scenario simple-crud
   {:metadata (fnk [] (GET (url "metadata")))
@@ -65,3 +71,12 @@
   )
 
 (run-tests)
+
+(def-scenario create-interaction
+  {
+   :create-resource (fnk [] (POST (url "Alert") {:body (fixture "alert.json")}))})
+
+(def create-subject (create-interaction {}))
+
+(deftest test-create-interaction
+  (status? 201 (:create-resource create-subject)))
