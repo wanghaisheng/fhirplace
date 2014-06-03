@@ -40,25 +40,24 @@
 
 (def subj (simple-crud {}))
 
-(get-in  subj [:create :headers "Content-Location"])
+(defn status? [status responce]
+  (is (= (:status responce) status)))
 
 (deftest test-simple-crud
-  (is (= (:status (:metadata subj))
-         200))
+  (status? 200 (:metadata subj))
+
   (is (instance? Conformance
                  (:conformance subj)))
 
-  (is (= (:status (:search subj))
-         200))
+  (status? 200 (:search subj))
+
   (is (instance? AtomFeed (:search_atom subj)))
 
-  (is (= (:status (:new_resource subj))
-         201))
+  (status? 201 (:new_resource subj))
+
   (is (not (nil? (:new_resource_loc subj))))
 
-  (is (= (:status (:get_new_resource subj))
-         200))
-
+  (status? 200 (:get_new_resource subj))
   )
 
 (run-tests)

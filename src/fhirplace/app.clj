@@ -12,10 +12,6 @@
 (import 'org.hl7.fhir.instance.model.Resource)
 (import 'org.hl7.fhir.instance.model.AtomFeed)
 
-;; TODO outcomes
-;; TODO vread validate
-;; TODO search
-
 (defn url [& parts]
   (apply str (interpose "/" parts)))
 
@@ -44,52 +40,55 @@
     (println "ERROR: " sw)
     (str sw)))
 
+(defn- outcome [status text & issues]
+  {:status status
+   :body (fo/operation-outcome
+           {:text {:status "generated" :div text}
+            :issue issues })})
+
 (defn <-outcome-on-exception [h]
   (fn [req]
     (try
       (h req)
       (catch Exception e
         (println "<-outcome-on-exception")
-        {:status 500
-         :body (fo/operation-outcome
-                 {:text {:status "generated" :div "<div></div>"}
-                  :issue [{:severity "fatal"
-                           :details (str "Unexpected server error " (get-stack-trace e))}]})}))))
+        (outcome 500 "Server error"
+                 {:severity "fatal"
+                  :details (str "Unexpected server error " (get-stack-trace e))})))))
+
 
 (defn ->type-supported! [h]
   (fn [{{tp :type} :params :as req}]
-    (println "->type-supported!")
+    (println "TODO: ->type-supported!")
     (if tp
       (h req)
-      {:status 404
-       :body (fo/operation-outcome
-               {:text {:status "generated" :div "<div></div>"}
-                :issue [{:severity "fatal"
-                         :details (str "Resource type [" tp "] isn't supported")}]})})))
+      (outcome 404 "Resource type not supported"
+               {:severity "fatal"
+                :details (str "Resource type [" tp "] isn't supported")}))))
 
 (defn ->resource-exists! [h]
   (fn [req]
-    (println "->resource-exists!")
+    (println "TODO: ->resource-exists!")
     (h req)))
 
 (defn ->valid-input! [h]
   (fn [req]
-    (println "->valid-input!")
+    (println "TODO: ->valid-input!")
     (h req)))
 
 (defn ->check-deleted! [h]
   (fn [req]
-    (println "->check-deleted!")
+    (println "TODO: ->check-deleted!")
     (h req)))
 
 (defn ->has-content-location! [h]
   (fn [req]
-    (println "->has-content-location!")
+    (println "TODO: ->has-content-location!")
     (h req)))
 
 (defn ->has-latest-version! [h]
   (fn [req]
-    (println "->has-latest-version!")
+    (println "TODO: ->has-latest-version!")
     (h req)))
 
 (def uuid-regexp
