@@ -4,16 +4,16 @@
             [clj-sql-up.migrate :as migrate]))
 
 
-(defn db [] (db/db))
+(def db db/db)
 
 (defn migrate []
-  (migrate/migrate (db)))
+  (migrate/migrate db))
 
 (defn create-migration [args]
   (create/create args))
 
 (defn rollback [args]
-  (migrate/rollback (db) (first args)))
+  (migrate/rollback db (first args)))
 
 (defn -main [& args]
   (if (empty? args)

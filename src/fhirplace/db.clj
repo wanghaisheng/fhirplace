@@ -8,12 +8,12 @@
 
 (import ' org.postgresql.util.PGobject)
 
-(defn db []
-  {:subprotocol (or (env/env :fhirplace-subprotocol) "postgresql")
-         :subname (or (env/env :fhirplace-subname) "//127.0.0.1:5455/fhirplace")
-         :user (or (env/env :fhirplace-user) "fhir")
-         :stringtype (or (env/env :fhirplace-stringtype) "unspecified")
-         :password (or (env/env :fhirplace-password) "fhir")})
+(def db
+  {:subprotocol (env/env :fhirplace-subprotocol)
+         :subname (env/env :fhirplace-subname)
+         :user (env/env :fhirplace-user)
+         :stringtype "unspecified"
+         :password (env/env :fhirplace-password)})
 
 (defn uuid  [] (java.util.UUID/randomUUID))
 
@@ -35,7 +35,7 @@
 (defn q [hsql]
   (let [sql (hc/format hsql)]
     (println "SQL:" sql)
-    (cjj/query (db) sql)))
+    (cjj/query db sql)))
 
 (defn q-one [hsql]
   (first (q hsql)))
@@ -43,11 +43,11 @@
 (defn e [sql]
   (let [sql sql]
     (println "SQL:" sql)
-    (cjj/execute! (db) sql)))
+    (cjj/execute! db sql)))
 
 (defn i [tbl attrs]
   (first
-    (cjj/insert! (db) tbl attrs)))
+    (cjj/insert! db tbl attrs)))
 
 (import 'java.sql.Timestamp)
 

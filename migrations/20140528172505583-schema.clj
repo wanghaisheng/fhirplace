@@ -41,4 +41,4 @@
 (defn down []
   (concat ["DROP TABLE tags"]
         (for [tbl tables] (str "DROP TABLE \"" tbl "\" CASCADE"))
-        #_(for [tbl tables] (str "DROP TABLE \"" tbl "_history\" CASCADE"))))
+        (for [tbl tables] (str "DROP TABLE \"" tbl "_history\" CASCADE"))))

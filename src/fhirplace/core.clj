@@ -6,9 +6,6 @@
             [ring.adapter.jetty :as jetty]
             [environ.core :as env]))
 
-(defn fhirplace-port
-  []
-  (or (env/env :fhirplace-web-port) 3000))
 
 (def GET :GET)
 (def POST :POST)
@@ -104,6 +101,7 @@
              (ch/site)
              (rmf/wrap-file "resources/public")))
 
-(defn start-server [] (jetty/run-jetty #'app {:port (fhirplace-port) :join? false}))
+(defn start-server []
+  (jetty/run-jetty #'app {:port (env/env :fhirplace-web-port) :join? false}))
 
 (defn stop-server [server] (.stop server))

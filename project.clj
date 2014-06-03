@@ -9,8 +9,7 @@
 
   :plugins [[lein-ring "0.8.10"]
             [clj-sql-up "0.3.1"]
-            [lein-midje "3.0.0"]
-            [lein-environ  "0.5.0"]]
+            [lein-midje "3.0.0"]]
 
   :source-paths  ["lib/route-map/test"
                   "lib/route-map/src"
