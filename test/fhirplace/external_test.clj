@@ -26,15 +26,18 @@
 
 (defn POST [url attrs]
   (println "POST: " url)
-  (cc/post url (merge {:throw-exceptions false}   attrs)))
+  (cc/post url (merge {:throw-exceptions false}  attrs)))
 
 (def-scenario simple-crud
   {:metadata (fnk [] (GET (url "metadata")))
    :conformance (fnk [metadata] (f/parse (:body metadata)))
+
    :search (fnk [] (GET (url "Patient" "_search")))
    :search_atom (fnk [search] (f/parse (:body search)))
-   :new_resource (fnk [] (cc/post (url "Patient") {:body (fixture "patient.json")}))
+
+   :new_resource (fnk [] (POST (url "Patient") {:body (fixture "patient.json")}))
    :new_resource_loc (fnk [new_resource] (get-in  new_resource [:headers "Content-Location"]))
+
    :get_new_resource (fnk [new_resource_loc] (GET (url new_resource_loc)))
    })
 
@@ -46,8 +49,7 @@
 (deftest test-simple-crud
   (status? 200 (:metadata subj))
 
-  (is (instance? Conformance
-                 (:conformance subj)))
+  (is (instance? Conformance (:conformance subj)))
 
   (status? 200 (:search subj))
 
