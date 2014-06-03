@@ -5,7 +5,8 @@
             [clojure.test :refer :all]
             [plumbing.core :refer [fnk]]
             [plumbing.graph :as pg]
-            [clj-http.client :as cc]))
+            [clj-http.client :as cc]
+            [environ.core :as env]))
 
 (import 'org.hl7.fhir.instance.model.Conformance)
 (import 'org.hl7.fhir.instance.model.AtomFeed)
@@ -13,7 +14,8 @@
 (defmacro def-scenario  [nm m]
   `(def ~nm  (pg/lazy-compile ~m)))
 
-(def base-url  "http://localhost:3000")
+(def base-url (env/env :fhirplace-test-url))
+
 (defn url [& parts]
   (apply str base-url "/" (interpose "/" parts)))
 

@@ -11,6 +11,7 @@ pom.xml.asc
 /resources/config.clj
 *sw?
 **/.#*
+**/#*#
 
 # JavaScript Single Page Application.
 gui/.sass-cache
