@@ -6,7 +6,8 @@
             [plumbing.core :refer [fnk]]
             [plumbing.graph :as pg]
             [clj-http.client :as cc]
-            [environ.core :as env]))
+            [environ.core :as env]
+            [clojure.string :as cs]))
 
 (import 'org.hl7.fhir.instance.model.Conformance)
 (import 'org.hl7.fhir.instance.model.AtomFeed)
@@ -72,11 +73,18 @@
 
 (run-tests)
 
+(defn mime-type
+  [fmt]
+  ({"xml" "application/xml+fhir"
+    "json" "application/json+fhir"} fmt)
+  )
+
 (def-scenario create-interaction
   {
-   :create-resource (fnk [] (POST (url "Alert") {:body (fixture "alert.json")}))})
+   :create-resource (fnk [resource-type format] (POST (url (str resource-type "?_format=" (mime-type format))) {:body (fixture (str (cs/lower-case resource-type) "." format))}))})
 
-(def create-subject (create-interaction {}))
+
+(def create-subject (create-interaction {:resource-type "Alert" :format "json"}))
 
 (deftest test-create-interaction
   (status? 201 (:create-resource create-subject)))
