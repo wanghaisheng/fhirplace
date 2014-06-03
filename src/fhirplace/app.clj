@@ -106,6 +106,7 @@
 
 (defn resource-resp [res]
   (-> {:body (f/parse (:data res))}
+      (header "Location" (url (:resource_type res) (:logical_id res) (:version_id res)))
       (header "Content-Location" (url (:resource_type res) (:logical_id res) (:version_id res)))
       (header "Last-Modified" (:last_modified_date res))))
 

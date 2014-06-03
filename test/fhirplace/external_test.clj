@@ -37,6 +37,10 @@
   (println "PUT: " url)
   (cc/put url (merge {:throw-exceptions false}  attrs)))
 
+(defn get-header
+  [h res]
+  (get-in res [:headers h]))
+
 (def-scenario simple-crud
   {:metadata (fnk [] (GET (url "metadata")))
    :conformance (fnk [metadata] (f/parse (:body metadata)))
@@ -45,7 +49,7 @@
    :search_atom (fnk [search] (f/parse (:body search)))
 
    :new_resource (fnk [] (POST (url "Patient") {:body (fixture "patient.json")}))
-   :new_resource_loc (fnk [new_resource] (get-in  new_resource [:headers "Content-Location"]))
+   :new_resource_loc (fnk [new_resource] (get-header "Content-Location" new_resource))
 
    :get_new_resource (fnk [new_resource_loc] (GET (url new_resource_loc)))
    })
@@ -81,10 +85,16 @@
 
 (def-scenario create-interaction
   {
-   :create-resource (fnk [resource-type format] (POST (url (str resource-type "?_format=" (mime-type format))) {:body (fixture (str (cs/lower-case resource-type) "." format))}))})
-
-
-(def create-subject (create-interaction {:resource-type "Alert" :format "json"}))
+   :create-resource (fnk [resource-type format] (POST (url (str resource-type "?_format=" (mime-type format))) {:body (fixture (str (cs/lower-case resource-type) "." format))}))
+   :create-location-id (fnk [create-resource] (get-header "Content-Location" create-resource))
+   :create-location-vid (fnk [create-resource] (get-header "Content-Location" create-resource))
+   })
 
 (deftest test-create-interaction
-  (status? 201 (:create-resource create-subject)))
+  (doseq [fmt ["json" "xml"] res ["Alert" "Observation" "Patient"]]
+    (let [create-subject (create-interaction {:resource-type res :format fmt})]
+      (status? 201 (:create-resource create-subject))
+      (println (:create-location-id create-subject))
+      )))
+  ;;[base]/ [type]/ [id]/_history/ [vid]
+
