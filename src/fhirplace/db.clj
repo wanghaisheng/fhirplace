@@ -10,10 +10,10 @@
 
 (def db
   {:subprotocol (env/env :fhirplace-subprotocol)
-         :subname (env/env :fhirplace-subname)
-         :user (env/env :fhirplace-user)
-         :stringtype "unspecified"
-         :password (env/env :fhirplace-password)})
+   :subname (env/env :fhirplace-subname)
+   :user (env/env :fhirplace-user)
+   :stringtype "unspecified"
+   :password (env/env :fhirplace-password)})
 
 (defn uuid  [] (java.util.UUID/randomUUID))
 
@@ -79,11 +79,28 @@
 (defn -delete [tp id]
   (move-to-history tp id))
 
+(defn -deleted? [tp id]
+  (and
+    (not (q-one {:select [:logical_id]
+                 :from [(tbl-name tp)]
+                 :where [:= :logical_id id]}))
+    (q-one {:select [:logical_id]
+            :from [(htbl-name tp)]
+            :where [:= :logical_id id]})))
+
+(defn -latest? [tp id vid]
+  (q-one {:select [:*]
+          :from [(tbl-name tp)]
+          :where [:and
+                  [:= :logical_id id]
+                  [:= :version_id vid] ]
+          :limit 1}))
+
+
 (defn- find-by-id [tp id]
   (q-one {:select [:*]
           :from [(tbl-name tp)]
           :where [:and
-                  [:= :resource_type tp]
                   [:= :logical_id id]]
           :limit 1}))
 
@@ -92,18 +109,15 @@
     (q-one {:select [:*]
             :from [(tbl-name tp)]
             :where [:and
-                    [:= :resource_type tp]
                     [:= :logical_id id]
                     [:= :version_id vid] ]
             :limit 1})
     (q-one {:select [:*]
             :from [(htbl-name tp)]
             :where [:and
-                    [:= :resource_type tp]
                     [:= :logical_id id]
                     [:= :version_id vid]]
             :limit 1})))
-
 
 (defn -read [tp id]
   (find-by-id tp id))
@@ -111,10 +125,10 @@
 (defn -vread [tp id vid]
   (find-hist-by-id tp id vid))
 
-(defn exists? [id]
+(defn -resource-exists? [tp id]
   (->
     (q {:select [:logical_id]
-        :from   [:resources]
+        :from   [(tbl-name tp)]
         :where  [:= :logical_id (java.util.UUID/fromString id)]
         :limit 1})
     first
@@ -137,19 +151,16 @@
 
 (defn -search [tp]
   (wrap-in-bundle "Search"
-                  (q {:select [:*] :from [(tbl-name tp)]
-                      :where [:= :resource_type tp]})))
+                  (q {:select [:*] :from [(tbl-name tp)] })))
 
 (defn -history [tp id]
   (wrap-in-bundle  "History"
                   (into
                     (q {:select [:*] :from [(htbl-name tp)]
                         :where [:and
-                                [:= :resource_type tp]
                                 [:= :logical_id id]]})
                     (q {:select [:*] :from [(tbl-name tp)]
                         :where [:and
-                                [:= :resource_type tp]
                                 [:= :logical_id id]]}))))
 
 #_(-history "Patient" (uuid))

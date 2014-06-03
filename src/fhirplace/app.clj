@@ -4,6 +4,7 @@
   (:require [compojure.core :as cc]
             [compojure.route :as cr]
             [compojure.handler :as ch]
+            [clojure.string :as cs]
             [fhir :as f]
             [fhir.operation-outcome :as fo]
             [fhirplace.db :as db]
@@ -43,15 +44,17 @@
 (defn- outcome [status text & issues]
   {:status status
    :body (fo/operation-outcome
-           {:text {:status "generated" :div text}
+           {:text {:status "generated" :div (str "<div>" text "</div>")}
             :issue issues })})
 
 (defn <-outcome-on-exception [h]
   (fn [req]
+    (println "<-outcome-on-exception")
     (try
       (h req)
       (catch Exception e
-        (println "<-outcome-on-exception")
+        (println "Exception")
+        (println (get-stack-trace e))
         (outcome 500 "Server error"
                  {:severity "fatal"
                   :details (str "Unexpected server error " (get-stack-trace e))})))))
@@ -67,29 +70,75 @@
                 :details (str "Resource type [" tp "] isn't supported")}))))
 
 (defn ->resource-exists! [h]
-  (fn [req]
-    (println "TODO: ->resource-exists!")
-    (h req)))
+  (fn [{{tp :type id :id } :params :as req}]
+    (println "->resource-exists!")
+    (if (db/-resource-exists? tp id)
+      (h req)
+      (outcome 404 "Resource not exists"
+               {:severity "fatal"
+                :details (str "Resource with id: " id " not exists")}))))
+
+;; TODO: move to fhir f/errors could do it
+(defn- safe-parse [x]
+  (try
+    [:ok (f/parse x)]
+    (catch Exception e
+      [:error (str "Resource could not be parsed: \n" x "\n" e)])))
+
+(defn ->parse-body!
+  "parse body and put result as :data"
+  [h]
+  (fn [{bd :body :as req}]
+    (println "->parse-body!")
+    (let [[st res] (safe-parse (slurp bd)) ]
+      (if (= st :ok)
+        (h (assoc req :data res))
+        (outcome 400 "Resource could not be parsed"
+                 {:severity "fatal"
+                  :details res})))))
 
 (defn ->valid-input! [h]
-  (fn [req]
-    (println "TODO: ->valid-input!")
-    (h req)))
+  "validate :data key for errors"
+  (fn [{res :data :as req}]
+    (println "->valid-input!")
+    (let [errors (f/errors res)]
+      (if (empty? errors)
+        (h (assoc req :data res))
+        (apply outcome 422
+               "Resource Unprocessable Entity"
+               (map
+                 (fn [e] {:severity "fatal"
+                          :details (str e)})
+                 errors))))))
 
 (defn ->check-deleted! [h]
-  (fn [req]
-    (println "TODO: ->check-deleted!")
-    (h req)))
+  (fn [{{tp :type id :id} :params :as req}]
+    (println "->check-deleted!")
+    (if (db/-deleted? tp id)
+      (outcome 410 "Resource was deleted"
+               {:severity "fatal"
+                :details (str "Resource " tp " with " id " was deleted")})
+      (h req))))
 
-(defn ->has-content-location! [h]
-  (fn [req]
-    (println "TODO: ->has-content-location!")
-    (h req)))
+(defn- check-latest-version [cl]
+  (println "check-latest-version " cl)
+  (let [[tp id vid] (cs/split cl #"/")]
+    (println "check-latest " tp " " id " " vid)
+    (db/-latest? tp id vid)))
 
-(defn ->has-latest-version! [h]
-  (fn [req]
-    (println "TODO: ->has-latest-version!")
-    (h req)))
+(defn ->latest-version! [h]
+  (fn [{{tp :type id :id} :params :as req}]
+    (println "->latest-version!")
+    (if-let [cl (get-in req [:headers "content-location"])]
+      (if (check-latest-version cl)
+        (h req)
+        (outcome 412 "Updating not last version of resource"
+                 {:severity "fatal"
+                  :details (str "Not last version")}))
+
+      (outcome 401 "Provide 'Content-Location' header for update resource"
+               {:severity "fatal"
+                :details (str "No 'Content-Location' header")}))))
 
 (def uuid-regexp
   #"[0-f]{8}-([0-f]{4}-){3}[0-f]{12}")
@@ -110,19 +159,18 @@
       (header "Last-Modified" (:last_modified_date res))))
 
 (defn =create
-  [{{rt :type} :params body :body}]
-  (let [body (slurp body)
-        res (f/parse body)
-        json (f/serialize :json res)
+  [{{rt :type} :params res :data :as req}]
+  #_{:pre [(not (nil? res))]}
+  (println "=create " (keys req))
+  (let [json (f/serialize :json res)
         item (db/-create (str (.getResourceType res)) json)]
     (-> (resource-resp item)
         (status 201))))
 
 (defn =update
-  [{{rt :type id :id} :params body :body}]
-  (let [body (slurp body)
-        res (f/parse body)
-        json (f/serialize :json res)
+  [{{rt :type id :id} :params res :data}]
+  {:pre [(not (nil? res))]}
+  (let [json (f/serialize :json res)
         item (db/-update rt id json)]
     (-> (resource-resp item)
         (status 200))))

@@ -30,17 +30,16 @@
 </div>
 <div ng-dblclick="error=null" class="alert alert-danger srv-error" ng-show="error">
   <button ng-click="error=null" type="button" class="close">&times;</button>
-  <h3>
-    Error
-  </h3>
-  {{error | json}}
+  <div ng-if="error.resourceType=='OperationOutcome'">
+    <h3 ng-bind-html="error.text.div"></h3>
+    <ul>
+      <li ng-repeat="issue in error.issue">
+        <b>{{issue.severity}}</b>
+        <pre>{{issue.details}}</pre>
+      </li>
+    </ul>
+  </div>
 </div>
-<!-- <div class="footer"> -->
-<!--   <div class="container"> -->
-<!--     <p> -->
-<!--     </p> -->
-<!--   </div> -->
-<!-- </div> -->
 <div ng-view class="view"></div>
 <div class="success"> {{success}}</div>
 
