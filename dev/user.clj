@@ -1,4 +1,4 @@
-(ns user
+(comment (ns user
   "Namespace to support hacking at the REPL."
   (:require [fhirplace.core :as fc]
             [clojure.tools.namespace.repl :as ns-repl]
@@ -11,4 +11,4 @@
             [criterium.core :as crit]))
 
 (defn reset []
-  (ns-repl/refresh))
+  (ns-repl/refresh)))
