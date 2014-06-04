@@ -101,10 +101,17 @@
    :create-resource-bad-body (fnk [create-resource-bad] (f/parse (:body create-resource-bad)))
    })
 
+(def-scenario create-not-interaction
+  {
+   :create-resource-not (fnk [resource-type format] (POST (url (str "NotFound" resource-type "NotFound" "?_format=" (mime-type format))) {}))
+   })
+
+
 (deftest test-create-interaction
   (doseq [fmt ["json" "xml"] res ["Alert" "Observation" "Patient"]]
     (let [create-subject (create-interaction {:resource-type res :format fmt})
-          create-bad-subject (create-bad-interaction {:resource-type res :format fmt})]
+          create-bad-subject (create-bad-interaction {:resource-type res :format fmt})
+          create-not-subject (create-not-interaction {:resource-type res :format fmt})]
       (status? 201 (:create-resource create-subject))
       (is (= (:create-location-base create-subject) base-url))
       (is (= (:create-location-type create-subject) res))
@@ -113,6 +120,7 @@
 
       (status? 400 (:create-resource-bad create-bad-subject))
       (is (instance? OperationOutcome (:create-resource-bad-body create-bad-subject)))
-      )))
+
+      (status? 404 (:create-resource-not create-not-subject)))))
 
 
