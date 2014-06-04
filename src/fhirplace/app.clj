@@ -8,7 +8,8 @@
             [fhir :as f]
             [fhir.operation-outcome :as fo]
             [fhirplace.db :as db]
-            [ring.adapter.jetty :as jetty]))
+            [ring.adapter.jetty :as jetty]
+            [environ.core :as env]))
 
 (import 'org.hl7.fhir.instance.model.Resource)
 (import 'org.hl7.fhir.instance.model.AtomFeed)
@@ -155,8 +156,7 @@
 
 (defn resource-resp [res]
   (-> {:body (f/parse (:data res))}
-      (header "Location" (url (:resource_type res) (:logical_id res) (:version_id res)))
-      (header "Content-Location" (url (:resource_type res) (:logical_id res) (:version_id res)))
+      (header "Location" (url (env/env :fhirplace-web-url) (:resource_type res) (:logical_id res) "_history" (:version_id res)))
       (header "Last-Modified" (:last_modified_date res))))
 
 (defn =create

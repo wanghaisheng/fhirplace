@@ -86,15 +86,22 @@
 (def-scenario create-interaction
   {
    :create-resource (fnk [resource-type format] (POST (url (str resource-type "?_format=" (mime-type format))) {:body (fixture (str (cs/lower-case resource-type) "." format))}))
-   :create-location-id (fnk [create-resource] (get-header "Content-Location" create-resource))
-   :create-location-vid (fnk [create-resource] (get-header "Content-Location" create-resource))
+   :create-location (fnk [create-resource] (get-header "Location" create-resource))
+   :create-location-parts (fnk [create-location] (re-matches #"(.*)/(.*)/(.*)/_history/(.*)" create-location))
+   :create-location-base (fnk [create-location-parts] (create-location-parts 1))
+   :create-location-type (fnk [create-location-parts] (create-location-parts 2))
+   :create-location-id (fnk [create-location-parts] (create-location-parts 3))
+   :create-location-vid (fnk [create-location-parts] (create-location-parts 4))
    })
 
 (deftest test-create-interaction
   (doseq [fmt ["json" "xml"] res ["Alert" "Observation" "Patient"]]
     (let [create-subject (create-interaction {:resource-type res :format fmt})]
       (status? 201 (:create-resource create-subject))
-      (println (:create-location-id create-subject))
+      (is (= (:create-location-base create-subject) base-url))
+      (is (= (:create-location-type create-subject) res))
+      (is (:create-location-id create-subject))
+      (is (:create-location-vid create-subject))
       )))
-  ;;[base]/ [type]/ [id]/_history/ [vid]
+
 
