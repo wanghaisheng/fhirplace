@@ -46,6 +46,7 @@
                  [clj-time "0.6.0"]
                  [cheshire "5.3.1"]
                  [clj-http "0.9.2"]
+                 [instaparse "1.3.2"] ;; parse params
                  [commons-codec "1.3"]
                  [com.google.code.gson/gson "2.2.4"]
                  [xpp3 "1.1.3.4.O"]
