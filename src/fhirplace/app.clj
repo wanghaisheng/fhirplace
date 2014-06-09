@@ -8,13 +8,16 @@
             [fhir :as f]
             [fhir.operation-outcome :as fo]
             [fhirplace.db :as db]
-            [ring.adapter.jetty :as jetty]))
+            [ring.adapter.jetty :as jetty]
+            [environ.core :as env]))
 
 (import 'org.hl7.fhir.instance.model.Resource)
 (import 'org.hl7.fhir.instance.model.AtomFeed)
 
 (defn url [& parts]
-  (apply str (interpose "/" parts)))
+  (str
+    (env/env :fhirplace-web-url)
+    (apply str (interpose "/" parts))))
 
 (defn- determine-format
   "Determines request format (:xml or :json)."
@@ -154,11 +157,12 @@
   {:body (db/-history rt id)})
 
 (defn resource-resp [res]
-  ( let [fhir-res (f/parse (:data res))]
+  ( let [fhir-res (f/parse (:data res))
+         loc (url (.getResourceType fhir-res) (:logical_id res) (:version_id res))]
     (-> {:body fhir-res}
-      (header "Location" (url (.getResourceType fhir-res) (:logical_id res) (:version_id res)))
-      (header "Content-Location" (url (.getResourceType fhir-res) (:logical_id res) (:version_id res)))
-      (header "Last-Modified" (:last_modified_date res)))))
+        (header "Location" loc)
+        (header "Content-Location" loc)
+        (header "Last-Modified" (:last_modified_date res)))))
 
 (defn =create
   [{{rt :type} :params res :data :as req}]
