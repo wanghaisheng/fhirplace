@@ -32,6 +32,10 @@
         "jsonb" value
         :else value))))
 
+(defn q* [sql]
+  (println "SQL:" sql)
+  (cjj/query db sql))
+
 (defn q [hsql]
   (let [sql (hc/format hsql)]
     (println "SQL:" sql)
@@ -52,32 +56,19 @@
 (import 'java.sql.Timestamp)
 
 (defn -create [tp json]
-  (i (tbl-name tp)
-     {:logical_id (uuid)
-      :version_id (uuid)
-      :published (Timestamp. (System/currentTimeMillis))
-      :resource_type tp
-      :data json }))
-
-
-(defn- move-to-history [tp id]
-  (let [tbl  (tbl-name tp)
-        h-tbl (htbl-name tp)]
-    (e [(str "INSERT INTO " (name h-tbl) " (SELECT * FROM " (name tbl) " WHERE logical_id =? )") id])
-    (e [(str "DELETE FROM " (name tbl) " WHERE logical_id =?") id])))
+  (let [id (:insert_resource (first (q* ["SELECT insert_resource(?)" json])))]
+    (q-one {:select [:*]
+            :from [(tbl-name tp)]
+            :where [:= :logical_id id]})))
 
 (defn -update [tp id json]
-  (move-to-history tp id)
-  (i (tbl-name tp)
-     {:logical_id id
-      :version_id (uuid)
-      ;;TODO fix published id
-      :published (Timestamp. (System/currentTimeMillis))
-      :resource_type tp
-      :data json }))
+  (let [id (:update_resource (first (q* ["SELECT update_resource(?, ?)" id, json]))) ]
+    (q-one {:select [:*]
+            :from [(tbl-name tp)]
+            :where [:= :logical_id id]})))
 
 (defn -delete [tp id]
-  (move-to-history tp id))
+  (:delete_resource (first (q* ["SELECT delete_resource(?, ?)" id tp]))))
 
 (defn -deleted? [tp id]
   (and
@@ -89,6 +80,8 @@
             :where [:= :logical_id id]})))
 
 (defn -latest? [tp id vid]
+  {:pre [(not (nil? tp))]}
+  (println "-latest?" tp " " id " " vid)
   (q-one {:select [:*]
           :from [(tbl-name tp)]
           :where [:and

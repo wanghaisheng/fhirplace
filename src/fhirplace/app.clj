@@ -154,10 +154,11 @@
   {:body (db/-history rt id)})
 
 (defn resource-resp [res]
-  (-> {:body (f/parse (:data res))}
-      (header "Location" (url (:resource_type res) (:logical_id res) (:version_id res)))
-      (header "Content-Location" (url (:resource_type res) (:logical_id res) (:version_id res)))
-      (header "Last-Modified" (:last_modified_date res))))
+  ( let [fhir-res (f/parse (:data res))]
+    (-> {:body fhir-res}
+      (header "Location" (url (.getResourceType fhir-res) (:logical_id res) (:version_id res)))
+      (header "Content-Location" (url (.getResourceType fhir-res) (:logical_id res) (:version_id res)))
+      (header "Last-Modified" (:last_modified_date res)))))
 
 (defn =create
   [{{rt :type} :params res :data :as req}]
@@ -178,7 +179,7 @@
 
 (defn =delete
   [{{rt :type id :id} :params body :body}]
-  (-> (response (db/-delete rt id))
+  (-> (response (str (db/-delete rt id)))
       (status 204)))
 
 ;;TODO add checks

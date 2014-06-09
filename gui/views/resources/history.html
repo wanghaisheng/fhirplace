@@ -9,15 +9,13 @@
 <h3>Entry</h3>
 <hr/>
 <div class="item"
-  ng-click="version._open = ! version._open"
-  ng-repeat="version in entries">
-  <strong>{{version.updated}}</strong>
-  <span class="text-muted">{{version.link[0].href}}</span>
-  <i ng-hide="version._open" class="fa fa-chevron-down"></i>
-  <i ng-show="version._open" class="fa fa-chevron-up"></i>
+  ng-repeat="entry in entries"
+  ng-click="entry._open =! entry._open">
+  <strong>{{entry.updated}}</strong>
+  <span class="text-muted">{{entry.link[0].href}}</span>
+  <i ng-hide="entry._open" class="fa fa-chevron-down"></i>
+  <i ng-show="entry._open" class="fa fa-chevron-up"></i>
   <div>
-    <pre ng-show="version._open">
-    {{ version | json }}
-    </pre>
+    <pre ng-show="entry._open">{{ entry.content | json }}</pre>
   </div>
 </div>

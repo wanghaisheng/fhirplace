@@ -1,10 +1,13 @@
 # fhirplace
 
-A Clojure library designed to ... well, that part is up to you.
+FHIR server implementation
+
+## Installation
+
+install fhirbase-json -
 
 ## Usage
 
-FIXME
 
 ## License
 

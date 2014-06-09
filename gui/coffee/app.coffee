@@ -132,11 +132,19 @@ app.controller 'ResourceCtrl', ($rootScope, $scope, $routeParams, $http, $locati
       $scope.resource = {
         content: angular.toJson(angular.fromJson(data), true)
       }
-      $scope.resourceContentLocation = headers('content-location')
+      console.log(headers('Content-Location'))
+      $scope.resourceContentLocation = headers('Content-Location')
+      throw "content location required" unless $scope.resourceContentLocation
 
   loadResource()
   $scope.save = ->
-    $rootScope.progress = $http(method: "PUT", url: $scope.restUri, data: $scope.resource.content, headers: {'Content-Location': $scope.resourceContentLocation})
+    opts = {
+      method: "PUT",
+      url: $scope.restUri,
+      data: $scope.resource.content,
+      headers: {'Content-Location': $scope.resourceContentLocation}
+    }
+    $rootScope.progress = $http(opts)
       .success (data,status,headers,req)->
         $scope.resourceContentLocation = headers('content-location')
 
