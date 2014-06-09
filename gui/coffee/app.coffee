@@ -88,7 +88,7 @@ app.controller 'ResourcesIndexCtrl', ($rootScope, $scope, $routeParams, $http) -
     $scope.profile = data
 
   $rootScope.menu = menu(
-    {url: "/resources/#{rt}", label: rt},
+    {url: "/resources/#{rt}", label: rt, active: true},
     {url: "/resources/#{rt}/new", label: "New", icon: "fa-plus"})
 
   $scope.search = ()->
@@ -106,7 +106,7 @@ app.controller 'ResourcesNewCtrl', ($rootScope, $scope, $routeParams, $http, $lo
 
   $rootScope.menu = menu(
     {url: "/resources/#{rt}", label: rt},
-    {url: "/resources/#{rt}/new", label: "New", icon: "fa-plus"})
+    {url: "/resources/#{rt}/new", label: "New", icon: "fa-plus", active: true})
 
 
   $scope.restRequestMethod = 'POST'
@@ -133,7 +133,7 @@ app.controller 'ResourceCtrl', ($rootScope, $scope, $routeParams, $http, $locati
   id = $scope.resourceLogicalId
   $rootScope.menu = menu(
     {url: "/resources/#{rt}", label: rt},
-    {url: "/resources/#{rt}/#{id}", label: cropUuid(id)},
+    {url: "/resources/#{rt}/#{id}", label: cropUuid(id), active: true},
     {url: "/resources/#{rt}/#{id}/history", label: 'History', icon: 'fa-history'})
 
   loadResource = ()->
@@ -179,7 +179,7 @@ app.controller 'ResourcesHistoryCtrl', ($rootScope, $scope, $routeParams, $http)
   $rootScope.menu = menu(
     {url: "/resources/#{rt}", label: rt},
     {url: "/resources/#{rt}/#{id}", label: cropUuid(id)},
-    {url: "/resources/#{rt}/#{id}/history", label: 'History', icon: 'fa-history'})
+    {url: "/resources/#{rt}/#{id}/history", label: 'History', icon: 'fa-history', active: true})
 
   $rootScope.progress = $http.get($scope.restUri).success (data, status, headers, config) ->
     $scope.entries = data.entry
