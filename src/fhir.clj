@@ -36,6 +36,10 @@
                  (fp/profile res-type)))
     true))
 
+(defn profile-resource [res-type]
+  "return fhir representation of resource profile"
+  (fp/profile-resource res-type))
+
 (defn bundle [attrs]
   "build bundle from hash-map
   with entry :content parsed to fhir.model.Resource"

@@ -13,6 +13,7 @@
 (import 'org.hl7.fhir.instance.model.AtomFeed)
 (import 'org.hl7.fhir.instance.model.Alert)
 (import 'org.hl7.fhir.instance.model.Patient)
+(import 'org.hl7.fhir.instance.model.Profile)
 (import 'org.hl7.fhir.instance.model.OperationOutcome)
 
 (defmacro def-scenario [nm m]
@@ -55,6 +56,8 @@
   {:metadata (fnk [] (GET (url "metadata")))
    :conformance (fnk [metadata] (f/parse (:body metadata)))
 
+   :pt_profile (fnk [] (GET (url "Profile" "Patient")))
+
    :search (fnk [] (GET (url "Patient" "_search")))
    :search_atom (fnk [search] (f/parse (:body search)))
 
@@ -91,11 +94,13 @@
 
 (deftest test-simple-crud
   (status? 200 (:metadata subj))
-
   (is (instance? Conformance (:conformance subj)))
 
-  (status? 200 (:search subj))
+  (status? 200 (:pt_profile subj))
+  (is (instance? Profile
+                 (f/parse (:body (:pt_profile subj)))))
 
+  (status? 200 (:search subj))
   (is (instance? AtomFeed (:search_atom subj)))
 
   (status? 201 (:new_resource subj))

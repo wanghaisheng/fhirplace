@@ -1,13 +1,47 @@
-<h3> List of {{resourceType}}</h3>
-<hr/>
-<div class="text-muted"
-  ng-if="resources.length == 0">
-  Nothing to show
+<div class="row">
+  <div class="col-xs-4">
+    <h3> Search <button class="btn btn-success" ng-click="search()">Search</button> </h3>
+    <pre>{{query | json }}</pre>
+    <hr/>
+    <div ng-repeat="param in profile.structure[0].searchParam"
+      style="margin-bottom: 10px;">
+      <div ng-if="param.type == 'string' || param.type == 'token' ">
+        <div ng-click="param._open = !param._open">
+          <b> {{ param.name }} </b>
+          <span class="text-muted">{{param.documentation}}</span>
+          <i ng-hide="param._open" class="fa fa-chevron-down"></i>
+          <i ng-show="param._open" class="fa fa-chevron-up"></i>
+        </div>
+        <div ng-if="param._open">
+          <input ng-model="query[param.name]" class="form-control" placeholder="{{param.type}}"/>
+        </div>
+      </div>
+      <!-- <div ng-switch-default> -->
+      <!--   <span class="text-muted"> -->
+      <!--     NOT IMPL: -->
+      <!--     <b> {{ param.name }} [{{param.type }}] </b> -->
+      <!--     {{param.documentation}} -->
+      <!--   </span> -->
+      <!-- </div> -->
+    </div>
+  </div>
+  <div class="col-xs-8">
+    <h3> List of {{resourceType}}</h3>
+    <pre>{{searchUri.method}} {{searchUri.url}} {{searchUri.params}}</pre>
+    <hr/>
+    <p>{{profile.description}}</p>
+    <!-- <pre>{{profile | json}}</pre> -->
+    <hr/>
+    <div class="text-muted"
+      ng-if="resources.length == 0">
+      Nothing to show
+    </div>
+    <a class="item"
+      ng-repeat="resource in resources"
+      href="#/resources/{{resource.content.resourceType}}/{{resource.id}}">
+      <code>{{resource.title}}</code>
+      <code>{{resource.id | uuid}}</code>
+      <span>LMD: {{resource.published}}</span>
+    </a>
+  </div>
 </div>
-<a class="item"
-  ng-repeat="resource in resources"
-  href="#/resources/{{resource.content.resourceType}}/{{resource.id}}">
-  <code>{{resource.title}}</code>
-  <code>{{resource.id | uuid}}</code>
-  <span>LMD: {{resource.published}}</span>
-</a>

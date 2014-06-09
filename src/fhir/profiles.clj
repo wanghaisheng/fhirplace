@@ -33,6 +33,16 @@
            (.getId x)))
       (.getEntryList bundle))))
 
+(defn profile-resource [res-type]
+  (.getResource
+    (first
+      (filter
+        (fn [x]
+          (= (str "http://hl7.org/fhir/profile/"
+                  (.toLowerCase res-type))
+             (.toLowerCase (.getId x))))
+        (.getEntryList bundle)))))
+
 (import 'org.hl7.fhir.instance.model.Profile)
 
 (defn profiles []

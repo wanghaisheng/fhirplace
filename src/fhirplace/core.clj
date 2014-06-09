@@ -20,6 +20,7 @@
 (def routes
   {GET (h '=info)
    "metadata" {GET (h '=metadata)}
+   "Profile" { [:type] {GET (h '=profile)}}
    [:type] {:mw ['<-outcome-on-exception  '->type-supported!]
             POST       (h '->parse-body! '->valid-input!  '=create)
             "_validate" {POST (h '=validate)}

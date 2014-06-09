@@ -150,6 +150,9 @@
 (defn =metadata [req]
   {:body (f/conformance)})
 
+(defn =profile [{{tp :type} :params :as req}]
+  {:body (f/profile-resource tp)})
+
 (defn =search [{{rt :type} :params}]
   {:body (db/-search rt)})
 

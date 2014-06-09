@@ -81,14 +81,23 @@ app.controller 'ResourcesIndexCtrl', ($rootScope, $scope, $routeParams, $http) -
   $scope.restRequestMethod = 'GET'
   rt = $scope.resourceType
 
+  $scope.query = {}
   $scope.restUri = "/#{rt}/_search?_format=application/json"
+
+  $rootScope.progress = $http.get("/Profile/#{rt}").success (data, status, headers, config)->
+    $scope.profile = data
 
   $rootScope.menu = menu(
     {url: "/resources/#{rt}", label: rt},
     {url: "/resources/#{rt}/new", label: "New", icon: "fa-plus"})
 
-  $rootScope.progress = $http.get($scope.restUri).success (data, status, headers, config) ->
-    $scope.resources = data.entry
+  $scope.search = ()->
+    $rootScope.progress = $http.get($scope.restUri, {params: angular.copy($scope.query)})
+      .success (data, status, headers, config) ->
+        $scope.searchUri = config
+        $scope.resources = data.entry
+
+  $scope.search()
 
 app.controller 'ResourcesNewCtrl', ($rootScope, $scope, $routeParams, $http, $location) ->
   angular.extend($scope, $routeParams)
