@@ -153,8 +153,8 @@
 (defn =profile [{{tp :type} :params :as req}]
   {:body (f/profile-resource tp)})
 
-(defn =search [{{rt :type} :params}]
-  {:body (db/-search rt)})
+(defn =search [{{rt :type :as param} :params}]
+  {:body (db/-search rt (dissoc param :type))})
 
 (defn =history [{{rt :type id :id} :params}]
   {:body (db/-history rt id)})

@@ -2,6 +2,7 @@
   (:require [clojure.java.jdbc :as cjj]
             [honeysql.core :as hc]
             [clojure.data.json :as json]
+            [clojure.string :as cs]
             [fhir :as f]
             [honeysql.helpers :as hh]
             [environ.core :as env]))
@@ -36,6 +37,12 @@
   (println "SQL:" sql)
   (cjj/query db sql))
 
+(defn call* [proc & args]
+  (let [proc-name (name proc)
+        params (cs/join "," (map (constantly "?") args))
+        sql (str "SELECT " proc-name "(" params ")")]
+    (get (first (q* (into [sql] args))) proc)))
+
 (defn q [hsql]
   (let [sql (hc/format hsql)]
     (println "SQL:" sql)
@@ -56,19 +63,19 @@
 (import 'java.sql.Timestamp)
 
 (defn -create [tp json]
-  (let [id (:insert_resource (first (q* ["SELECT insert_resource(?)" json])))]
+  (let [id (call* :insert_resource json)]
     (q-one {:select [:*]
             :from [(tbl-name tp)]
             :where [:= :logical_id id]})))
 
 (defn -update [tp id json]
-  (let [id (:update_resource (first (q* ["SELECT update_resource(?, ?)" id, json]))) ]
+  (let [id (call* :update_resource id json)]
     (q-one {:select [:*]
             :from [(tbl-name tp)]
             :where [:= :logical_id id]})))
 
 (defn -delete [tp id]
-  (:delete_resource (first (q* ["SELECT delete_resource(?, ?)" id tp]))))
+  (call* :delete_resource  id tp))
 
 (defn -deleted? [tp id]
   (and
@@ -128,32 +135,12 @@
     nil?
     not))
 
-(defn- wrap-in-bundle [title rows]
-  (let [entries (mapv (fn [x]
-                        {:id (:logical_id x)
-                         :updated (:last_modified_date x)
-                         :published (:last_modified_date x)
-                         :content (f/parse (:data x))
-                         }) rows) ]
-
-    (f/bundle {:resourceType "Bundle"
-               :title title
-               :updated "2012-09-20T12:04:45.6787909+00:00"
-               :id (uuid)
-               :entry entries})))
-
-(defn -search [tp]
-  (wrap-in-bundle "Search"
-                  (q {:select [:*] :from [(tbl-name tp)] })))
+(defn -search [tp q]
+  (f/parse
+    (call* :search_resource tp (json/write-str q))))
 
 (defn -history [tp id]
-  (wrap-in-bundle  "History"
-                  (into
-                    (q {:select [:*] :from [(htbl-name tp)]
-                        :where [:and
-                                [:= :logical_id id]]})
-                    (q {:select [:*] :from [(tbl-name tp)]
-                        :where [:and
-                                [:= :logical_id id]]}))))
+  (f/parse
+    (call* :history_resource tp id)))
 
 #_(-history "Patient" (uuid))
