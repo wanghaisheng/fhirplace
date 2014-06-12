@@ -19,6 +19,6 @@ gui/.tmp
 gui/app/bower_components
 gui/dist
 gui/node_modules
-resources/public/assets
+resources/public
 gui/lib/
 .lein-env
