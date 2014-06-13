@@ -8,7 +8,8 @@
  ;; :ring {:handler fhirplace.app/app}
 
   :plugins [[lein-ring "0.8.10"]
-            [lein-midje "3.0.0"]]
+            [lein-midje "3.0.0"]
+            [lein-immutant "1.2.1"]]
 
   :source-paths  ["lib/route-map/test"
                   "lib/route-map/src"
@@ -18,6 +19,7 @@
   :java-source-paths ["java"]
 
   :ring {:handler fhirplace.core/app}
+  :immutant {:init production/init}
 
   :dependencies [[org.clojure/clojure "1.5.1"]
 
