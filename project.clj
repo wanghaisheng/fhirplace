@@ -17,6 +17,8 @@
   :resource-paths ["resources"]
   :java-source-paths ["java"]
 
+  :ring {:handler fhirplace.core/app}
+
   :dependencies [[org.clojure/clojure "1.5.1"]
 
                  [org.clojure/data.json "0.2.4"]
