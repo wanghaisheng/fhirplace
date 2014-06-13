@@ -76,12 +76,22 @@
     (println "Middle-wares: " (pr-str mws))
     ((build-stack handler mws) req)))
 
+(defn strip-context  [h]
+  (fn  [{context :context uri :uri :as req}]
+    (println req)
+    (if-not context
+      (h req)
+      (let  [new-uri  (.substring uri  (.length context))]
+        (h  (assoc req :uri new-uri))))))
+
+
 (def app (-> dispatch
              (resolve-handler)
              (resolve-route)
              (fhirplace.app/<-format)
              (ch/site)
-             (rmf/wrap-file "resources/public")))
+             (rmf/wrap-file "resources/public")
+             (strip-context)))
 
 (defn start-server []
   (jetty/run-jetty #'app {:port (env/env :fhirplace-web-port) :join? false}))
