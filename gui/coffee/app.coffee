@@ -82,6 +82,7 @@ app.controller 'ResourcesIndexCtrl', ($rootScope, $scope, $routeParams, $http) -
   rt = $scope.resourceType
 
   $scope.query = {}
+  $scope.queryModifiers = {}
   $scope.restUri = "/#{rt}/_search?_format=application/json"
 
   $rootScope.progress = $http.get("/Profile/#{rt}").success (data, status, headers, config)->
@@ -91,8 +92,19 @@ app.controller 'ResourcesIndexCtrl', ($rootScope, $scope, $routeParams, $http) -
     {url: "/resources/#{rt}", label: rt, active: true},
     {url: "/resources/#{rt}/new", label: "New", icon: "fa-plus"})
 
-  $scope.search = ()->
-    $rootScope.progress = $http.get($scope.restUri, {params: angular.copy($scope.query)})
+  $scope.search = () ->
+    queryWithModifiers = {}
+
+    for param, value of $scope.query
+      if value and value.length > 0
+        if $scope.queryModifiers[param] and $scope.queryModifiers[param] != 'null'
+          key = "#{param}:#{$scope.queryModifiers[param]}"
+        else
+          key = param
+
+        queryWithModifiers[key] = value
+
+    $rootScope.progress = $http.get($scope.restUri, {params: queryWithModifiers})
       .success (data, status, headers, config) ->
         $scope.searchUri = config
         $scope.resources = data.entry
