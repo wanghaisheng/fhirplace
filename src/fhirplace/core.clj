@@ -23,8 +23,9 @@
    "Profile" { [:type] {GET (h '=profile)}}
    [:type] {:mw ['<-outcome-on-exception '->type-supported!]
             POST       (h '->parse-body! '->valid-input!  '=create)
-            "_validate" {POST (h '->parse-body! '->valid-input! '=validate
-                                 )}
+            "_validate" {:mw ['->parse-body! '->valid-input!]
+                         POST (h '=validate-create)
+                         [:id] {POST (h '->latest-version! '=validate-update)}}
             "_search"   {GET  (h '=search)}
             [:id] {:mw ['->resource-exists! '->check-deleted!]
                    GET       (h '=read)

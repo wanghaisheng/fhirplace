@@ -16,7 +16,8 @@
 
 (defn url [& parts]
   (str
-    (env/env :fhirplace-web-url)
+   (env/env :fhirplace-web-url)
+   "/"
     (apply str (interpose "/" parts))))
 
 (defn- determine-format
@@ -175,7 +176,12 @@
     (-> (resource-resp item)
         (status 201))))
 
-(defn =validate
+(defn =validate-create
+  [{res :data}]
+  #_{:pre [(not (nil? res))]}
+  {:status 200})
+
+(defn =validate-update
   [{res :data}]
   #_{:pre [(not (nil? res))]}
   {:status 200})

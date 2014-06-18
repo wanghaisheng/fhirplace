@@ -176,8 +176,9 @@ app.controller 'ResourceCtrl', ($rootScope, $scope, $routeParams, $http, $locati
         $location.path("/resources/#{$scope.resourceType}")
 
   $scope.validate = ()->
-    url = "/#{rt}/_validate?_format=application/json"
-    $rootScope.progress = $http.post(url, $scope.resource.content)
+    url = "/#{rt}/_validate/#{id}?_format=application/json"
+    config = {headers: {'Content-Location': $scope.resourceContentLocation}}
+    $rootScope.progress = $http.post(url, $scope.resource.content, config)
       .success (data)-> alert('Valid input')
 
 app.controller 'ResourcesHistoryCtrl', ($rootScope, $scope, $routeParams, $http) ->
