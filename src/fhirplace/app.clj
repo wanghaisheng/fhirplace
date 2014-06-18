@@ -126,9 +126,10 @@
 
 (defn- check-latest-version [cl]
   (println "check-latest-version " cl)
-  (let [[tp id vid] (cs/split cl #"/")]
-    (println "check-latest " tp " " id " " vid)
-    (db/-latest? tp id vid)))
+  (let [[_ cl-] (cs/split cl (re-pattern(env/env :fhirplace-web-url)))]
+    (let [[_ tp id vid] (cs/split cl- #"/")]
+      (println "check-latest " tp " " id " " vid)
+      (db/-latest? tp id vid))))
 
 (defn ->latest-version! [h]
   (fn [{{tp :type id :id} :params :as req}]
