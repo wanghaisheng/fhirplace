@@ -21,9 +21,10 @@
   {GET (h '=info)
    "metadata" {GET (h '=metadata)}
    "Profile" { [:type] {GET (h '=profile)}}
-   [:type] {:mw ['<-outcome-on-exception  '->type-supported!]
+   [:type] {:mw ['<-outcome-on-exception '->type-supported!]
             POST       (h '->parse-body! '->valid-input!  '=create)
-            "_validate" {POST (h '=validate)}
+            "_validate" {POST (h '->parse-body! '->valid-input! '=validate
+                                 )}
             "_search"   {GET  (h '=search)}
             [:id] {:mw ['->resource-exists! '->check-deleted!]
                    GET       (h '=read)

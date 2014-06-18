@@ -146,7 +146,6 @@
 (def uuid-regexp
   #"[0-f]{8}-([0-f]{4}-){3}[0-f]{12}")
 
-
 (defn =metadata [req]
   {:body (f/conformance)})
 
@@ -175,6 +174,11 @@
         item (db/-create (str (.getResourceType res)) json)]
     (-> (resource-resp item)
         (status 201))))
+
+(defn =validate
+  [{res :data}]
+  #_{:pre [(not (nil? res))]}
+  {:status 200})
 
 (defn =update
   [{{rt :type id :id} :params res :data}]
