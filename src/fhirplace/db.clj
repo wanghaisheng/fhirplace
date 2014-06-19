@@ -137,7 +137,7 @@
 
 (defn -search [tp q]
   (f/parse
-    (call* :search_resource tp (json/write-str q))))
+    (call* :search_bundle tp (json/write-str q))))
 
 (defn -history [tp id]
   (f/parse
