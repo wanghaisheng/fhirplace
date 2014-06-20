@@ -30,6 +30,7 @@
     (let  [type  (.getType pgobj)
            value  (.getValue pgobj)]
       (case type
+        "json" value
         "jsonb" value
         :else value))))
 
