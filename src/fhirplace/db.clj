@@ -69,8 +69,8 @@
             :from [(tbl-name tp)]
             :where [:= :logical_id id]})))
 
-(defn -update [tp id json]
-  (let [id (call* :update_resource id json)]
+(defn -update [tp id json tags]
+  (let [id (call* :update_resource id json tags)]
     (q-one {:select [:*]
             :from [(tbl-name tp)]
             :where [:= :logical_id id]})))

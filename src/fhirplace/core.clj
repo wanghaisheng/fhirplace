@@ -30,7 +30,8 @@
             [:id] {:mw ['->resource-exists! '->check-deleted!]
                    GET       (h '=read)
                    DELETE    (h '=delete)
-                   PUT       (h '->parse-body!
+                   PUT       (h '->parse-tags!
+                                '->parse-body!
                                 '->latest-version!
                                 '->valid-input!
                                 '=update)

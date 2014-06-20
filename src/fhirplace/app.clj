@@ -196,12 +196,16 @@
         (header "Content-Location" loc)
         (header "Last-Modified" (:last_modified_date res)))))
 
+(defn form-tags [tags]
+  (cs/join ", " (map (fn [t]
+          (str (:term t) "; schema=\"" (:schema t) "\"; label=\"" (:label t) "\"")) tags)))
+
 (defn =create
   [{{rt :type} :params res :data tags :tags :as req}]
   #_{:pre [(not (nil? res))]}
   (println "=create " (keys req))
   (let [json (f/serialize :json res)
-        jtags (tags) 
+        jtags (json/write-str tags) 
         item (db/-create (str (.getResourceType res)) json jtags)]
     (-> (resource-resp item)
         (status 201))))
