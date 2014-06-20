@@ -120,20 +120,20 @@ app.controller 'ResourcesNewCtrl', ($rootScope, $scope, $routeParams, $http, $lo
     {url: "/resources/#{rt}", label: rt},
     {url: "/resources/#{rt}/new", label: "New", icon: "fa-plus", active: true})
 
-
   $scope.restRequestMethod = 'POST'
   $scope.restUri = "/#{$scope.resourceType}?_format=application/json"
-  $scope.resource = {}
+  $scope.resource = {tags: 'one; scheme="http://hl7.org/fhir/tag"; label="One", two; scheme="http://hl7.org/fhir/tag"; label="Two"'}
 
-  headers = {'Content-Location': $scope.resourceContentLocation}
   $scope.save = ->
+    headers = {'Content-Location': $scope.resourceContentLocation, 'Category': $scope.resource.tags}
     $rootScope.progress = $http(method: $scope.restRequestMethod, url: $scope.restUri, data: $scope.resource.content, headers: headers)
       .success (data, status, headers, config) ->
         $location.path("/resources/#{$scope.resourceType}")
 
   $scope.validate = ()->
     url = "/#{rt}/_validate?_format=application/json"
-    $rootScope.progress = $http.post(url, $scope.resource.content)
+    config = {headers: {'Content-Location': $scope.resourceContentLocation, 'Category': $scope.resource.tags}}
+    $rootScope.progress = $http.post(url, $scope.resource.content, config)
       .success (data)-> alert('Valid input')
 
 app.controller 'ResourceCtrl', ($rootScope, $scope, $routeParams, $http, $location) ->

@@ -9,6 +9,7 @@
             [fhir.operation-outcome :as fo]
             [fhirplace.db :as db]
             [ring.adapter.jetty :as jetty]
+            [clojure.data.json :as json]
             [environ.core :as env]))
 
 (import 'org.hl7.fhir.instance.model.Resource)
@@ -88,6 +89,33 @@
     [:ok (f/parse x)]
     (catch Exception e
       [:error (str "Resource could not be parsed: \n" x "\n" e)])))
+
+(defn- safe-parse-tags [x]
+  (try
+    (let [l (cs/split x #",")
+          ll (map (fn [t]
+                    (let [tt (cs/split t #";")
+                          term (cs/trim (first tt))
+                          pairs (into {:term term} (map (fn [p] (let [pp (cs/split p #"=")
+                                                   key (cs/trim (first pp))
+                                                   value (cs/trim (second pp))]
+                                               [(keyword key) value])) (rest tt)))
+                          ]
+                      pairs)) l)]
+      [:ok ll])
+    (catch Exception e
+      [:error (str "Tags could not be parsed: \n" x "\n" e)])
+    ))
+
+(defn ->parse-tags!
+  "parse body and put result as :data"
+  [h]
+  (fn [{bd :body :as req}]
+    (println "->parse-tags!")
+    (if-let [c (get-in req [:headers "category"])]
+      (let [[st tags] (safe-parse-tags c)]
+        (if (= st :ok)
+          (h (assoc req :tags tags)))))))
 
 (defn ->parse-body!
   "parse body and put result as :data"
@@ -169,16 +197,17 @@
         (header "Last-Modified" (:last_modified_date res)))))
 
 (defn =create
-  [{{rt :type} :params res :data :as req}]
+  [{{rt :type} :params res :data tags :tags :as req}]
   #_{:pre [(not (nil? res))]}
   (println "=create " (keys req))
   (let [json (f/serialize :json res)
-        item (db/-create (str (.getResourceType res)) json)]
+        jtags (tags) 
+        item (db/-create (str (.getResourceType res)) json jtags)]
     (-> (resource-resp item)
         (status 201))))
 
 (defn =validate-create
-  [{res :data}]
+  [{res :data tags :tags}]
   #_{:pre [(not (nil? res))]}
   {:status 200})
 

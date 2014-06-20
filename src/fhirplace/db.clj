@@ -63,8 +63,8 @@
 
 (import 'java.sql.Timestamp)
 
-(defn -create [tp json]
-  (let [id (call* :insert_resource json)]
+(defn -create [tp json tags]
+  (let [id (call* :insert_resource json tags)]
     (q-one {:select [:*]
             :from [(tbl-name tp)]
             :where [:= :logical_id id]})))
