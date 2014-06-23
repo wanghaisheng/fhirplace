@@ -1,0 +1,20 @@
+<div class="row">
+  <div class="col-xs-8">
+    <h3> List of Tags </h3>
+    <hr/>
+    <table class="table">
+      <thead>
+        <tr>
+          <th> Term </th>
+          <th> Scheme </th>
+          <th> Label </th>
+        </tr>
+      </thead>
+      <tr ng-repeat="tag in tags.category">
+        <td> {{tag.term}}</td>
+        <td> {{tag.scheme}}</td>
+        <td> {{tag.label}}</td>
+      </tr>
+    </table>
+  </div>
+</div>

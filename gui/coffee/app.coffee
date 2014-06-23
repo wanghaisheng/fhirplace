@@ -25,6 +25,9 @@ app = angular.module 'fhirplaceGui', [
       .when '/resources/:resourceType/:resourceLogicalId/history',
         templateUrl: '/views/resources/history.html'
         controller: 'ResourcesHistoryCtrl'
+      .when '/tags',
+        templateUrl: '/views/tags.html'
+        controller: 'TagsCtrl'
       .otherwise
         redirectTo: '/'
 
@@ -198,3 +201,10 @@ app.controller 'ResourcesHistoryCtrl', ($rootScope, $scope, $routeParams, $http)
     $scope.entries = data.entry
     $scope.history  = data
     delete $scope.history.entry
+
+app.controller 'TagsCtrl', ($rootScope, $scope, $routeParams, $http) ->
+  $scope.restRequestMethod = 'GET'
+  $scope.restUri = "/_tags?_format=application/json"
+
+  $rootScope.progress = $http.get($scope.restUri).success (data, status, headers, config)->
+    $scope.tags = data

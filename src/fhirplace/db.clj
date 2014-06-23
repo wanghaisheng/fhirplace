@@ -144,4 +144,8 @@
   (f/parse
     (call* :history_resource tp id)))
 
+(defn -tags []
+  (f/parse
+   (cs/replace (call* :tags) #"TagList" "Bundle")))
+
 #_(-history "Patient" (uuid))

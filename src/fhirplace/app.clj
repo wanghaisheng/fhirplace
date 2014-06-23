@@ -185,6 +185,9 @@
 (defn =search [{{rt :type :as param} :params}]
   {:body (db/-search rt (dissoc param :type))})
 
+(defn =tags [req]
+  {:body (db/-tags)})
+
 (defn =history [{{rt :type id :id} :params}]
   {:body (db/-history rt id)})
 
@@ -208,7 +211,8 @@
         jtags (json/write-str tags) 
         item (db/-create (str (.getResourceType res)) json jtags)]
     (-> (resource-resp item)
-        (status 201))))
+        (status 201)
+        (header "Category" (form-tags tags)))))
 
 (defn =validate-create
   [{res :data tags :tags}]

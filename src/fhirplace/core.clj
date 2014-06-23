@@ -21,6 +21,7 @@
   {GET (h '=info)
    "metadata" {GET (h '=metadata)}
    "Profile" { [:type] {GET (h '=profile)}}
+   "_tags" {GET (h '=tags)}
    [:type] {:mw ['<-outcome-on-exception '->type-supported!]
             POST       (h '->parse-tags! '->parse-body! '->valid-input!  '=create)
             "_validate" {:mw ['->parse-body! '->valid-input!]

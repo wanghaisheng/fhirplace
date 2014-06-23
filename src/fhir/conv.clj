@@ -15,7 +15,6 @@
 (defn- str->input-stream [s]
   (java.io.ByteArrayInputStream. (.getBytes s)))
 
-
 (defn return-item [x]
   (or (.getResource x) (.getFeed x)))
 
