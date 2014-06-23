@@ -115,7 +115,9 @@
     (if-let [c (get-in req [:headers "category"])]
       (let [[st tags] (safe-parse-tags c)]
         (if (= st :ok)
-          (h (assoc req :tags tags)))))))
+          (h (assoc req :tags tags))
+          (h (assoc req :tags []))))
+      (h (assoc req :tags [])))))
 
 (defn ->parse-body!
   "parse body and put result as :data"
@@ -208,7 +210,7 @@
   #_{:pre [(not (nil? res))]}
   (println "=create " (keys req))
   (let [json (f/serialize :json res)
-        jtags (json/write-str tags) 
+        jtags (json/write-str tags)
         item (db/-create (str (.getResourceType res)) json jtags)]
     (-> (resource-resp item)
         (status 201)
@@ -225,10 +227,10 @@
   {:status 200})
 
 (defn =update
-  [{{rt :type id :id} :params res :data}]
+  [{{rt :type id :id} :params res :data tags :tags}]
   {:pre [(not (nil? res))]}
   (let [json (f/serialize :json res)
-        item (db/-update rt id json)]
+        item (db/-update rt id json (json/write-str tags))]
     (-> (resource-resp item)
         (status 200))))
 
