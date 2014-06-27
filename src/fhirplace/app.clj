@@ -6,6 +6,7 @@
             [compojure.handler :as ch]
             [clojure.string :as cs]
             [fhir :as f]
+            [fhirplace.category :as fc]
             [fhir.operation-outcome :as fo]
             [fhirplace.db :as db]
             [ring.adapter.jetty :as jetty]
@@ -17,8 +18,8 @@
 
 (defn url [& parts]
   (str
-   (env/env :fhirplace-web-url)
-   "/"
+    (env/env :fhirplace-web-url)
+    "/"
     (apply str (interpose "/" parts))))
 
 (defn- determine-format
@@ -90,33 +91,13 @@
     (catch Exception e
       [:error (str "Resource could not be parsed: \n" x "\n" e)])))
 
-(defn- safe-parse-tags [x]
-  (try
-    (let [l (cs/split x #",")
-          ll (map (fn [t]
-                    (let [tt (cs/split t #";")
-                          term (cs/trim (first tt))
-                          pairs (into {:term term} (map (fn [p] (let [pp (cs/split p #"=")
-                                                   key (cs/trim (first pp))
-                                                   value (cs/trim (second pp))]
-                                               [(keyword key) value])) (rest tt)))
-                          ]
-                      pairs)) l)]
-      [:ok ll])
-    (catch Exception e
-      [:error (str "Tags could not be parsed: \n" x "\n" e)])
-    ))
-
 (defn ->parse-tags!
   "parse body and put result as :data"
   [h]
-  (fn [{bd :body :as req}]
+  (fn [req]
     (println "->parse-tags!")
     (if-let [c (get-in req [:headers "category"])]
-      (let [[st tags] (safe-parse-tags c)]
-        (if (= st :ok)
-          (h (assoc req :tags tags))
-          (h (assoc req :tags []))))
+      (h (assoc req :tags (fc/safe-parse c)))
       (h (assoc req :tags [])))))
 
 (defn ->parse-body!
@@ -156,7 +137,7 @@
 
 (defn- check-latest-version [cl]
   (println "check-latest-version " cl)
-  (let [[_ cl-] (cs/split cl (re-pattern(env/env :fhirplace-web-url)))]
+  (let [[_ cl-] (cs/split cl (re-pattern (env/env :fhirplace-web-url)))]
     (let [[_ tp id vid] (cs/split cl- #"/")]
       (println "check-latest " tp " " id " " vid)
       (db/-latest? tp id vid))))
@@ -194,27 +175,25 @@
   {:body (db/-history rt id)})
 
 (defn resource-resp [res]
-  ( let [fhir-res (f/parse (:data res))
+  ( let [fhir-res (f/parse (:content res))
+         tags (json/read-str (:category res) :key-fn keyword)
          loc (url (.getResourceType fhir-res) (:logical_id res) (:version_id res))]
     (-> {:body fhir-res}
         (header "Location" loc)
         (header "Content-Location" loc)
+        (header "Category" (fc/encode-tags tags))
         (header "Last-Modified" (:last_modified_date res)))))
-
-(defn form-tags [tags]
-  (cs/join ", " (map (fn [t]
-          (str (:term t) "; schema=\"" (:schema t) "\"; label=\"" (:label t) "\"")) tags)))
 
 (defn =create
   [{{rt :type} :params res :data tags :tags :as req}]
-  #_{:pre [(not (nil? res))]}
+  {:pre [(not (nil? res))]}
   (println "=create " (keys req))
   (let [json (f/serialize :json res)
         jtags (json/write-str tags)
         item (db/-create (str (.getResourceType res)) json jtags)]
     (-> (resource-resp item)
         (status 201)
-        (header "Category" (form-tags tags)))))
+        (header "Category" (fc/encode-tags tags)))))
 
 (defn =validate-create
   [{res :data tags :tags}]

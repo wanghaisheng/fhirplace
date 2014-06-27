@@ -52,6 +52,10 @@
   ({"xml" "application/xml+fhir"
     "json" "application/json+fhir"} fmt))
 
+(defn get-resource-ids [content-loc]
+  (let [[vid id rt] (reverse (cs/split content-loc #"/"))]
+    [rt id vid]))
+
 (def-scenario simple-crud
   {:metadata (fnk [] (GET (url "metadata")))
    :conformance (fnk [metadata] (f/parse (:body metadata)))
@@ -61,38 +65,39 @@
    :search (fnk [] (GET (url "Patient" "_search")))
    :search_atom (fnk [search] (f/parse (:body search)))
 
-   :new_resource (fnk [] (POST
-                           (url "Patient")
-                           {:body (fixture "patient.json")}))
+   :tags (fnk [] "cat; label=\"Cato\"; scheme=\"http://hl7.org/fhir/tag\"")
+   :new_resource (fnk [tags] (POST
+                               (url "Patient")
+                               {:headers {"Category" tags} :body (fixture "patient.json")}))
    :new_resource_loc (fnk [new_resource] (get-header "Content-Location" new_resource))
 
-   :get_new_resource (fnk [new_resource_loc] (GET (url new_resource_loc)))
+   :get_new_resource (fnk [new_resource_loc] (GET new_resource_loc))
 
    :update_resource  (fnk [new_resource_loc]
-                          (let [[rt id vid] (cs/split new_resource_loc #"/")]
+                          (let [[rt id vid] (get-resource-ids new_resource_loc)]
                             (PUT (url rt id)
                                  {:headers {"Content-Location" new_resource_loc}
                                   :body    (fixture "patient.json")})))
 
    :updated_version  (fnk [update_resource]
-                          (GET (url (get-header "Content-Location" update_resource))))
+                          (GET (get-header "Content-Location" update_resource)))
 
 
    :history_of_resource  (fnk [update_resource]
-                              (let [[rt id vid] (cs/split (get-header "Content-Location" update_resource) #"/")]
+                              (let [[rt id vid] (get-resource-ids (get-header "Content-Location" update_resource))]
                                 (GET (url rt id "_history"))))
 
    :delete_resource  (fnk [new_resource_loc]
-                          (let [[rt id vid] (cs/split new_resource_loc #"/")]
+                          (let [[rt id vid] (get-resource-ids new_resource_loc)]
                             (DELETE (url rt id))))
    })
 
 (def subj (simple-crud {}))
 
-(defn status? [status responce]
-  (is (= (:status responce) status)))
+(defn status? [status response]
+  (is (= (:status response) status)))
 
-(deftest test-simple-crud
+((deftest test-simple-crud
   (status? 200 (:metadata subj))
   (is (instance? Conformance (:conformance subj)))
 
@@ -109,6 +114,12 @@
 
   (status? 200 (:get_new_resource subj))
 
+  (is (= (get-in (:get_new_resource subj) [:headers "Category"])
+         (:category sub)))
+
+  (is (not (nil? (get-in (:get_new_resource subj) [:headers "Category"])))
+      "should return tags")
+
   (status? 200 (:update_resource subj))
 
   (status? 200 (:updated_version subj))
@@ -123,9 +134,8 @@
                  (f/parse (:body (:history_of_resource subj)))))
 
   (status? 204 (:delete_resource subj))
-  )
+  ))
 
-(run-tests)
 
 
 (comment
