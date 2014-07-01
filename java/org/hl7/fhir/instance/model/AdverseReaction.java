@@ -1,7 +1,7 @@
 package org.hl7.fhir.instance.model;
 
 /*
-  Copyright (c) 2011-2013, HL7, Inc.
+  Copyright (c) 2011-2014, HL7, Inc.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without modification, 
@@ -29,7 +29,7 @@ package org.hl7.fhir.instance.model;
   
 */
 
-// Generated on Fri, May 9, 2014 11:14+1000 for FHIR v0.0.81
+// Generated on Tue, Jul 1, 2014 12:12+0400 for FHIR v0.2.1
 
 import java.util.*;
 
@@ -215,6 +215,8 @@ public class AdverseReaction extends Resource {
          */
         protected Enumeration<ReactionSeverity> severity;
 
+        private static final long serialVersionUID = -1856198542L;
+
       public AdverseReactionSymptomComponent() {
         super();
       }
@@ -281,7 +283,7 @@ public class AdverseReaction extends Resource {
           childrenList.add(new Property("severity", "code", "The severity of the sign or symptom.", 0, java.lang.Integer.MAX_VALUE, severity));
         }
 
-      public AdverseReactionSymptomComponent copy(AdverseReaction e) {
+      public AdverseReactionSymptomComponent copy() {
         AdverseReactionSymptomComponent dst = new AdverseReactionSymptomComponent();
         dst.code = code == null ? null : code.copy();
         dst.severity = severity == null ? null : severity.copy();
@@ -310,6 +312,13 @@ public class AdverseReaction extends Resource {
          * Substance that is presumed to have caused the adverse reaction.
          */
         protected ResourceReference substance;
+
+        /**
+         * The actual object that is the target of the reference (Substance that is presumed to have caused the adverse reaction.)
+         */
+        protected Substance substanceTarget;
+
+        private static final long serialVersionUID = 520803518L;
 
       public AdverseReactionExposureComponent() {
         super();
@@ -438,6 +447,21 @@ public class AdverseReaction extends Resource {
           return this;
         }
 
+        /**
+         * @return {@link #substance} (The actual object that is the target of the reference. Substance that is presumed to have caused the adverse reaction.)
+         */
+        public Substance getSubstanceTarget() { 
+          return this.substanceTarget;
+        }
+
+        /**
+         * @param value {@link #substance} (The actual object that is the target of the reference. Substance that is presumed to have caused the adverse reaction.)
+         */
+        public AdverseReactionExposureComponent setSubstanceTarget(Substance value) { 
+          this.substanceTarget = value;
+          return this;
+        }
+
         protected void listChildren(List<Property> childrenList) {
           super.listChildren(childrenList);
           childrenList.add(new Property("date", "dateTime", "Identifies the initial date of the exposure that is suspected to be related to the reaction.", 0, java.lang.Integer.MAX_VALUE, date));
@@ -446,7 +470,7 @@ public class AdverseReaction extends Resource {
           childrenList.add(new Property("substance", "Resource(Substance)", "Substance that is presumed to have caused the adverse reaction.", 0, java.lang.Integer.MAX_VALUE, substance));
         }
 
-      public AdverseReactionExposureComponent copy(AdverseReaction e) {
+      public AdverseReactionExposureComponent copy() {
         AdverseReactionExposureComponent dst = new AdverseReactionExposureComponent();
         dst.date = date == null ? null : date.copy();
         dst.type = type == null ? null : type.copy();
@@ -473,6 +497,11 @@ public class AdverseReaction extends Resource {
     protected ResourceReference subject;
 
     /**
+     * The actual object that is the target of the reference (The subject of the adverse reaction.)
+     */
+    protected Patient subjectTarget;
+
+    /**
      * If true, indicates that no reaction occurred.
      */
     protected Boolean didNotOccurFlag;
@@ -483,6 +512,11 @@ public class AdverseReaction extends Resource {
     protected ResourceReference recorder;
 
     /**
+     * The actual object that is the target of the reference (Identifies the individual responsible for the information in the reaction record.)
+     */
+    protected Resource recorderTarget;
+
+    /**
      * The signs and symptoms that were observed as part of the reaction.
      */
     protected List<AdverseReactionSymptomComponent> symptom = new ArrayList<AdverseReactionSymptomComponent>();
@@ -491,6 +525,8 @@ public class AdverseReaction extends Resource {
      * An exposure to a substance that preceded a reaction occurrence.
      */
     protected List<AdverseReactionExposureComponent> exposure = new ArrayList<AdverseReactionExposureComponent>();
+
+    private static final long serialVersionUID = -1004725142L;
 
     public AdverseReaction() {
       super();
@@ -571,6 +607,21 @@ public class AdverseReaction extends Resource {
     }
 
     /**
+     * @return {@link #subject} (The actual object that is the target of the reference. The subject of the adverse reaction.)
+     */
+    public Patient getSubjectTarget() { 
+      return this.subjectTarget;
+    }
+
+    /**
+     * @param value {@link #subject} (The actual object that is the target of the reference. The subject of the adverse reaction.)
+     */
+    public AdverseReaction setSubjectTarget(Patient value) { 
+      this.subjectTarget = value;
+      return this;
+    }
+
+    /**
      * @return {@link #didNotOccurFlag} (If true, indicates that no reaction occurred.)
      */
     public Boolean getDidNotOccurFlag() { 
@@ -614,6 +665,21 @@ public class AdverseReaction extends Resource {
      */
     public AdverseReaction setRecorder(ResourceReference value) { 
       this.recorder = value;
+      return this;
+    }
+
+    /**
+     * @return {@link #recorder} (The actual object that is the target of the reference. Identifies the individual responsible for the information in the reaction record.)
+     */
+    public Resource getRecorderTarget() { 
+      return this.recorderTarget;
+    }
+
+    /**
+     * @param value {@link #recorder} (The actual object that is the target of the reference. Identifies the individual responsible for the information in the reaction record.)
+     */
+    public AdverseReaction setRecorderTarget(Resource value) { 
+      this.recorderTarget = value;
       return this;
     }
 
@@ -673,10 +739,10 @@ public class AdverseReaction extends Resource {
         dst.recorder = recorder == null ? null : recorder.copy();
         dst.symptom = new ArrayList<AdverseReactionSymptomComponent>();
         for (AdverseReactionSymptomComponent i : symptom)
-          dst.symptom.add(i.copy(dst));
+          dst.symptom.add(i.copy());
         dst.exposure = new ArrayList<AdverseReactionExposureComponent>();
         for (AdverseReactionExposureComponent i : exposure)
-          dst.exposure.add(i.copy(dst));
+          dst.exposure.add(i.copy());
         return dst;
       }
 

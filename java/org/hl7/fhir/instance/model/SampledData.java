@@ -1,7 +1,7 @@
 package org.hl7.fhir.instance.model;
 
 /*
-  Copyright (c) 2011-2013, HL7, Inc.
+  Copyright (c) 2011-2014, HL7, Inc.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without modification, 
@@ -29,7 +29,7 @@ package org.hl7.fhir.instance.model;
   
 */
 
-// Generated on Fri, May 9, 2014 11:14+1000 for FHIR v0.0.81
+// Generated on Tue, Jul 1, 2014 12:12+0400 for FHIR v0.2.1
 
 import java.util.*;
 
@@ -73,6 +73,8 @@ public class SampledData extends Type {
      * A series of data points which are decimal values separated by a single space (character u20). The special values "E" (error), "L" (below detection limit) and "U" (above detection limit) can also be used in place of a decimal value.
      */
     protected String_ data;
+
+    private static final long serialVersionUID = 1739399349L;
 
     public SampledData() {
       super();

@@ -5,7 +5,7 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
- ;; :ring {:handler fhirplace.app/app}
+  ;; :ring {:handler fhirplace.app/app}
 
   :plugins [[lein-ring "0.8.10"]
             [lein-midje "3.0.0"]
@@ -17,6 +17,9 @@
 
   :resource-paths ["resources"]
   :java-source-paths ["java"]
+
+  ; org.hl7.fhir.convertors/
+  ; org.hl7.fhir.sentinel/
 
   :ring {:handler fhirplace.core/app}
   :immutant {:init production/init}

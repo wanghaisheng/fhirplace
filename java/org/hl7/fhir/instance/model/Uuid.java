@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2013, HL7, Inc
+Copyright (c) 2011-2014, HL7, Inc
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, 
@@ -28,7 +28,9 @@ POSSIBILITY OF SUCH DAMAGE.
 */
 package org.hl7.fhir.instance.model;
 
-public class Uuid extends Id {
+public class Uuid extends Uri {
+
+  private static final long serialVersionUID = -2355185818258961443L;
 
 	
 }

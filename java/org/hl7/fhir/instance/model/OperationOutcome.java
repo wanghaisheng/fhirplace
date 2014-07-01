@@ -1,7 +1,7 @@
 package org.hl7.fhir.instance.model;
 
 /*
-  Copyright (c) 2011-2013, HL7, Inc.
+  Copyright (c) 2011-2014, HL7, Inc.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without modification, 
@@ -29,7 +29,7 @@ package org.hl7.fhir.instance.model;
   
 */
 
-// Generated on Fri, May 9, 2014 11:14+1000 for FHIR v0.0.81
+// Generated on Tue, Jul 1, 2014 12:12+0400 for FHIR v0.2.1
 
 import java.util.*;
 
@@ -116,6 +116,8 @@ public class OperationOutcome extends Resource {
          * A simple XPath limited to element names, repetition indicators and the default child access that identifies one of the elements in the resource that caused this issue to be raised.
          */
         protected List<String_> location = new ArrayList<String_>();
+
+        private static final long serialVersionUID = -1630124586L;
 
       public OperationOutcomeIssueComponent() {
         super();
@@ -236,6 +238,16 @@ public class OperationOutcome extends Resource {
           return t;
         }
 
+        /**
+         * @param value {@link #location} (A simple XPath limited to element names, repetition indicators and the default child access that identifies one of the elements in the resource that caused this issue to be raised.)
+         */
+        public boolean hasLocationSimple(String value) { 
+          for (String_ v : this.location)
+            if (v.getValue().equals(value))
+              return true;
+          return false;
+        }
+
         protected void listChildren(List<Property> childrenList) {
           super.listChildren(childrenList);
           childrenList.add(new Property("severity", "code", "Indicates whether the issue indicates a variation from successful processing.", 0, java.lang.Integer.MAX_VALUE, severity));
@@ -244,7 +256,7 @@ public class OperationOutcome extends Resource {
           childrenList.add(new Property("location", "string", "A simple XPath limited to element names, repetition indicators and the default child access that identifies one of the elements in the resource that caused this issue to be raised.", 0, java.lang.Integer.MAX_VALUE, location));
         }
 
-      public OperationOutcomeIssueComponent copy(OperationOutcome e) {
+      public OperationOutcomeIssueComponent copy() {
         OperationOutcomeIssueComponent dst = new OperationOutcomeIssueComponent();
         dst.severity = severity == null ? null : severity.copy();
         dst.type = type == null ? null : type.copy();
@@ -261,6 +273,8 @@ public class OperationOutcome extends Resource {
      * An error, warning or information message that results from a system action.
      */
     protected List<OperationOutcomeIssueComponent> issue = new ArrayList<OperationOutcomeIssueComponent>();
+
+    private static final long serialVersionUID = 820547604L;
 
     public OperationOutcome() {
       super();
@@ -292,7 +306,7 @@ public class OperationOutcome extends Resource {
         OperationOutcome dst = new OperationOutcome();
         dst.issue = new ArrayList<OperationOutcomeIssueComponent>();
         for (OperationOutcomeIssueComponent i : issue)
-          dst.issue.add(i.copy(dst));
+          dst.issue.add(i.copy());
         return dst;
       }
 

@@ -60,9 +60,9 @@
 
 (defn qcall* [proc & args]
   (let [proc-name (name proc)
-         params (cs/join "," (map (constantly "?") args))
-         sql (str "SELECT * FROM " proc-name "(" params ")")]
-        (q* (into [sql] args))))
+        params (cs/join "," (map (constantly "?") args))
+        sql (str "SELECT * FROM " proc-name "(" params ")")]
+    (q* (into [sql] args))))
 
 (defn q [hsql]
   (let [sql (hc/format hsql)]
@@ -165,8 +165,18 @@
     (call* :history_resource tp id)))
 
 ;; TODO: bug report
-(defn -tags []
-  (f/parse
-    (cs/replace (call* :tags) #"TagList" "Bundle")))
+(defn -tags
+  ([] (call* :tags))
+  ([tp] (call* :tags tp))
+  ([tp id] (call* :tags tp id))
+  ([tp id vid] (call* :tags tp id vid)))
+
+(defn -affix-tags
+  ([tp id tags] (call* :affix_tags tp id (json/write-str tags)   ))
+  ([tp id vid tags] (call* :affix_tags tp id vid (json/write-str tags))))
+
+(defn -remove-tags
+  ([tp id] (call* :remove_tags tp id))
+  ([tp id vid] (call* :remove_tags tp id vid)))
 
 #_(-history "Patient" (uuid))

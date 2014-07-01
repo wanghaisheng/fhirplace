@@ -1,7 +1,7 @@
 package org.hl7.fhir.instance.model;
 
 /*
-  Copyright (c) 2011-2013, HL7, Inc.
+  Copyright (c) 2011-2014, HL7, Inc.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without modification, 
@@ -29,7 +29,7 @@ package org.hl7.fhir.instance.model;
   
 */
 
-// Generated on Fri, May 9, 2014 11:14+1000 for FHIR v0.0.81
+// Generated on Tue, Jul 1, 2014 12:12+0400 for FHIR v0.2.1
 
 import java.util.*;
 
@@ -109,14 +109,26 @@ public class Alert extends Resource {
     protected ResourceReference subject;
 
     /**
+     * The actual object that is the target of the reference (The person who this alert concerns.)
+     */
+    protected Patient subjectTarget;
+
+    /**
      * The person or device that created the alert.
      */
     protected ResourceReference author;
 
     /**
+     * The actual object that is the target of the reference (The person or device that created the alert.)
+     */
+    protected Resource authorTarget;
+
+    /**
      * The textual component of the alert to display to the user.
      */
     protected String_ note;
+
+    private static final long serialVersionUID = 1246454451L;
 
     public Alert() {
       super();
@@ -209,6 +221,21 @@ public class Alert extends Resource {
     }
 
     /**
+     * @return {@link #subject} (The actual object that is the target of the reference. The person who this alert concerns.)
+     */
+    public Patient getSubjectTarget() { 
+      return this.subjectTarget;
+    }
+
+    /**
+     * @param value {@link #subject} (The actual object that is the target of the reference. The person who this alert concerns.)
+     */
+    public Alert setSubjectTarget(Patient value) { 
+      this.subjectTarget = value;
+      return this;
+    }
+
+    /**
      * @return {@link #author} (The person or device that created the alert.)
      */
     public ResourceReference getAuthor() { 
@@ -220,6 +247,21 @@ public class Alert extends Resource {
      */
     public Alert setAuthor(ResourceReference value) { 
       this.author = value;
+      return this;
+    }
+
+    /**
+     * @return {@link #author} (The actual object that is the target of the reference. The person or device that created the alert.)
+     */
+    public Resource getAuthorTarget() { 
+      return this.authorTarget;
+    }
+
+    /**
+     * @param value {@link #author} (The actual object that is the target of the reference. The person or device that created the alert.)
+     */
+    public Alert setAuthorTarget(Resource value) { 
+      this.authorTarget = value;
       return this;
     }
 

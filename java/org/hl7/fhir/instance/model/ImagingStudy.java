@@ -1,7 +1,7 @@
 package org.hl7.fhir.instance.model;
 
 /*
-  Copyright (c) 2011-2013, HL7, Inc.
+  Copyright (c) 2011-2014, HL7, Inc.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without modification, 
@@ -29,7 +29,7 @@ package org.hl7.fhir.instance.model;
   
 */
 
-// Generated on Fri, May 9, 2014 11:14+1000 for FHIR v0.0.81
+// Generated on Tue, Jul 1, 2014 12:12+0400 for FHIR v0.2.1
 
 import java.util.*;
 
@@ -911,6 +911,8 @@ public class ImagingStudy extends Resource {
          */
         protected List<ImagingStudySeriesInstanceComponent> instance = new ArrayList<ImagingStudySeriesInstanceComponent>();
 
+        private static final long serialVersionUID = -1153872396L;
+
       public ImagingStudySeriesComponent() {
         super();
       }
@@ -1244,7 +1246,7 @@ public class ImagingStudy extends Resource {
           childrenList.add(new Property("instance", "", "A single image taken from a patient.", 0, java.lang.Integer.MAX_VALUE, instance));
         }
 
-      public ImagingStudySeriesComponent copy(ImagingStudy e) {
+      public ImagingStudySeriesComponent copy() {
         ImagingStudySeriesComponent dst = new ImagingStudySeriesComponent();
         dst.number = number == null ? null : number.copy();
         dst.modality = modality == null ? null : modality.copy();
@@ -1257,7 +1259,7 @@ public class ImagingStudy extends Resource {
         dst.dateTime = dateTime == null ? null : dateTime.copy();
         dst.instance = new ArrayList<ImagingStudySeriesInstanceComponent>();
         for (ImagingStudySeriesInstanceComponent i : instance)
-          dst.instance.add(i.copy(e));
+          dst.instance.add(i.copy());
         return dst;
       }
 
@@ -1298,6 +1300,13 @@ public class ImagingStudy extends Resource {
          * A FHIR resource with content for this instance.
          */
         protected ResourceReference attachment;
+
+        /**
+         * The actual object that is the target of the reference (A FHIR resource with content for this instance.)
+         */
+        protected Resource attachmentTarget;
+
+        private static final long serialVersionUID = 1073770360L;
 
       public ImagingStudySeriesInstanceComponent() {
         super();
@@ -1532,6 +1541,21 @@ public class ImagingStudy extends Resource {
           return this;
         }
 
+        /**
+         * @return {@link #attachment} (The actual object that is the target of the reference. A FHIR resource with content for this instance.)
+         */
+        public Resource getAttachmentTarget() { 
+          return this.attachmentTarget;
+        }
+
+        /**
+         * @param value {@link #attachment} (The actual object that is the target of the reference. A FHIR resource with content for this instance.)
+         */
+        public ImagingStudySeriesInstanceComponent setAttachmentTarget(Resource value) { 
+          this.attachmentTarget = value;
+          return this;
+        }
+
         protected void listChildren(List<Property> childrenList) {
           super.listChildren(childrenList);
           childrenList.add(new Property("number", "integer", "The number of this image in the series.", 0, java.lang.Integer.MAX_VALUE, number));
@@ -1543,7 +1567,7 @@ public class ImagingStudy extends Resource {
           childrenList.add(new Property("attachment", "Resource(Any)", "A FHIR resource with content for this instance.", 0, java.lang.Integer.MAX_VALUE, attachment));
         }
 
-      public ImagingStudySeriesInstanceComponent copy(ImagingStudy e) {
+      public ImagingStudySeriesInstanceComponent copy() {
         ImagingStudySeriesInstanceComponent dst = new ImagingStudySeriesInstanceComponent();
         dst.number = number == null ? null : number.copy();
         dst.uid = uid == null ? null : uid.copy();
@@ -1568,6 +1592,11 @@ public class ImagingStudy extends Resource {
     protected ResourceReference subject;
 
     /**
+     * The actual object that is the target of the reference (Who the images are of.)
+     */
+    protected Patient subjectTarget;
+
+    /**
      * Formal identifier for the study.
      */
     protected Oid uid;
@@ -1586,6 +1615,11 @@ public class ImagingStudy extends Resource {
      * A list of the diagnostic orders that resulted in this imaging study being performed.
      */
     protected List<ResourceReference> order = new ArrayList<ResourceReference>();
+    /**
+     * The actual objects that are the target of the reference (A list of the diagnostic orders that resulted in this imaging study being performed.)
+     */
+    protected List<DiagnosticOrder> orderTarget = new ArrayList<DiagnosticOrder>();
+
 
     /**
      * A list of all the Series.ImageModality values that are actual acquisition modalities, i.e. those in the DICOM Context Group 29 (value set OID 1.2.840.10008.6.1.19).
@@ -1596,6 +1630,11 @@ public class ImagingStudy extends Resource {
      * The requesting/referring physician.
      */
     protected ResourceReference referrer;
+
+    /**
+     * The actual object that is the target of the reference (The requesting/referring physician.)
+     */
+    protected Practitioner referrerTarget;
 
     /**
      * Availability of study (online, offline or nearline).
@@ -1633,6 +1672,11 @@ public class ImagingStudy extends Resource {
     protected ResourceReference interpreter;
 
     /**
+     * The actual object that is the target of the reference (Who read study and interpreted the images.)
+     */
+    protected Practitioner interpreterTarget;
+
+    /**
      * Institution-generated description or classification of the Study (component) performed.
      */
     protected String_ description;
@@ -1641,6 +1685,8 @@ public class ImagingStudy extends Resource {
      * Each study has one or more series of image instances.
      */
     protected List<ImagingStudySeriesComponent> series = new ArrayList<ImagingStudySeriesComponent>();
+
+    private static final long serialVersionUID = 1570394855L;
 
     public ImagingStudy() {
       super();
@@ -1702,6 +1748,21 @@ public class ImagingStudy extends Resource {
      */
     public ImagingStudy setSubject(ResourceReference value) { 
       this.subject = value;
+      return this;
+    }
+
+    /**
+     * @return {@link #subject} (The actual object that is the target of the reference. Who the images are of.)
+     */
+    public Patient getSubjectTarget() { 
+      return this.subjectTarget;
+    }
+
+    /**
+     * @param value {@link #subject} (The actual object that is the target of the reference. Who the images are of.)
+     */
+    public ImagingStudy setSubjectTarget(Patient value) { 
+      this.subjectTarget = value;
       return this;
     }
 
@@ -1787,6 +1848,23 @@ public class ImagingStudy extends Resource {
     }
 
     /**
+     * @return {@link #order} (The actual objects that are the target of the reference. A list of the diagnostic orders that resulted in this imaging study being performed.)
+     */
+    public List<DiagnosticOrder> getOrderTarget() { 
+      return this.orderTarget;
+    }
+
+    // syntactic sugar
+    /**
+     * @return {@link #order} (Add an actual object that is the target of the reference. A list of the diagnostic orders that resulted in this imaging study being performed.)
+     */
+    public DiagnosticOrder addOrderTarget() { 
+      DiagnosticOrder r = new DiagnosticOrder();
+      this.orderTarget.add(r);
+      return r;
+    }
+
+    /**
      * @return {@link #modality} (A list of all the Series.ImageModality values that are actual acquisition modalities, i.e. those in the DICOM Context Group 29 (value set OID 1.2.840.10008.6.1.19).)
      */
     public List<Enumeration<ImagingModality>> getModality() { 
@@ -1814,6 +1892,16 @@ public class ImagingStudy extends Resource {
     }
 
     /**
+     * @param value {@link #modality} (A list of all the Series.ImageModality values that are actual acquisition modalities, i.e. those in the DICOM Context Group 29 (value set OID 1.2.840.10008.6.1.19).)
+     */
+    public boolean hasModalitySimple(ImagingModality value) { 
+      for (Enumeration<ImagingModality> v : this.modality)
+        if (v.getValue().equals(value))
+          return true;
+      return false;
+    }
+
+    /**
      * @return {@link #referrer} (The requesting/referring physician.)
      */
     public ResourceReference getReferrer() { 
@@ -1825,6 +1913,21 @@ public class ImagingStudy extends Resource {
      */
     public ImagingStudy setReferrer(ResourceReference value) { 
       this.referrer = value;
+      return this;
+    }
+
+    /**
+     * @return {@link #referrer} (The actual object that is the target of the reference. The requesting/referring physician.)
+     */
+    public Practitioner getReferrerTarget() { 
+      return this.referrerTarget;
+    }
+
+    /**
+     * @param value {@link #referrer} (The actual object that is the target of the reference. The requesting/referring physician.)
+     */
+    public ImagingStudy setReferrerTarget(Practitioner value) { 
+      this.referrerTarget = value;
       return this;
     }
 
@@ -2033,6 +2136,21 @@ public class ImagingStudy extends Resource {
     }
 
     /**
+     * @return {@link #interpreter} (The actual object that is the target of the reference. Who read study and interpreted the images.)
+     */
+    public Practitioner getInterpreterTarget() { 
+      return this.interpreterTarget;
+    }
+
+    /**
+     * @param value {@link #interpreter} (The actual object that is the target of the reference. Who read study and interpreted the images.)
+     */
+    public ImagingStudy setInterpreterTarget(Practitioner value) { 
+      this.interpreterTarget = value;
+      return this;
+    }
+
+    /**
      * @return {@link #description} (Institution-generated description or classification of the Study (component) performed.)
      */
     public String_ getDescription() { 
@@ -2134,7 +2252,7 @@ public class ImagingStudy extends Resource {
         dst.description = description == null ? null : description.copy();
         dst.series = new ArrayList<ImagingStudySeriesComponent>();
         for (ImagingStudySeriesComponent i : series)
-          dst.series.add(i.copy(dst));
+          dst.series.add(i.copy());
         return dst;
       }
 

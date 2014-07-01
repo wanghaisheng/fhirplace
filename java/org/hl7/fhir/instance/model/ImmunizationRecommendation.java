@@ -1,7 +1,7 @@
 package org.hl7.fhir.instance.model;
 
 /*
-  Copyright (c) 2011-2013, HL7, Inc.
+  Copyright (c) 2011-2014, HL7, Inc.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without modification, 
@@ -29,7 +29,7 @@ package org.hl7.fhir.instance.model;
   
 */
 
-// Generated on Fri, May 9, 2014 11:14+1000 for FHIR v0.0.81
+// Generated on Tue, Jul 1, 2014 12:12+0400 for FHIR v0.2.1
 
 import java.util.*;
 
@@ -73,11 +73,23 @@ public class ImmunizationRecommendation extends Resource {
          * Immunization event history that supports the status and recommendation.
          */
         protected List<ResourceReference> supportingImmunization = new ArrayList<ResourceReference>();
+        /**
+         * The actual objects that are the target of the reference (Immunization event history that supports the status and recommendation.)
+         */
+        protected List<Immunization> supportingImmunizationTarget = new ArrayList<Immunization>();
+
 
         /**
          * Patient Information that supports the status and recommendation.  This includes patient observations, adverse reactions and allergy/intolerance information.
          */
         protected List<ResourceReference> supportingPatientInformation = new ArrayList<ResourceReference>();
+        /**
+         * The actual objects that are the target of the reference (Patient Information that supports the status and recommendation.  This includes patient observations, adverse reactions and allergy/intolerance information.)
+         */
+        protected List<Resource> supportingPatientInformationTarget = new ArrayList<Resource>();
+
+
+        private static final long serialVersionUID = -143636358L;
 
       public ImmunizationRecommendationRecommendationComponent() {
         super();
@@ -238,6 +250,23 @@ public class ImmunizationRecommendation extends Resource {
         }
 
         /**
+         * @return {@link #supportingImmunization} (The actual objects that are the target of the reference. Immunization event history that supports the status and recommendation.)
+         */
+        public List<Immunization> getSupportingImmunizationTarget() { 
+          return this.supportingImmunizationTarget;
+        }
+
+    // syntactic sugar
+        /**
+         * @return {@link #supportingImmunization} (Add an actual object that is the target of the reference. Immunization event history that supports the status and recommendation.)
+         */
+        public Immunization addSupportingImmunizationTarget() { 
+          Immunization r = new Immunization();
+          this.supportingImmunizationTarget.add(r);
+          return r;
+        }
+
+        /**
          * @return {@link #supportingPatientInformation} (Patient Information that supports the status and recommendation.  This includes patient observations, adverse reactions and allergy/intolerance information.)
          */
         public List<ResourceReference> getSupportingPatientInformation() { 
@@ -254,6 +283,13 @@ public class ImmunizationRecommendation extends Resource {
           return t;
         }
 
+        /**
+         * @return {@link #supportingPatientInformation} (The actual objects that are the target of the reference. Patient Information that supports the status and recommendation.  This includes patient observations, adverse reactions and allergy/intolerance information.)
+         */
+        public List<Resource> getSupportingPatientInformationTarget() { 
+          return this.supportingPatientInformationTarget;
+        }
+
         protected void listChildren(List<Property> childrenList) {
           super.listChildren(childrenList);
           childrenList.add(new Property("date", "dateTime", "The date the immunization recommendation was created.", 0, java.lang.Integer.MAX_VALUE, date));
@@ -266,7 +302,7 @@ public class ImmunizationRecommendation extends Resource {
           childrenList.add(new Property("supportingPatientInformation", "Resource(Observation|AdverseReaction|AllergyIntolerance)", "Patient Information that supports the status and recommendation.  This includes patient observations, adverse reactions and allergy/intolerance information.", 0, java.lang.Integer.MAX_VALUE, supportingPatientInformation));
         }
 
-      public ImmunizationRecommendationRecommendationComponent copy(ImmunizationRecommendation e) {
+      public ImmunizationRecommendationRecommendationComponent copy() {
         ImmunizationRecommendationRecommendationComponent dst = new ImmunizationRecommendationRecommendationComponent();
         dst.date = date == null ? null : date.copy();
         dst.vaccineType = vaccineType == null ? null : vaccineType.copy();
@@ -274,8 +310,8 @@ public class ImmunizationRecommendation extends Resource {
         dst.forecastStatus = forecastStatus == null ? null : forecastStatus.copy();
         dst.dateCriterion = new ArrayList<ImmunizationRecommendationRecommendationDateCriterionComponent>();
         for (ImmunizationRecommendationRecommendationDateCriterionComponent i : dateCriterion)
-          dst.dateCriterion.add(i.copy(e));
-        dst.protocol = protocol == null ? null : protocol.copy(e);
+          dst.dateCriterion.add(i.copy());
+        dst.protocol = protocol == null ? null : protocol.copy();
         dst.supportingImmunization = new ArrayList<ResourceReference>();
         for (ResourceReference i : supportingImmunization)
           dst.supportingImmunization.add(i.copy());
@@ -297,6 +333,8 @@ public class ImmunizationRecommendation extends Resource {
          * Date recommendation.
          */
         protected DateTime value;
+
+        private static final long serialVersionUID = -647492960L;
 
       public ImmunizationRecommendationRecommendationDateCriterionComponent() {
         super();
@@ -361,7 +399,7 @@ public class ImmunizationRecommendation extends Resource {
           childrenList.add(new Property("value", "dateTime", "Date recommendation.", 0, java.lang.Integer.MAX_VALUE, value));
         }
 
-      public ImmunizationRecommendationRecommendationDateCriterionComponent copy(ImmunizationRecommendation e) {
+      public ImmunizationRecommendationRecommendationDateCriterionComponent copy() {
         ImmunizationRecommendationRecommendationDateCriterionComponent dst = new ImmunizationRecommendationRecommendationDateCriterionComponent();
         dst.code = code == null ? null : code.copy();
         dst.value = value == null ? null : value.copy();
@@ -387,9 +425,16 @@ public class ImmunizationRecommendation extends Resource {
         protected ResourceReference authority;
 
         /**
+         * The actual object that is the target of the reference (Indicates the authority who published the protocol?  E.g. ACIP.)
+         */
+        protected Organization authorityTarget;
+
+        /**
          * One possible path to achieve presumed immunity against a disease - within the context of an authority.
          */
         protected String_ series;
+
+        private static final long serialVersionUID = -732744530L;
 
       public ImmunizationRecommendationRecommendationProtocolComponent() {
         super();
@@ -483,6 +528,21 @@ public class ImmunizationRecommendation extends Resource {
         }
 
         /**
+         * @return {@link #authority} (The actual object that is the target of the reference. Indicates the authority who published the protocol?  E.g. ACIP.)
+         */
+        public Organization getAuthorityTarget() { 
+          return this.authorityTarget;
+        }
+
+        /**
+         * @param value {@link #authority} (The actual object that is the target of the reference. Indicates the authority who published the protocol?  E.g. ACIP.)
+         */
+        public ImmunizationRecommendationRecommendationProtocolComponent setAuthorityTarget(Organization value) { 
+          this.authorityTarget = value;
+          return this;
+        }
+
+        /**
          * @return {@link #series} (One possible path to achieve presumed immunity against a disease - within the context of an authority.)
          */
         public String_ getSeries() { 
@@ -526,7 +586,7 @@ public class ImmunizationRecommendation extends Resource {
           childrenList.add(new Property("series", "string", "One possible path to achieve presumed immunity against a disease - within the context of an authority.", 0, java.lang.Integer.MAX_VALUE, series));
         }
 
-      public ImmunizationRecommendationRecommendationProtocolComponent copy(ImmunizationRecommendation e) {
+      public ImmunizationRecommendationRecommendationProtocolComponent copy() {
         ImmunizationRecommendationRecommendationProtocolComponent dst = new ImmunizationRecommendationRecommendationProtocolComponent();
         dst.doseSequence = doseSequence == null ? null : doseSequence.copy();
         dst.description = description == null ? null : description.copy();
@@ -548,9 +608,16 @@ public class ImmunizationRecommendation extends Resource {
     protected ResourceReference subject;
 
     /**
+     * The actual object that is the target of the reference (The patient who is the subject of the profile.)
+     */
+    protected Patient subjectTarget;
+
+    /**
      * Vaccine administration recommendations.
      */
     protected List<ImmunizationRecommendationRecommendationComponent> recommendation = new ArrayList<ImmunizationRecommendationRecommendationComponent>();
+
+    private static final long serialVersionUID = -1986363579L;
 
     public ImmunizationRecommendation() {
       super();
@@ -594,6 +661,21 @@ public class ImmunizationRecommendation extends Resource {
     }
 
     /**
+     * @return {@link #subject} (The actual object that is the target of the reference. The patient who is the subject of the profile.)
+     */
+    public Patient getSubjectTarget() { 
+      return this.subjectTarget;
+    }
+
+    /**
+     * @param value {@link #subject} (The actual object that is the target of the reference. The patient who is the subject of the profile.)
+     */
+    public ImmunizationRecommendation setSubjectTarget(Patient value) { 
+      this.subjectTarget = value;
+      return this;
+    }
+
+    /**
      * @return {@link #recommendation} (Vaccine administration recommendations.)
      */
     public List<ImmunizationRecommendationRecommendationComponent> getRecommendation() { 
@@ -625,7 +707,7 @@ public class ImmunizationRecommendation extends Resource {
         dst.subject = subject == null ? null : subject.copy();
         dst.recommendation = new ArrayList<ImmunizationRecommendationRecommendationComponent>();
         for (ImmunizationRecommendationRecommendationComponent i : recommendation)
-          dst.recommendation.add(i.copy(dst));
+          dst.recommendation.add(i.copy());
         return dst;
       }
 

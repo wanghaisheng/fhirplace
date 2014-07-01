@@ -1,7 +1,7 @@
 package org.hl7.fhir.instance.model;
 
 /*
-  Copyright (c) 2011-2013, HL7, Inc.
+  Copyright (c) 2011-2014, HL7, Inc.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without modification, 
@@ -29,7 +29,7 @@ package org.hl7.fhir.instance.model;
   
 */
 
-// Generated on Fri, May 9, 2014 11:14+1000 for FHIR v0.0.81
+// Generated on Tue, Jul 1, 2014 12:12+0400 for FHIR v0.2.1
 
 import java.util.*;
 
@@ -148,6 +148,13 @@ public class Condition extends Resource {
          * Reference to a formal record of the evidence on which the staging assessment is based.
          */
         protected List<ResourceReference> assessment = new ArrayList<ResourceReference>();
+        /**
+         * The actual objects that are the target of the reference (Reference to a formal record of the evidence on which the staging assessment is based.)
+         */
+        protected List<Resource> assessmentTarget = new ArrayList<Resource>();
+
+
+        private static final long serialVersionUID = -1698066074L;
 
       public ConditionStageComponent() {
         super();
@@ -185,13 +192,20 @@ public class Condition extends Resource {
           return t;
         }
 
+        /**
+         * @return {@link #assessment} (The actual objects that are the target of the reference. Reference to a formal record of the evidence on which the staging assessment is based.)
+         */
+        public List<Resource> getAssessmentTarget() { 
+          return this.assessmentTarget;
+        }
+
         protected void listChildren(List<Property> childrenList) {
           super.listChildren(childrenList);
           childrenList.add(new Property("summary", "CodeableConcept", "A simple summary of the stage such as 'Stage 3'. The determination of the stage is disease-specific.", 0, java.lang.Integer.MAX_VALUE, summary));
           childrenList.add(new Property("assessment", "Resource(Any)", "Reference to a formal record of the evidence on which the staging assessment is based.", 0, java.lang.Integer.MAX_VALUE, assessment));
         }
 
-      public ConditionStageComponent copy(Condition e) {
+      public ConditionStageComponent copy() {
         ConditionStageComponent dst = new ConditionStageComponent();
         dst.summary = summary == null ? null : summary.copy();
         dst.assessment = new ArrayList<ResourceReference>();
@@ -212,6 +226,13 @@ public class Condition extends Resource {
          * Links to other relevant information, including pathology reports.
          */
         protected List<ResourceReference> detail = new ArrayList<ResourceReference>();
+        /**
+         * The actual objects that are the target of the reference (Links to other relevant information, including pathology reports.)
+         */
+        protected List<Resource> detailTarget = new ArrayList<Resource>();
+
+
+        private static final long serialVersionUID = 1835722845L;
 
       public ConditionEvidenceComponent() {
         super();
@@ -249,13 +270,20 @@ public class Condition extends Resource {
           return t;
         }
 
+        /**
+         * @return {@link #detail} (The actual objects that are the target of the reference. Links to other relevant information, including pathology reports.)
+         */
+        public List<Resource> getDetailTarget() { 
+          return this.detailTarget;
+        }
+
         protected void listChildren(List<Property> childrenList) {
           super.listChildren(childrenList);
           childrenList.add(new Property("code", "CodeableConcept", "A manifestation or symptom that led to the recording of this condition.", 0, java.lang.Integer.MAX_VALUE, code));
           childrenList.add(new Property("detail", "Resource(Any)", "Links to other relevant information, including pathology reports.", 0, java.lang.Integer.MAX_VALUE, detail));
         }
 
-      public ConditionEvidenceComponent copy(Condition e) {
+      public ConditionEvidenceComponent copy() {
         ConditionEvidenceComponent dst = new ConditionEvidenceComponent();
         dst.code = code == null ? null : code.copy();
         dst.detail = new ArrayList<ResourceReference>();
@@ -276,6 +304,8 @@ public class Condition extends Resource {
          * Detailed anatomical location information.
          */
         protected String_ detail;
+
+        private static final long serialVersionUID = -1468883543L;
 
       public ConditionLocationComponent() {
         super();
@@ -338,7 +368,7 @@ public class Condition extends Resource {
           childrenList.add(new Property("detail", "string", "Detailed anatomical location information.", 0, java.lang.Integer.MAX_VALUE, detail));
         }
 
-      public ConditionLocationComponent copy(Condition e) {
+      public ConditionLocationComponent copy() {
         ConditionLocationComponent dst = new ConditionLocationComponent();
         dst.code = code == null ? null : code.copy();
         dst.detail = detail == null ? null : detail.copy();
@@ -362,6 +392,13 @@ public class Condition extends Resource {
          * Target of the relationship.
          */
         protected ResourceReference target;
+
+        /**
+         * The actual object that is the target of the reference (Target of the relationship.)
+         */
+        protected Resource targetTarget;
+
+        private static final long serialVersionUID = -7869756L;
 
       public ConditionRelatedItemComponent() {
         super();
@@ -434,6 +471,21 @@ public class Condition extends Resource {
           return this;
         }
 
+        /**
+         * @return {@link #target} (The actual object that is the target of the reference. Target of the relationship.)
+         */
+        public Resource getTargetTarget() { 
+          return this.targetTarget;
+        }
+
+        /**
+         * @param value {@link #target} (The actual object that is the target of the reference. Target of the relationship.)
+         */
+        public ConditionRelatedItemComponent setTargetTarget(Resource value) { 
+          this.targetTarget = value;
+          return this;
+        }
+
         protected void listChildren(List<Property> childrenList) {
           super.listChildren(childrenList);
           childrenList.add(new Property("type", "code", "The type of relationship that this condition has to the related item.", 0, java.lang.Integer.MAX_VALUE, type));
@@ -441,7 +493,7 @@ public class Condition extends Resource {
           childrenList.add(new Property("target", "Resource(Condition|Procedure|MedicationAdministration|Immunization|MedicationStatement)", "Target of the relationship.", 0, java.lang.Integer.MAX_VALUE, target));
         }
 
-      public ConditionRelatedItemComponent copy(Condition e) {
+      public ConditionRelatedItemComponent copy() {
         ConditionRelatedItemComponent dst = new ConditionRelatedItemComponent();
         dst.type = type == null ? null : type.copy();
         dst.code = code == null ? null : code.copy();
@@ -462,14 +514,29 @@ public class Condition extends Resource {
     protected ResourceReference subject;
 
     /**
+     * The actual object that is the target of the reference (Indicates the patient who the condition record is associated with.)
+     */
+    protected Patient subjectTarget;
+
+    /**
      * Encounter during which the condition was first asserted.
      */
     protected ResourceReference encounter;
 
     /**
+     * The actual object that is the target of the reference (Encounter during which the condition was first asserted.)
+     */
+    protected Encounter encounterTarget;
+
+    /**
      * Person who takes responsibility for asserting the existence of the condition as part of the electronic record.
      */
     protected ResourceReference asserter;
+
+    /**
+     * The actual object that is the target of the reference (Person who takes responsibility for asserting the existence of the condition as part of the electronic record.)
+     */
+    protected Resource asserterTarget;
 
     /**
      * Estimated or actual date the condition/problem/diagnosis was first detected/suspected.
@@ -536,6 +603,8 @@ public class Condition extends Resource {
      */
     protected String_ notes;
 
+    private static final long serialVersionUID = -1164607486L;
+
     public Condition() {
       super();
     }
@@ -580,6 +649,21 @@ public class Condition extends Resource {
     }
 
     /**
+     * @return {@link #subject} (The actual object that is the target of the reference. Indicates the patient who the condition record is associated with.)
+     */
+    public Patient getSubjectTarget() { 
+      return this.subjectTarget;
+    }
+
+    /**
+     * @param value {@link #subject} (The actual object that is the target of the reference. Indicates the patient who the condition record is associated with.)
+     */
+    public Condition setSubjectTarget(Patient value) { 
+      this.subjectTarget = value;
+      return this;
+    }
+
+    /**
      * @return {@link #encounter} (Encounter during which the condition was first asserted.)
      */
     public ResourceReference getEncounter() { 
@@ -595,6 +679,21 @@ public class Condition extends Resource {
     }
 
     /**
+     * @return {@link #encounter} (The actual object that is the target of the reference. Encounter during which the condition was first asserted.)
+     */
+    public Encounter getEncounterTarget() { 
+      return this.encounterTarget;
+    }
+
+    /**
+     * @param value {@link #encounter} (The actual object that is the target of the reference. Encounter during which the condition was first asserted.)
+     */
+    public Condition setEncounterTarget(Encounter value) { 
+      this.encounterTarget = value;
+      return this;
+    }
+
+    /**
      * @return {@link #asserter} (Person who takes responsibility for asserting the existence of the condition as part of the electronic record.)
      */
     public ResourceReference getAsserter() { 
@@ -606,6 +705,21 @@ public class Condition extends Resource {
      */
     public Condition setAsserter(ResourceReference value) { 
       this.asserter = value;
+      return this;
+    }
+
+    /**
+     * @return {@link #asserter} (The actual object that is the target of the reference. Person who takes responsibility for asserting the existence of the condition as part of the electronic record.)
+     */
+    public Resource getAsserterTarget() { 
+      return this.asserterTarget;
+    }
+
+    /**
+     * @param value {@link #asserter} (The actual object that is the target of the reference. Person who takes responsibility for asserting the existence of the condition as part of the electronic record.)
+     */
+    public Condition setAsserterTarget(Resource value) { 
+      this.asserterTarget = value;
       return this;
     }
 
@@ -906,16 +1020,16 @@ public class Condition extends Resource {
         dst.severity = severity == null ? null : severity.copy();
         dst.onset = onset == null ? null : onset.copy();
         dst.abatement = abatement == null ? null : abatement.copy();
-        dst.stage = stage == null ? null : stage.copy(dst);
+        dst.stage = stage == null ? null : stage.copy();
         dst.evidence = new ArrayList<ConditionEvidenceComponent>();
         for (ConditionEvidenceComponent i : evidence)
-          dst.evidence.add(i.copy(dst));
+          dst.evidence.add(i.copy());
         dst.location = new ArrayList<ConditionLocationComponent>();
         for (ConditionLocationComponent i : location)
-          dst.location.add(i.copy(dst));
+          dst.location.add(i.copy());
         dst.relatedItem = new ArrayList<ConditionRelatedItemComponent>();
         for (ConditionRelatedItemComponent i : relatedItem)
-          dst.relatedItem.add(i.copy(dst));
+          dst.relatedItem.add(i.copy());
         dst.notes = notes == null ? null : notes.copy();
         return dst;
       }

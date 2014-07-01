@@ -1,7 +1,7 @@
 package org.hl7.fhir.instance.model;
 
 /*
-Copyright (c) 2011-2013, HL7, Inc
+Copyright (c) 2011-2014, HL7, Inc
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, 
@@ -33,8 +33,10 @@ POSSIBILITY OF SUCH DAMAGE.
  * Primitive type "code" in FHIR, where the code is tied to an enumerated list of possible valuse
  * 
  */
-public class Enumeration<T extends Enum> extends Type {
+public class Enumeration<T extends Enum<?>> extends PrimitiveType {
 
+  private static final long serialVersionUID = 5502756236610771914L;
+  
 	/**
 	 * the actual value of the enumeration
 	 */
@@ -64,7 +66,8 @@ public class Enumeration<T extends Enum> extends Type {
     this.value = value;
   }
   
-	public Enumeration<T> copy() {
+	@Override
+  public Enumeration<T> copy() {
 		Enumeration<T> dst = new Enumeration<T>();
 		dst.value = value;
 		return dst;
@@ -73,5 +76,16 @@ public class Enumeration<T extends Enum> extends Type {
 	@Override
   protected Type typedCopy() {
 	  return copy();
+  }
+
+  @Override
+  public String asStringValue() {
+    EnumFactory factory = ResourceEnumerations.getEnumFactory(value.getClass());
+    if (factory != null)
+      try {
+        return factory.toCode(value);
+      } catch (Exception e) {
+      }
+    return value.toString();
   }
 }

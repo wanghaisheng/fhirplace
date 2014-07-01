@@ -28,7 +28,11 @@
                          POST (h '->parse-tags! '=validate-create)
                          [:id] {POST (h '->latest-version! '=validate-update)}}
             "_search"   {GET  (h '=search)}
+            "_tags"     {GET (h '=resource-type-tags)}
             [:id] {:mw ['->resource-exists! '->check-deleted!]
+                   "_tags"   {GET (h '=resource-tags)
+                              POST (h '->parse-tags! '->check-tags '=affix-resource-tags)
+                              "_delete" {POST (h '=remove-resource-tags)}}
                    GET       (h '=read)
                    DELETE    (h '=delete)
                    PUT       (h '->parse-tags!
@@ -36,8 +40,13 @@
                                 '->latest-version!
                                 '->valid-input!
                                 '=update)
-                   [:vid]     {GET (h '=vread)}
-                   "_history" {GET (h '=history)}}}})
+                   [:vid]     {"_tags"   {GET (h '=resource-version-tags) }
+                               GET (h '=vread)}
+                   "_history" {GET (h '=history)
+                               "_tags"  {GET (h '=resource-version-tags)
+                                         POST (h '->parse-tags! '->check-tags '=affix-resource-version-tags)
+                                         "_delete" (POST (h '=remove-resource-version-tags))}
+                               }}}})
 
 (defn match [meth path]
   (rm/match [meth path] routes))

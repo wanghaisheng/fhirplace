@@ -1,7 +1,7 @@
 package org.hl7.fhir.instance.model;
 
 /*
-  Copyright (c) 2011-2013, HL7, Inc.
+  Copyright (c) 2011-2014, HL7, Inc.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without modification, 
@@ -29,7 +29,7 @@ package org.hl7.fhir.instance.model;
   
 */
 
-// Generated on Fri, May 9, 2014 11:14+1000 for FHIR v0.0.81
+// Generated on Tue, Jul 1, 2014 12:12+0400 for FHIR v0.2.1
 
 import java.util.*;
 
@@ -297,6 +297,13 @@ public class Observation extends Resource {
          */
         protected Range age;
 
+        /**
+         * Text based reference range in an observation which may be used when a quantitative range is not appropriate for an observation.  An example would be a reference value of "Negative" or a list or table of 'normals'.
+         */
+        protected String_ text;
+
+        private static final long serialVersionUID = 801418099L;
+
       public ObservationReferenceRangeComponent() {
         super();
       }
@@ -361,20 +368,58 @@ public class Observation extends Resource {
           return this;
         }
 
+        /**
+         * @return {@link #text} (Text based reference range in an observation which may be used when a quantitative range is not appropriate for an observation.  An example would be a reference value of "Negative" or a list or table of 'normals'.)
+         */
+        public String_ getText() { 
+          return this.text;
+        }
+
+        /**
+         * @param value {@link #text} (Text based reference range in an observation which may be used when a quantitative range is not appropriate for an observation.  An example would be a reference value of "Negative" or a list or table of 'normals'.)
+         */
+        public ObservationReferenceRangeComponent setText(String_ value) { 
+          this.text = value;
+          return this;
+        }
+
+        /**
+         * @return Text based reference range in an observation which may be used when a quantitative range is not appropriate for an observation.  An example would be a reference value of "Negative" or a list or table of 'normals'.
+         */
+        public String getTextSimple() { 
+          return this.text == null ? null : this.text.getValue();
+        }
+
+        /**
+         * @param value Text based reference range in an observation which may be used when a quantitative range is not appropriate for an observation.  An example would be a reference value of "Negative" or a list or table of 'normals'.
+         */
+        public ObservationReferenceRangeComponent setTextSimple(String value) { 
+          if (value == null)
+            this.text = null;
+          else {
+            if (this.text == null)
+              this.text = new String_();
+            this.text.setValue(value);
+          }
+          return this;
+        }
+
         protected void listChildren(List<Property> childrenList) {
           super.listChildren(childrenList);
           childrenList.add(new Property("low", "Quantity", "The value of the low bound of the reference range. If this is omitted, the low bound of the reference range is assumed to be meaningless. E.g. <2.3.", 0, java.lang.Integer.MAX_VALUE, low));
           childrenList.add(new Property("high", "Quantity", "The value of the high bound of the reference range. If this is omitted, the high bound of the reference range is assumed to be meaningless. E.g. >5.", 0, java.lang.Integer.MAX_VALUE, high));
           childrenList.add(new Property("meaning", "CodeableConcept", "Code for the meaning of the reference range.", 0, java.lang.Integer.MAX_VALUE, meaning));
           childrenList.add(new Property("age", "Range", "The age at which this reference range is applicable. This is a neonatal age (e.g. number of weeks at term) if the meaning says so.", 0, java.lang.Integer.MAX_VALUE, age));
+          childrenList.add(new Property("text", "string", "Text based reference range in an observation which may be used when a quantitative range is not appropriate for an observation.  An example would be a reference value of 'Negative' or a list or table of 'normals'.", 0, java.lang.Integer.MAX_VALUE, text));
         }
 
-      public ObservationReferenceRangeComponent copy(Observation e) {
+      public ObservationReferenceRangeComponent copy() {
         ObservationReferenceRangeComponent dst = new ObservationReferenceRangeComponent();
         dst.low = low == null ? null : low.copy();
         dst.high = high == null ? null : high.copy();
         dst.meaning = meaning == null ? null : meaning.copy();
         dst.age = age == null ? null : age.copy();
+        dst.text = text == null ? null : text.copy();
         return dst;
       }
 
@@ -390,6 +435,13 @@ public class Observation extends Resource {
          * A reference to the observation that is related to this observation.
          */
         protected ResourceReference target;
+
+        /**
+         * The actual object that is the target of the reference (A reference to the observation that is related to this observation.)
+         */
+        protected Observation targetTarget;
+
+        private static final long serialVersionUID = -984646850L;
 
       public ObservationRelatedComponent() {
         super();
@@ -451,13 +503,28 @@ public class Observation extends Resource {
           return this;
         }
 
+        /**
+         * @return {@link #target} (The actual object that is the target of the reference. A reference to the observation that is related to this observation.)
+         */
+        public Observation getTargetTarget() { 
+          return this.targetTarget;
+        }
+
+        /**
+         * @param value {@link #target} (The actual object that is the target of the reference. A reference to the observation that is related to this observation.)
+         */
+        public ObservationRelatedComponent setTargetTarget(Observation value) { 
+          this.targetTarget = value;
+          return this;
+        }
+
         protected void listChildren(List<Property> childrenList) {
           super.listChildren(childrenList);
           childrenList.add(new Property("type", "code", "A code specifying the kind of relationship that exists with the target observation.", 0, java.lang.Integer.MAX_VALUE, type));
           childrenList.add(new Property("target", "Resource(Observation)", "A reference to the observation that is related to this observation.", 0, java.lang.Integer.MAX_VALUE, target));
         }
 
-      public ObservationRelatedComponent copy(Observation e) {
+      public ObservationRelatedComponent copy() {
         ObservationRelatedComponent dst = new ObservationRelatedComponent();
         dst.type = type == null ? null : type.copy();
         dst.target = target == null ? null : target.copy();
@@ -527,14 +594,29 @@ public class Observation extends Resource {
     protected ResourceReference subject;
 
     /**
+     * The actual object that is the target of the reference (The thing the observation is being made about.)
+     */
+    protected Resource subjectTarget;
+
+    /**
      * The specimen that was used when this observation was made.
      */
     protected ResourceReference specimen;
 
     /**
+     * The actual object that is the target of the reference (The specimen that was used when this observation was made.)
+     */
+    protected Specimen specimenTarget;
+
+    /**
      * Who was responsible for asserting the observed value as "true".
      */
     protected List<ResourceReference> performer = new ArrayList<ResourceReference>();
+    /**
+     * The actual objects that are the target of the reference (Who was responsible for asserting the observed value as "true".)
+     */
+    protected List<Resource> performerTarget = new ArrayList<Resource>();
+
 
     /**
      * Guidance on how to interpret the value by comparison to a normal or recommended range.
@@ -545,6 +627,8 @@ public class Observation extends Resource {
      * Related observations - either components, or previous observations, or statements of derivation.
      */
     protected List<ObservationRelatedComponent> related = new ArrayList<ObservationRelatedComponent>();
+
+    private static final long serialVersionUID = -757546248L;
 
     public Observation() {
       super();
@@ -814,6 +898,21 @@ public class Observation extends Resource {
     }
 
     /**
+     * @return {@link #subject} (The actual object that is the target of the reference. The thing the observation is being made about.)
+     */
+    public Resource getSubjectTarget() { 
+      return this.subjectTarget;
+    }
+
+    /**
+     * @param value {@link #subject} (The actual object that is the target of the reference. The thing the observation is being made about.)
+     */
+    public Observation setSubjectTarget(Resource value) { 
+      this.subjectTarget = value;
+      return this;
+    }
+
+    /**
      * @return {@link #specimen} (The specimen that was used when this observation was made.)
      */
     public ResourceReference getSpecimen() { 
@@ -825,6 +924,21 @@ public class Observation extends Resource {
      */
     public Observation setSpecimen(ResourceReference value) { 
       this.specimen = value;
+      return this;
+    }
+
+    /**
+     * @return {@link #specimen} (The actual object that is the target of the reference. The specimen that was used when this observation was made.)
+     */
+    public Specimen getSpecimenTarget() { 
+      return this.specimenTarget;
+    }
+
+    /**
+     * @param value {@link #specimen} (The actual object that is the target of the reference. The specimen that was used when this observation was made.)
+     */
+    public Observation setSpecimenTarget(Specimen value) { 
+      this.specimenTarget = value;
       return this;
     }
 
@@ -843,6 +957,13 @@ public class Observation extends Resource {
       ResourceReference t = new ResourceReference();
       this.performer.add(t);
       return t;
+    }
+
+    /**
+     * @return {@link #performer} (The actual objects that are the target of the reference. Who was responsible for asserting the observed value as "true".)
+     */
+    public List<Resource> getPerformerTarget() { 
+      return this.performerTarget;
     }
 
     /**
@@ -882,7 +1003,7 @@ public class Observation extends Resource {
       protected void listChildren(List<Property> childrenList) {
         super.listChildren(childrenList);
         childrenList.add(new Property("name", "CodeableConcept", "Describes what was observed. Sometimes this is called the observation 'code'.", 0, java.lang.Integer.MAX_VALUE, name));
-        childrenList.add(new Property("value[x]", "Quantity|CodeableConcept|Attachment|Ratio|Period|SampledData|string", "The information determined as a result of making the observation, if the information has a simple value.", 0, java.lang.Integer.MAX_VALUE, value));
+        childrenList.add(new Property("value[x]", "Quantity|CodeableConcept|Attachment|Ratio|dateTime|Period|SampledData|string", "The information determined as a result of making the observation, if the information has a simple value.", 0, java.lang.Integer.MAX_VALUE, value));
         childrenList.add(new Property("interpretation", "CodeableConcept", "The assessment made based on the result of the observation.", 0, java.lang.Integer.MAX_VALUE, interpretation));
         childrenList.add(new Property("comments", "string", "May include statements about significant, unexpected or unreliable values, or information about the source of the value where this may be relevant to the interpretation of the result.", 0, java.lang.Integer.MAX_VALUE, comments));
         childrenList.add(new Property("applies[x]", "dateTime|Period", "The time or time-period the observed value is asserted as being true. For biological subjects - e.g. human patients - this is usually called the 'physiologically relevant time'. This is usually either the time of the procedure or of specimen collection, but very often the source of the date/time is not known, only the date/time itself.", 0, java.lang.Integer.MAX_VALUE, applies));
@@ -894,7 +1015,7 @@ public class Observation extends Resource {
         childrenList.add(new Property("identifier", "Identifier", "A unique identifier for the simple observation.", 0, java.lang.Integer.MAX_VALUE, identifier));
         childrenList.add(new Property("subject", "Resource(Patient|Group|Device|Location)", "The thing the observation is being made about.", 0, java.lang.Integer.MAX_VALUE, subject));
         childrenList.add(new Property("specimen", "Resource(Specimen)", "The specimen that was used when this observation was made.", 0, java.lang.Integer.MAX_VALUE, specimen));
-        childrenList.add(new Property("performer", "Resource(Practitioner|Device|Organization)", "Who was responsible for asserting the observed value as 'true'.", 0, java.lang.Integer.MAX_VALUE, performer));
+        childrenList.add(new Property("performer", "Resource(Practitioner|Device|Organization|Patient)", "Who was responsible for asserting the observed value as 'true'.", 0, java.lang.Integer.MAX_VALUE, performer));
         childrenList.add(new Property("referenceRange", "", "Guidance on how to interpret the value by comparison to a normal or recommended range.", 0, java.lang.Integer.MAX_VALUE, referenceRange));
         childrenList.add(new Property("related", "", "Related observations - either components, or previous observations, or statements of derivation.", 0, java.lang.Integer.MAX_VALUE, related));
       }
@@ -919,10 +1040,10 @@ public class Observation extends Resource {
           dst.performer.add(i.copy());
         dst.referenceRange = new ArrayList<ObservationReferenceRangeComponent>();
         for (ObservationReferenceRangeComponent i : referenceRange)
-          dst.referenceRange.add(i.copy(dst));
+          dst.referenceRange.add(i.copy());
         dst.related = new ArrayList<ObservationRelatedComponent>();
         for (ObservationRelatedComponent i : related)
-          dst.related.add(i.copy(dst));
+          dst.related.add(i.copy());
         return dst;
       }
 

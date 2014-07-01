@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2013, HL7, Inc
+Copyright (c) 2011-2014, HL7, Inc
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, 
@@ -31,8 +31,10 @@ package org.hl7.fhir.instance.model;
 /**
  * Primitive type "id" in FHIR: a string from 1 to 36 characters, only containing letters, digits, "-" and "."
  */
-public class Id extends Type {
+public class Id extends PrimitiveType {
 
+  private static final long serialVersionUID = 8363122970864385593L;
+  
 	/**
 	 * The value of the id
 	 */
@@ -52,13 +54,20 @@ public class Id extends Type {
 		this.value = value;
 	}
 	
-	protected Type typedCopy() {
+	@Override
+  protected Type typedCopy() {
 		return copy();
 	}
 	
-	public Id copy() {
+	@Override
+  public Id copy() {
 		Id dst = new Id();
 		dst.value = value;
 		return dst;
 	}
+
+  @Override
+  public String asStringValue() {
+    return value;
+  }
 }

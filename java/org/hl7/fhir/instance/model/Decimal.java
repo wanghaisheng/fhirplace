@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2013, HL7, Inc
+Copyright (c) 2011-2014, HL7, Inc
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, 
@@ -37,6 +37,8 @@ import java.math.BigDecimal;
  * Primitive type "decimal" in FHIR: A rational number
  */
 public class Decimal extends Type {
+
+  private static final long serialVersionUID = 2006555241525096267L;
 
 	/**
 	 * The actual value of the decimal
@@ -77,13 +79,15 @@ public class Decimal extends Type {
     this.original = original;
   } 
 
-	public Decimal copy() {
+	@Override
+  public Decimal copy() {
 		Decimal dst = new Decimal();
 		dst.value = value;
 		dst.original = original;
 		return dst;
 	}
-	protected Type typedCopy() {
+	@Override
+  protected Type typedCopy() {
 		return copy();
 	}
 

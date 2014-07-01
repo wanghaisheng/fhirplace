@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2013, HL7, Inc
+Copyright (c) 2011-2014, HL7, Inc
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, 
@@ -37,8 +37,9 @@ import java.util.List;
  * 
  * Technically, this is an element that is defined in a resource, and has no assigned type, but defined element children instead 
  */
-public class BackboneElement extends Element {
+public abstract class BackboneElement extends Element {
 
+  private static final long serialVersionUID = 7949281299174185258L;
 	/**
 	 * Modifier extensions
 	 */
@@ -54,7 +55,8 @@ public class BackboneElement extends Element {
   /**
    * @return true if there are any modifier extensions or any extensions
    */
-	public boolean hasExtensions() {
+	@Override
+  public boolean hasExtensions() {
     return modifierExtensions.size() > 0 || super.hasExtensions();
   }
 
@@ -62,6 +64,7 @@ public class BackboneElement extends Element {
    * @param name the identity of the extension of interest
    * @return true if the named extension is on this element (extensions or modifier extensions)
 	 */
+  @Override
   public boolean hasExtension(String name) {
     if (name == null)
       return false;
@@ -76,6 +79,7 @@ public class BackboneElement extends Element {
    * @param name the identity of the extension of interest
    * @return The extension, if on this element (as modifier or normal), else null
    */
+  @Override
   public Extension getExtension(String name) {
     if (name == null)
       return null;

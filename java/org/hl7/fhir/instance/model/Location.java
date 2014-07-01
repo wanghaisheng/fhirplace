@@ -1,7 +1,7 @@
 package org.hl7.fhir.instance.model;
 
 /*
-  Copyright (c) 2011-2013, HL7, Inc.
+  Copyright (c) 2011-2014, HL7, Inc.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without modification, 
@@ -29,7 +29,7 @@ package org.hl7.fhir.instance.model;
   
 */
 
-// Generated on Fri, May 9, 2014 11:14+1000 for FHIR v0.0.81
+// Generated on Tue, Jul 1, 2014 12:12+0400 for FHIR v0.2.1
 
 import java.util.*;
 
@@ -146,6 +146,8 @@ public class Location extends Resource {
          * Altitude. The value domain and the interpretation are the same as for the text of the altitude element in KML (see notes below).
          */
         protected Decimal altitude;
+
+        private static final long serialVersionUID = -1232709324L;
 
       public LocationPositionComponent() {
         super();
@@ -264,7 +266,7 @@ public class Location extends Resource {
           childrenList.add(new Property("altitude", "decimal", "Altitude. The value domain and the interpretation are the same as for the text of the altitude element in KML (see notes below).", 0, java.lang.Integer.MAX_VALUE, altitude));
         }
 
-      public LocationPositionComponent copy(Location e) {
+      public LocationPositionComponent copy() {
         LocationPositionComponent dst = new LocationPositionComponent();
         dst.longitude = longitude == null ? null : longitude.copy();
         dst.latitude = latitude == null ? null : latitude.copy();
@@ -320,6 +322,11 @@ public class Location extends Resource {
     protected ResourceReference managingOrganization;
 
     /**
+     * The actual object that is the target of the reference (The organization that is responsible for the provisioning and upkeep of the location.)
+     */
+    protected Organization managingOrganizationTarget;
+
+    /**
      * active | suspended | inactive.
      */
     protected Enumeration<LocationStatus> status;
@@ -330,9 +337,16 @@ public class Location extends Resource {
     protected ResourceReference partOf;
 
     /**
+     * The actual object that is the target of the reference (Another Location which this Location is physically part of.)
+     */
+    protected Location partOfTarget;
+
+    /**
      * Indicates whether a resource instance represents a specific location or a class of locations.
      */
     protected Enumeration<LocationMode> mode;
+
+    private static final long serialVersionUID = -282813644L;
 
     public Location() {
       super();
@@ -518,6 +532,21 @@ public class Location extends Resource {
     }
 
     /**
+     * @return {@link #managingOrganization} (The actual object that is the target of the reference. The organization that is responsible for the provisioning and upkeep of the location.)
+     */
+    public Organization getManagingOrganizationTarget() { 
+      return this.managingOrganizationTarget;
+    }
+
+    /**
+     * @param value {@link #managingOrganization} (The actual object that is the target of the reference. The organization that is responsible for the provisioning and upkeep of the location.)
+     */
+    public Location setManagingOrganizationTarget(Organization value) { 
+      this.managingOrganizationTarget = value;
+      return this;
+    }
+
+    /**
      * @return {@link #status} (active | suspended | inactive.)
      */
     public Enumeration<LocationStatus> getStatus() { 
@@ -565,6 +594,21 @@ public class Location extends Resource {
      */
     public Location setPartOf(ResourceReference value) { 
       this.partOf = value;
+      return this;
+    }
+
+    /**
+     * @return {@link #partOf} (The actual object that is the target of the reference. Another Location which this Location is physically part of.)
+     */
+    public Location getPartOfTarget() { 
+      return this.partOfTarget;
+    }
+
+    /**
+     * @param value {@link #partOf} (The actual object that is the target of the reference. Another Location which this Location is physically part of.)
+     */
+    public Location setPartOfTarget(Location value) { 
+      this.partOfTarget = value;
       return this;
     }
 
@@ -631,7 +675,7 @@ public class Location extends Resource {
           dst.telecom.add(i.copy());
         dst.address = address == null ? null : address.copy();
         dst.physicalType = physicalType == null ? null : physicalType.copy();
-        dst.position = position == null ? null : position.copy(dst);
+        dst.position = position == null ? null : position.copy();
         dst.managingOrganization = managingOrganization == null ? null : managingOrganization.copy();
         dst.status = status == null ? null : status.copy();
         dst.partOf = partOf == null ? null : partOf.copy();

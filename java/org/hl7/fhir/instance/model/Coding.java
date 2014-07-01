@@ -1,7 +1,7 @@
 package org.hl7.fhir.instance.model;
 
 /*
-  Copyright (c) 2011-2013, HL7, Inc.
+  Copyright (c) 2011-2014, HL7, Inc.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without modification, 
@@ -29,7 +29,7 @@ package org.hl7.fhir.instance.model;
   
 */
 
-// Generated on Fri, May 9, 2014 11:14+1000 for FHIR v0.0.81
+// Generated on Tue, Jul 1, 2014 12:12+0400 for FHIR v0.2.1
 
 import java.util.*;
 
@@ -67,6 +67,13 @@ public class Coding extends Type {
      * The set of possible coded values this coding was chosen from or constrained by.
      */
     protected ResourceReference valueSet;
+
+    /**
+     * The actual object that is the target of the reference (The set of possible coded values this coding was chosen from or constrained by.)
+     */
+    protected ValueSet valueSetTarget;
+
+    private static final long serialVersionUID = 895670592L;
 
     public Coding() {
       super();
@@ -264,6 +271,21 @@ public class Coding extends Type {
      */
     public Coding setValueSet(ResourceReference value) { 
       this.valueSet = value;
+      return this;
+    }
+
+    /**
+     * @return {@link #valueSet} (The actual object that is the target of the reference. The set of possible coded values this coding was chosen from or constrained by.)
+     */
+    public ValueSet getValueSetTarget() { 
+      return this.valueSetTarget;
+    }
+
+    /**
+     * @param value {@link #valueSet} (The actual object that is the target of the reference. The set of possible coded values this coding was chosen from or constrained by.)
+     */
+    public Coding setValueSetTarget(ValueSet value) { 
+      this.valueSetTarget = value;
       return this;
     }
 

@@ -1,7 +1,7 @@
 package org.hl7.fhir.instance.model;
 
 /*
-  Copyright (c) 2011-2013, HL7, Inc.
+  Copyright (c) 2011-2014, HL7, Inc.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without modification, 
@@ -29,7 +29,7 @@ package org.hl7.fhir.instance.model;
   
 */
 
-// Generated on Fri, May 9, 2014 11:14+1000 for FHIR v0.0.81
+// Generated on Tue, Jul 1, 2014 12:12+0400 for FHIR v0.2.1
 
 import java.util.*;
 
@@ -87,9 +87,16 @@ public class Procedure extends Resource {
         protected ResourceReference person;
 
         /**
+         * The actual object that is the target of the reference (The practitioner who was involved in the procedure.)
+         */
+        protected Practitioner personTarget;
+
+        /**
          * E.g. surgeon, anaethetist, endoscopist.
          */
         protected CodeableConcept role;
+
+        private static final long serialVersionUID = -1680776731L;
 
       public ProcedurePerformerComponent() {
         super();
@@ -107,6 +114,21 @@ public class Procedure extends Resource {
          */
         public ProcedurePerformerComponent setPerson(ResourceReference value) { 
           this.person = value;
+          return this;
+        }
+
+        /**
+         * @return {@link #person} (The actual object that is the target of the reference. The practitioner who was involved in the procedure.)
+         */
+        public Practitioner getPersonTarget() { 
+          return this.personTarget;
+        }
+
+        /**
+         * @param value {@link #person} (The actual object that is the target of the reference. The practitioner who was involved in the procedure.)
+         */
+        public ProcedurePerformerComponent setPersonTarget(Practitioner value) { 
+          this.personTarget = value;
           return this;
         }
 
@@ -131,7 +153,7 @@ public class Procedure extends Resource {
           childrenList.add(new Property("role", "CodeableConcept", "E.g. surgeon, anaethetist, endoscopist.", 0, java.lang.Integer.MAX_VALUE, role));
         }
 
-      public ProcedurePerformerComponent copy(Procedure e) {
+      public ProcedurePerformerComponent copy() {
         ProcedurePerformerComponent dst = new ProcedurePerformerComponent();
         dst.person = person == null ? null : person.copy();
         dst.role = role == null ? null : role.copy();
@@ -150,6 +172,13 @@ public class Procedure extends Resource {
          * The related item - e.g. a procedure.
          */
         protected ResourceReference target;
+
+        /**
+         * The actual object that is the target of the reference (The related item - e.g. a procedure.)
+         */
+        protected Resource targetTarget;
+
+        private static final long serialVersionUID = 829932234L;
 
       public ProcedureRelatedItemComponent() {
         super();
@@ -206,13 +235,28 @@ public class Procedure extends Resource {
           return this;
         }
 
+        /**
+         * @return {@link #target} (The actual object that is the target of the reference. The related item - e.g. a procedure.)
+         */
+        public Resource getTargetTarget() { 
+          return this.targetTarget;
+        }
+
+        /**
+         * @param value {@link #target} (The actual object that is the target of the reference. The related item - e.g. a procedure.)
+         */
+        public ProcedureRelatedItemComponent setTargetTarget(Resource value) { 
+          this.targetTarget = value;
+          return this;
+        }
+
         protected void listChildren(List<Property> childrenList) {
           super.listChildren(childrenList);
           childrenList.add(new Property("type", "code", "The nature of the relationship.", 0, java.lang.Integer.MAX_VALUE, type));
           childrenList.add(new Property("target", "Resource(AdverseReaction|AllergyIntolerance|CarePlan|Condition|DeviceObservationReport|DiagnosticReport|FamilyHistory|ImagingStudy|Immunization|ImmunizationRecommendation|MedicationAdministration|MedicationDispense|MedicationPrescription|MedicationStatement|Observation|Procedure)", "The related item - e.g. a procedure.", 0, java.lang.Integer.MAX_VALUE, target));
         }
 
-      public ProcedureRelatedItemComponent copy(Procedure e) {
+      public ProcedureRelatedItemComponent copy() {
         ProcedureRelatedItemComponent dst = new ProcedureRelatedItemComponent();
         dst.type = type == null ? null : type.copy();
         dst.target = target == null ? null : target.copy();
@@ -230,6 +274,11 @@ public class Procedure extends Resource {
      * The person on whom the procedure was performed.
      */
     protected ResourceReference subject;
+
+    /**
+     * The actual object that is the target of the reference (The person on whom the procedure was performed.)
+     */
+    protected Patient subjectTarget;
 
     /**
      * The specific procedure that is performed. Use text if the exact nature of the procedure can't be coded.
@@ -252,7 +301,7 @@ public class Procedure extends Resource {
     protected List<ProcedurePerformerComponent> performer = new ArrayList<ProcedurePerformerComponent>();
 
     /**
-     * The dates over which the procedure was performed. Allows a period to support complex procedures that span more that one date, and also allows for the length of the procedure to be captured.
+     * The dates over which the procedure was performed. Allows a period to support complex procedures that span more than one date, and also allows for the length of the procedure to be captured.
      */
     protected Period date;
 
@@ -260,6 +309,11 @@ public class Procedure extends Resource {
      * The encounter during which the procedure was performed.
      */
     protected ResourceReference encounter;
+
+    /**
+     * The actual object that is the target of the reference (The encounter during which the procedure was performed.)
+     */
+    protected Encounter encounterTarget;
 
     /**
      * What was the outcome of the procedure - did it resolve reasons why the procedure was performed?.
@@ -270,6 +324,11 @@ public class Procedure extends Resource {
      * This could be a histology result. There could potentially be multiple reports - e.g. if this was a procedure that made multiple biopsies.
      */
     protected List<ResourceReference> report = new ArrayList<ResourceReference>();
+    /**
+     * The actual objects that are the target of the reference (This could be a histology result. There could potentially be multiple reports - e.g. if this was a procedure that made multiple biopsies.)
+     */
+    protected List<DiagnosticReport> reportTarget = new ArrayList<DiagnosticReport>();
+
 
     /**
      * Any complications that occurred during the procedure, or in the immediate post-operative period. These are generally tracked separately from the notes, which typically will describe the procedure itself rather than any 'post procedure' issues.
@@ -290,6 +349,8 @@ public class Procedure extends Resource {
      * Any other notes about the procedure - e.g. the operative notes.
      */
     protected String_ notes;
+
+    private static final long serialVersionUID = 1314586946L;
 
     public Procedure() {
       super();
@@ -330,6 +391,21 @@ public class Procedure extends Resource {
      */
     public Procedure setSubject(ResourceReference value) { 
       this.subject = value;
+      return this;
+    }
+
+    /**
+     * @return {@link #subject} (The actual object that is the target of the reference. The person on whom the procedure was performed.)
+     */
+    public Patient getSubjectTarget() { 
+      return this.subjectTarget;
+    }
+
+    /**
+     * @param value {@link #subject} (The actual object that is the target of the reference. The person on whom the procedure was performed.)
+     */
+    public Procedure setSubjectTarget(Patient value) { 
+      this.subjectTarget = value;
       return this;
     }
 
@@ -400,14 +476,14 @@ public class Procedure extends Resource {
     }
 
     /**
-     * @return {@link #date} (The dates over which the procedure was performed. Allows a period to support complex procedures that span more that one date, and also allows for the length of the procedure to be captured.)
+     * @return {@link #date} (The dates over which the procedure was performed. Allows a period to support complex procedures that span more than one date, and also allows for the length of the procedure to be captured.)
      */
     public Period getDate() { 
       return this.date;
     }
 
     /**
-     * @param value {@link #date} (The dates over which the procedure was performed. Allows a period to support complex procedures that span more that one date, and also allows for the length of the procedure to be captured.)
+     * @param value {@link #date} (The dates over which the procedure was performed. Allows a period to support complex procedures that span more than one date, and also allows for the length of the procedure to be captured.)
      */
     public Procedure setDate(Period value) { 
       this.date = value;
@@ -426,6 +502,21 @@ public class Procedure extends Resource {
      */
     public Procedure setEncounter(ResourceReference value) { 
       this.encounter = value;
+      return this;
+    }
+
+    /**
+     * @return {@link #encounter} (The actual object that is the target of the reference. The encounter during which the procedure was performed.)
+     */
+    public Encounter getEncounterTarget() { 
+      return this.encounterTarget;
+    }
+
+    /**
+     * @param value {@link #encounter} (The actual object that is the target of the reference. The encounter during which the procedure was performed.)
+     */
+    public Procedure setEncounterTarget(Encounter value) { 
+      this.encounterTarget = value;
       return this;
     }
 
@@ -480,6 +571,23 @@ public class Procedure extends Resource {
       ResourceReference t = new ResourceReference();
       this.report.add(t);
       return t;
+    }
+
+    /**
+     * @return {@link #report} (The actual objects that are the target of the reference. This could be a histology result. There could potentially be multiple reports - e.g. if this was a procedure that made multiple biopsies.)
+     */
+    public List<DiagnosticReport> getReportTarget() { 
+      return this.reportTarget;
+    }
+
+    // syntactic sugar
+    /**
+     * @return {@link #report} (Add an actual object that is the target of the reference. This could be a histology result. There could potentially be multiple reports - e.g. if this was a procedure that made multiple biopsies.)
+     */
+    public DiagnosticReport addReportTarget() { 
+      DiagnosticReport r = new DiagnosticReport();
+      this.reportTarget.add(r);
+      return r;
     }
 
     /**
@@ -596,7 +704,7 @@ public class Procedure extends Resource {
         childrenList.add(new Property("bodySite", "CodeableConcept", "Detailed and structured anatomical location information. Multiple locations are allowed - e.g. multiple punch biopsies of a lesion.", 0, java.lang.Integer.MAX_VALUE, bodySite));
         childrenList.add(new Property("indication", "CodeableConcept", "The reason why the procedure was performed. This may be due to a Condition, may be coded entity of some type, or may simply be present as text.", 0, java.lang.Integer.MAX_VALUE, indication));
         childrenList.add(new Property("performer", "", "Limited to 'real' people rather than equipment.", 0, java.lang.Integer.MAX_VALUE, performer));
-        childrenList.add(new Property("date", "Period", "The dates over which the procedure was performed. Allows a period to support complex procedures that span more that one date, and also allows for the length of the procedure to be captured.", 0, java.lang.Integer.MAX_VALUE, date));
+        childrenList.add(new Property("date", "Period", "The dates over which the procedure was performed. Allows a period to support complex procedures that span more than one date, and also allows for the length of the procedure to be captured.", 0, java.lang.Integer.MAX_VALUE, date));
         childrenList.add(new Property("encounter", "Resource(Encounter)", "The encounter during which the procedure was performed.", 0, java.lang.Integer.MAX_VALUE, encounter));
         childrenList.add(new Property("outcome", "string", "What was the outcome of the procedure - did it resolve reasons why the procedure was performed?.", 0, java.lang.Integer.MAX_VALUE, outcome));
         childrenList.add(new Property("report", "Resource(DiagnosticReport)", "This could be a histology result. There could potentially be multiple reports - e.g. if this was a procedure that made multiple biopsies.", 0, java.lang.Integer.MAX_VALUE, report));
@@ -621,7 +729,7 @@ public class Procedure extends Resource {
           dst.indication.add(i.copy());
         dst.performer = new ArrayList<ProcedurePerformerComponent>();
         for (ProcedurePerformerComponent i : performer)
-          dst.performer.add(i.copy(dst));
+          dst.performer.add(i.copy());
         dst.date = date == null ? null : date.copy();
         dst.encounter = encounter == null ? null : encounter.copy();
         dst.outcome = outcome == null ? null : outcome.copy();
@@ -634,7 +742,7 @@ public class Procedure extends Resource {
         dst.followUp = followUp == null ? null : followUp.copy();
         dst.relatedItem = new ArrayList<ProcedureRelatedItemComponent>();
         for (ProcedureRelatedItemComponent i : relatedItem)
-          dst.relatedItem.add(i.copy(dst));
+          dst.relatedItem.add(i.copy());
         dst.notes = notes == null ? null : notes.copy();
         return dst;
       }

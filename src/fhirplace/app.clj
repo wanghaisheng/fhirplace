@@ -171,12 +171,49 @@
 (defn =tags [req]
   {:body (db/-tags)})
 
+(defn =resource-type-tags [{{rt :type} :params}]
+  {:body (db/-tags rt)})
+
+(defn =resource-tags [{{rt :type id :id} :params}]
+  {:body (db/-tags rt id)})
+
+(defn =resource-version-tags [{{rt :type id :id vid :vid} :params}]
+  {:body (db/-tags rt id vid)})
+
+(defn ->check-tags [h]
+  (fn [{tags :tags :as req}]
+    (if (seq tags)
+      (h req)
+      (outcome 422 "Tags"
+               {:severity "fatal"
+                :details (str "Expected not empty tags (i.e. Category header)")}))) )
+
+;;TODO make as middle ware
+(defn =affix-resource-tags [{{rt :type id :id} :params tags :tags}]
+  (db/-affix-tags rt id tags)
+  {:body (db/-tags rt id)})
+
+(defn =affix-resource-version-tags [{{rt :type id :id vid :vid} :params tags :tags}]
+  (db/-affix-tags rt id vid tags)
+  {:body (db/-tags rt id vid)})
+
+(defn =remove-resource-tags [{{rt :type id :id} :params}]
+  (let [num (db/-remove-tags rt id)]
+    {:body (str num " tags was removed")}))
+
+(defn =remove-resource-version-tags [{{rt :type id :id vid :vid} :params}]
+  (let [num (db/-remove-tags rt id vid)]
+    {:body (str num " tags was removed")}))
+
 (defn =history [{{rt :type id :id} :params}]
   {:body (db/-history rt id)})
 
+
 (defn resource-resp [res]
   ( let [fhir-res (f/parse (:content res))
-         tags (json/read-str (:category res) :key-fn keyword)
+         tags (if (:category res)
+                (json/read-str (:category res) :key-fn keyword)
+                [])
          loc (url (.getResourceType fhir-res) (:logical_id res) (:version_id res))]
     (-> {:body fhir-res}
         (header "Location" loc)

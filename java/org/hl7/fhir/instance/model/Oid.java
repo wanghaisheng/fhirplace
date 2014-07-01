@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2013, HL7, Inc
+Copyright (c) 2011-2014, HL7, Inc
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, 
@@ -33,11 +33,15 @@ package org.hl7.fhir.instance.model;
  */
 public class Oid extends Uri {
 
-	protected Type typedCopy() {
+  private static final long serialVersionUID = -6684415951360862202L;
+
+	@Override
+  protected Type typedCopy() {
 		return copy();
 	}
 	
-	public Oid copy() {
+	@Override
+  public Oid copy() {
 		Oid dst = new Oid();
 		dst.value = value;
 		return dst;

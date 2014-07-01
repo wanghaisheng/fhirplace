@@ -1,7 +1,7 @@
 package org.hl7.fhir.instance.model;
 
 /*
-Copyright (c) 2011-2013, HL7, Inc
+Copyright (c) 2011-2014, HL7, Inc
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, 
@@ -30,7 +30,6 @@ POSSIBILITY OF SUCH DAMAGE.
 */
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2013, HL7, Inc
+Copyright (c) 2011-2014, HL7, Inc
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, 
@@ -32,8 +32,9 @@ package org.hl7.fhir.instance.model;
 /**
  * Primitive type "date" in FHIR: any day in a gregorian calendar
  */
-public class Date extends Type {
+public class Date extends PrimitiveType {
 
+  private static final long serialVersionUID = 9219236095594689166L;
 	/**
 	 * The value of the date
 	 */
@@ -53,13 +54,21 @@ public class Date extends Type {
 		this.value = value;
 	}
 	
-	protected Type typedCopy() {
+	@Override
+  protected Type typedCopy() {
 		return copy();
 	}
 
-	public Date copy() {
+	@Override
+  public Date copy() {
 		Date dst = new Date();
 		dst.value = value;
 		return dst;
 	}
+
+  @Override
+  public String asStringValue() {
+    return value.toString();  
+  }
+
 }

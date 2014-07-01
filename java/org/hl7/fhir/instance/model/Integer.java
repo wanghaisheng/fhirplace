@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2013, HL7, Inc
+Copyright (c) 2011-2014, HL7, Inc
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, 
@@ -36,8 +36,9 @@ package org.hl7.fhir.instance.model;
  * @author Grahame
  *
  */
-public class Integer extends Type {
+public class Integer extends PrimitiveType {
 
+  private static final long serialVersionUID = -553171308047944356L;
 	/**
 	 * the actual value of the number
 	 */
@@ -77,19 +78,26 @@ public class Integer extends Type {
     this.original = original;
   } 
 	
-	public Integer copy() {
+	@Override
+  public Integer copy() {
 		Integer dst = new Integer();
 		dst.value = value;
 		dst.original = original;
 		return dst;
 	}
 	
-	protected Type typedCopy() {
+	@Override
+  protected Type typedCopy() {
 		return copy();
 	}
 
 	public String getStringValue() {
 	  return java.lang.Integer.toString(value);
+  }
+
+  @Override
+  public String asStringValue() {
+    return original != null ? original : java.lang.Integer.toString(value);
   }
 
 }

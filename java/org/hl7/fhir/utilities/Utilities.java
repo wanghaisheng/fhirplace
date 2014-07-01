@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2013, HL7, Inc
+Copyright (c) 2011-2014, HL7, Inc
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, 
@@ -34,6 +34,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +50,7 @@ import net.sf.saxon.TransformerFactoryImpl;
 
 public class Utilities {
 
-	 private static final String TOKEN_REGEX = "^a-z[A-Za-z0-9]*$";
+//	 private static final String TOKEN_REGEX = "^a-z[A-Za-z0-9]*$";
 
 
   /**
@@ -80,15 +82,24 @@ public class Utilities {
     }
     
   
-	public static boolean IsInteger(String string) {
-		try {
-			int i = Integer.parseInt(string);
-			return i != i+1;
-		} catch (Exception e) {
-			return false;
-		}
-	}
-	
+  	public static boolean IsInteger(String string) {
+  		try {
+  			int i = Integer.parseInt(string);
+  			return i != i+1;
+  		} catch (Exception e) {
+  			return false;
+  		}
+  	}
+  	
+  	public static boolean IsDecimal(String string) {
+  		try {
+  			float r = Float.parseFloat(string);
+  			return r != r + 1; // just to suppress the hint
+  		} catch (Exception e) {
+  			return false;
+  		}
+  	}
+  	
 	public static String camelCase(String value) {
 	  return new Inflector().camelCase(value.trim().replace(" ", "_"), false);
 	}
@@ -553,7 +564,38 @@ public class Utilities {
 
 
   public static void copyFileToDirectory(File source, File destDir) throws IOException {
-	copyFile(source, new File(path(destDir.getAbsolutePath(), source.getName())));
+  	copyFile(source, new File(path(destDir.getAbsolutePath(), source.getName())));
   }
-	
+
+
+	public static boolean isWhitespace(String s) {
+	  boolean ok = true;
+	  for (int i = 0; i < s.length(); i++)
+	  	ok = ok && Character.isWhitespace(s.charAt(i));
+	  return ok;
+	  
+  }
+
+
+  public static String URLEncode(String string) {
+    try {
+      return URLEncoder.encode(string, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      throw new Error(e.getMessage());
+    }
+  }
+
+
+  public static boolean existsInList(String value, String... array) {
+    for (String s : array)
+      if (value.equals(s))
+          return true;
+    return false;
+  }
+
+
+  public static String getFileNameForName(String name) {
+    return name.toLowerCase();
+  }
+  
 }

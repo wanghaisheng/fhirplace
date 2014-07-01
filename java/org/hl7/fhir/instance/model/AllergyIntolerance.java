@@ -1,7 +1,7 @@
 package org.hl7.fhir.instance.model;
 
 /*
-  Copyright (c) 2011-2013, HL7, Inc.
+  Copyright (c) 2011-2014, HL7, Inc.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without modification, 
@@ -29,7 +29,7 @@ package org.hl7.fhir.instance.model;
   
 */
 
-// Generated on Fri, May 9, 2014 11:14+1000 for FHIR v0.0.81
+// Generated on Tue, Jul 1, 2014 12:12+0400 for FHIR v0.2.1
 
 import java.util.*;
 
@@ -235,9 +235,19 @@ public class AllergyIntolerance extends Resource {
     protected ResourceReference subject;
 
     /**
+     * The actual object that is the target of the reference (The patient who has the allergy or intolerance.)
+     */
+    protected Patient subjectTarget;
+
+    /**
      * Indicates who has responsibility for the record.
      */
     protected ResourceReference recorder;
+
+    /**
+     * The actual object that is the target of the reference (Indicates who has responsibility for the record.)
+     */
+    protected Resource recorderTarget;
 
     /**
      * The substance that causes the sensitivity.
@@ -245,14 +255,31 @@ public class AllergyIntolerance extends Resource {
     protected ResourceReference substance;
 
     /**
+     * The actual object that is the target of the reference (The substance that causes the sensitivity.)
+     */
+    protected Substance substanceTarget;
+
+    /**
      * Reactions associated with the sensitivity.
      */
     protected List<ResourceReference> reaction = new ArrayList<ResourceReference>();
+    /**
+     * The actual objects that are the target of the reference (Reactions associated with the sensitivity.)
+     */
+    protected List<AdverseReaction> reactionTarget = new ArrayList<AdverseReaction>();
+
 
     /**
      * Observations that confirm or refute the sensitivity.
      */
     protected List<ResourceReference> sensitivityTest = new ArrayList<ResourceReference>();
+    /**
+     * The actual objects that are the target of the reference (Observations that confirm or refute the sensitivity.)
+     */
+    protected List<Observation> sensitivityTestTarget = new ArrayList<Observation>();
+
+
+    private static final long serialVersionUID = 943626914L;
 
     public AllergyIntolerance() {
       super();
@@ -435,6 +462,21 @@ public class AllergyIntolerance extends Resource {
     }
 
     /**
+     * @return {@link #subject} (The actual object that is the target of the reference. The patient who has the allergy or intolerance.)
+     */
+    public Patient getSubjectTarget() { 
+      return this.subjectTarget;
+    }
+
+    /**
+     * @param value {@link #subject} (The actual object that is the target of the reference. The patient who has the allergy or intolerance.)
+     */
+    public AllergyIntolerance setSubjectTarget(Patient value) { 
+      this.subjectTarget = value;
+      return this;
+    }
+
+    /**
      * @return {@link #recorder} (Indicates who has responsibility for the record.)
      */
     public ResourceReference getRecorder() { 
@@ -450,6 +492,21 @@ public class AllergyIntolerance extends Resource {
     }
 
     /**
+     * @return {@link #recorder} (The actual object that is the target of the reference. Indicates who has responsibility for the record.)
+     */
+    public Resource getRecorderTarget() { 
+      return this.recorderTarget;
+    }
+
+    /**
+     * @param value {@link #recorder} (The actual object that is the target of the reference. Indicates who has responsibility for the record.)
+     */
+    public AllergyIntolerance setRecorderTarget(Resource value) { 
+      this.recorderTarget = value;
+      return this;
+    }
+
+    /**
      * @return {@link #substance} (The substance that causes the sensitivity.)
      */
     public ResourceReference getSubstance() { 
@@ -461,6 +518,21 @@ public class AllergyIntolerance extends Resource {
      */
     public AllergyIntolerance setSubstance(ResourceReference value) { 
       this.substance = value;
+      return this;
+    }
+
+    /**
+     * @return {@link #substance} (The actual object that is the target of the reference. The substance that causes the sensitivity.)
+     */
+    public Substance getSubstanceTarget() { 
+      return this.substanceTarget;
+    }
+
+    /**
+     * @param value {@link #substance} (The actual object that is the target of the reference. The substance that causes the sensitivity.)
+     */
+    public AllergyIntolerance setSubstanceTarget(Substance value) { 
+      this.substanceTarget = value;
       return this;
     }
 
@@ -482,6 +554,23 @@ public class AllergyIntolerance extends Resource {
     }
 
     /**
+     * @return {@link #reaction} (The actual objects that are the target of the reference. Reactions associated with the sensitivity.)
+     */
+    public List<AdverseReaction> getReactionTarget() { 
+      return this.reactionTarget;
+    }
+
+    // syntactic sugar
+    /**
+     * @return {@link #reaction} (Add an actual object that is the target of the reference. Reactions associated with the sensitivity.)
+     */
+    public AdverseReaction addReactionTarget() { 
+      AdverseReaction r = new AdverseReaction();
+      this.reactionTarget.add(r);
+      return r;
+    }
+
+    /**
      * @return {@link #sensitivityTest} (Observations that confirm or refute the sensitivity.)
      */
     public List<ResourceReference> getSensitivityTest() { 
@@ -496,6 +585,23 @@ public class AllergyIntolerance extends Resource {
       ResourceReference t = new ResourceReference();
       this.sensitivityTest.add(t);
       return t;
+    }
+
+    /**
+     * @return {@link #sensitivityTest} (The actual objects that are the target of the reference. Observations that confirm or refute the sensitivity.)
+     */
+    public List<Observation> getSensitivityTestTarget() { 
+      return this.sensitivityTestTarget;
+    }
+
+    // syntactic sugar
+    /**
+     * @return {@link #sensitivityTest} (Add an actual object that is the target of the reference. Observations that confirm or refute the sensitivity.)
+     */
+    public Observation addSensitivityTestTarget() { 
+      Observation r = new Observation();
+      this.sensitivityTestTarget.add(r);
+      return r;
     }
 
       protected void listChildren(List<Property> childrenList) {

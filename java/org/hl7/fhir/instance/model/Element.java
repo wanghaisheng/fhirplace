@@ -2,10 +2,9 @@ package org.hl7.fhir.instance.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 /*
-Copyright (c) 2011-2013, HL7, Inc
+Copyright (c) 2011-2014, HL7, Inc
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, 
@@ -144,5 +143,6 @@ public abstract class Element implements Serializable {
     return null;
   }  
   
+
   
 }

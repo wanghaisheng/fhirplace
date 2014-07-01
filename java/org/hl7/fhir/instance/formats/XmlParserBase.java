@@ -1,6 +1,6 @@
 package org.hl7.fhir.instance.formats;
 /*
-Copyright (c) 2011-2013, HL7, Inc
+Copyright (c) 2011-2014, HL7, Inc
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, 
@@ -44,7 +44,6 @@ import org.hl7.fhir.instance.model.Resource;
 import org.hl7.fhir.instance.model.Type;
 import org.hl7.fhir.utilities.xhtml.XhtmlNode;
 import org.hl7.fhir.utilities.xhtml.XhtmlParser;
-import org.hl7.fhir.utilities.xhtml.XhtmlParser.ParserSecurityPolicy;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
@@ -146,14 +145,14 @@ public abstract class XmlParserBase extends ParserBase implements Parser {
     XmlPullParser xpp = loadXml(input);
     ResourceOrFeed r = new ResourceOrFeed();
     
-    if (xpp.getNamespace().equals(FHIR_NS) && !xpp.getName().equalsIgnoreCase("TagList"))
+    if (xpp.getNamespace().equals(FHIR_NS) && !xpp.getName().equalsIgnoreCase("Taglist"))
       r.resource = parseResource(xpp);
-    else if (xpp.getNamespace().equals(ATOM_NS) || (xpp.getNamespace().equals(FHIR_NS) && xpp.getName().equalsIgnoreCase("TagList"))) 
+    else if (xpp.getNamespace().equals(FHIR_NS) && xpp.getName().equalsIgnoreCase("Taglist"))
+        r.taglist = parseTagList(xpp);
+    else if (xpp.getNamespace().equals(ATOM_NS)) 
       r.feed = parseFeed(xpp);
-    else if (xpp.getNamespace().equals(FHIR_NS) && xpp.getName().equals("taglist"))
-      r.taglist = parseTagList(xpp);
     else
-      throw new Exception("This does not appear to be a FHIR resource (wrong namespace '"+xpp.getNamespace()+"') (@ /)");
+    	throw new Exception("This does not appear to be a FHIR resource (wrong namespace '"+xpp.getNamespace()+"') (@ /)");
     return r;    
   }
 
@@ -186,7 +185,6 @@ public abstract class XmlParserBase extends ParserBase implements Parser {
   
   protected XhtmlNode parseXhtml(XmlPullParser xpp) throws Exception {
     XhtmlParser prsr = new XhtmlParser();
-    prsr.setPolicy(ParserSecurityPolicy.Reject);
     return prsr.parseHtmlNode(xpp);
   }
 
@@ -215,7 +213,7 @@ public abstract class XmlParserBase extends ParserBase implements Parser {
 
   private List<AtomCategory> parseTagList(XmlPullParser xpp) throws Exception {
   	List<AtomCategory> res = new ArrayList<AtomCategory>();
-    if (!xpp.getName().equals("taglist"))
+    if (!xpp.getName().equalsIgnoreCase("Taglist")) //Seems like Taglist, taglist or TagList is being returned
       throw new Exception("This does not appear to be a tag list (wrong name '"+xpp.getName()+"') (@ /)");
     xpp.next();
     int eventType = nextNoWhitespace(xpp);
@@ -234,7 +232,7 @@ public abstract class XmlParserBase extends ParserBase implements Parser {
 
   private AtomFeed parseAtom(XmlPullParser xpp) throws Exception {
     AtomFeed res = new AtomFeed();
-    if (!(xpp.getName().equals("feed")||xpp.getName().equals("TagList")))
+    if (!(xpp.getName().equals("feed")||xpp.getName().equalsIgnoreCase("TagList")))
       throw new Exception("This does not appear to be an atom feed (wrong name '"+xpp.getName()+"') (@ /)");
     xpp.next();
     
@@ -278,6 +276,7 @@ public abstract class XmlParserBase extends ParserBase implements Parser {
     return res;  
   }
 
+  @SuppressWarnings("unchecked")
   private <T extends Resource> AtomEntry<T> parseEntry(XmlPullParser xpp) throws Exception {
     AtomEntry<T> res = new AtomEntry<T>();
     

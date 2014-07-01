@@ -1,7 +1,7 @@
 package org.hl7.fhir.instance.formats;
 
 /*
-Copyright (c) 2011-2013, HL7, Inc
+Copyright (c) 2011-2014, HL7, Inc
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, 
@@ -29,8 +29,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-import java.io.BufferedInputStream;
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URI;
 import org.apache.commons.codec.binary.Base64;

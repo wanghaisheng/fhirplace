@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2013, HL7, Inc
+Copyright (c) 2011-2014, HL7, Inc
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, 
@@ -74,14 +74,14 @@ public class TextFile {
 	}
 	
 	
-    public static void stringToFile(String content, String path) throws Exception {
-		File file = new CSFile(path);
-		OutputStreamWriter sw = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
-		sw.write('\ufeff');  // Unicode BOM, translates to UTF-8 with the configured outputstreamwriter
-		sw.write(content);
-		sw.flush();
-		sw.close();
-	}
+  public static void stringToFile(String content, String path) throws Exception {
+    File file = new CSFile(path);
+    OutputStreamWriter sw = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
+    sw.write('\ufeff');  // Unicode BOM, translates to UTF-8 with the configured outputstreamwriter
+    sw.write(content);
+    sw.flush();
+    sw.close();
+  }
 
   public static void stringToFileNoPrefix(String content, String path) throws Exception {
     File file = new CSFile(path);

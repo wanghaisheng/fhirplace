@@ -1,7 +1,7 @@
 package org.hl7.fhir.instance.model;
 
 /*
-  Copyright (c) 2011-2013, HL7, Inc.
+  Copyright (c) 2011-2014, HL7, Inc.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without modification, 
@@ -29,7 +29,7 @@ package org.hl7.fhir.instance.model;
   
 */
 
-// Generated on Fri, May 9, 2014 11:14+1000 for FHIR v0.0.81
+// Generated on Tue, Jul 1, 2014 12:12+0400 for FHIR v0.2.1
 
 import java.util.*;
 
@@ -128,6 +128,8 @@ public class Group extends Resource {
          */
         protected Boolean exclude;
 
+        private static final long serialVersionUID = 1508824873L;
+
       public GroupCharacteristicComponent() {
         super();
       }
@@ -208,7 +210,7 @@ public class Group extends Resource {
           childrenList.add(new Property("exclude", "boolean", "If true, indicates the characteristic is one that is NOT held by members of the group.", 0, java.lang.Integer.MAX_VALUE, exclude));
         }
 
-      public GroupCharacteristicComponent copy(Group e) {
+      public GroupCharacteristicComponent copy() {
         GroupCharacteristicComponent dst = new GroupCharacteristicComponent();
         dst.code = code == null ? null : code.copy();
         dst.value = value == null ? null : value.copy();
@@ -257,6 +259,13 @@ public class Group extends Resource {
      * Identifies the resource instances that are members of the group.
      */
     protected List<ResourceReference> member = new ArrayList<ResourceReference>();
+    /**
+     * The actual objects that are the target of the reference (Identifies the resource instances that are members of the group.)
+     */
+    protected List<Resource> memberTarget = new ArrayList<Resource>();
+
+
+    private static final long serialVersionUID = 121382617L;
 
     public Group() {
       super();
@@ -468,6 +477,13 @@ public class Group extends Resource {
       return t;
     }
 
+    /**
+     * @return {@link #member} (The actual objects that are the target of the reference. Identifies the resource instances that are members of the group.)
+     */
+    public List<Resource> getMemberTarget() { 
+      return this.memberTarget;
+    }
+
       protected void listChildren(List<Property> childrenList) {
         super.listChildren(childrenList);
         childrenList.add(new Property("identifier", "Identifier", "A unique business identifier for this group.", 0, java.lang.Integer.MAX_VALUE, identifier));
@@ -490,7 +506,7 @@ public class Group extends Resource {
         dst.quantity = quantity == null ? null : quantity.copy();
         dst.characteristic = new ArrayList<GroupCharacteristicComponent>();
         for (GroupCharacteristicComponent i : characteristic)
-          dst.characteristic.add(i.copy(dst));
+          dst.characteristic.add(i.copy());
         dst.member = new ArrayList<ResourceReference>();
         for (ResourceReference i : member)
           dst.member.add(i.copy());

@@ -1,7 +1,7 @@
 package org.hl7.fhir.instance.model;
 
 /*
-  Copyright (c) 2011-2013, HL7, Inc.
+  Copyright (c) 2011-2014, HL7, Inc.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without modification, 
@@ -29,7 +29,7 @@ package org.hl7.fhir.instance.model;
   
 */
 
-// Generated on Fri, May 9, 2014 11:14+1000 for FHIR v0.0.81
+// Generated on Tue, Jul 1, 2014 12:12+0400 for FHIR v0.2.1
 
 import java.util.*;
 
@@ -155,6 +155,8 @@ public class HumanName extends Type {
      */
     protected Period period;
 
+    private static final long serialVersionUID = -1691515899L;
+
     public HumanName() {
       super();
     }
@@ -259,6 +261,16 @@ public class HumanName extends Type {
     }
 
     /**
+     * @param value {@link #family} (The part of a name that links to the genealogy. In some cultures (e.g. Eritrea) the family name of a son is the first name of his father.)
+     */
+    public boolean hasFamilySimple(String value) { 
+      for (String_ v : this.family)
+        if (v.getValue().equals(value))
+          return true;
+      return false;
+    }
+
+    /**
      * @return {@link #given} (Given name.)
      */
     public List<String_> getGiven() { 
@@ -283,6 +295,16 @@ public class HumanName extends Type {
       t.setValue(value);
       this.given.add(t);
       return t;
+    }
+
+    /**
+     * @param value {@link #given} (Given name.)
+     */
+    public boolean hasGivenSimple(String value) { 
+      for (String_ v : this.given)
+        if (v.getValue().equals(value))
+          return true;
+      return false;
     }
 
     /**
@@ -313,6 +335,16 @@ public class HumanName extends Type {
     }
 
     /**
+     * @param value {@link #prefix} (Part of the name that is acquired as a title due to academic, legal, employment or nobility status, etc. and that appears at the start of the name.)
+     */
+    public boolean hasPrefixSimple(String value) { 
+      for (String_ v : this.prefix)
+        if (v.getValue().equals(value))
+          return true;
+      return false;
+    }
+
+    /**
      * @return {@link #suffix} (Part of the name that is acquired as a title due to academic, legal, employment or nobility status, etc. and that appears at the end of the name.)
      */
     public List<String_> getSuffix() { 
@@ -337,6 +369,16 @@ public class HumanName extends Type {
       t.setValue(value);
       this.suffix.add(t);
       return t;
+    }
+
+    /**
+     * @param value {@link #suffix} (Part of the name that is acquired as a title due to academic, legal, employment or nobility status, etc. and that appears at the end of the name.)
+     */
+    public boolean hasSuffixSimple(String value) { 
+      for (String_ v : this.suffix)
+        if (v.getValue().equals(value))
+          return true;
+      return false;
     }
 
     /**

@@ -1,7 +1,7 @@
 package org.hl7.fhir.instance.model;
 
 /*
-  Copyright (c) 2011-2013, HL7, Inc.
+  Copyright (c) 2011-2014, HL7, Inc.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without modification, 
@@ -29,7 +29,7 @@ package org.hl7.fhir.instance.model;
   
 */
 
-// Generated on Fri, May 9, 2014 11:14+1000 for FHIR v0.0.81
+// Generated on Tue, Jul 1, 2014 12:12+0400 for FHIR v0.2.1
 
 import java.util.*;
 
@@ -164,6 +164,8 @@ Terminologies used often pre-coordinate this term with the route and or form of 
          * The maximum total quantity of a therapeutic substance that may be administered to a subject over the period of time. E.g. 1000mg in 24 hours.
          */
         protected Ratio maxDosePerPeriod;
+
+        private static final long serialVersionUID = 1413384161L;
 
       public MedicationPrescriptionDosageInstructionComponent() {
         super();
@@ -358,7 +360,7 @@ Terminologies used often pre-coordinate this term with the route and or form of 
           childrenList.add(new Property("maxDosePerPeriod", "Ratio", "The maximum total quantity of a therapeutic substance that may be administered to a subject over the period of time. E.g. 1000mg in 24 hours.", 0, java.lang.Integer.MAX_VALUE, maxDosePerPeriod));
         }
 
-      public MedicationPrescriptionDosageInstructionComponent copy(MedicationPrescription e) {
+      public MedicationPrescriptionDosageInstructionComponent copy() {
         MedicationPrescriptionDosageInstructionComponent dst = new MedicationPrescriptionDosageInstructionComponent();
         dst.text = text == null ? null : text.copy();
         dst.additionalInstructions = additionalInstructions == null ? null : additionalInstructions.copy();
@@ -380,6 +382,11 @@ Terminologies used often pre-coordinate this term with the route and or form of 
          * Identifies the medication that is to be dispensed.  This may be a more specifically defined than the medicationPrescription.medication . This is either a link to a resource representing the details of the medication or a simple attribute carrying a code that identifies the medication from a known list of medications.
          */
         protected ResourceReference medication;
+
+        /**
+         * The actual object that is the target of the reference (Identifies the medication that is to be dispensed.  This may be a more specifically defined than the medicationPrescription.medication . This is either a link to a resource representing the details of the medication or a simple attribute carrying a code that identifies the medication from a known list of medications.)
+         */
+        protected Medication medicationTarget;
 
         /**
          * Design Comments: This indicates the validity period of a prescription (stale dating the Prescription) 
@@ -405,6 +412,8 @@ In some situations, this attribute may be used instead of quantity to identify t
          */
         protected Duration expectedSupplyDuration;
 
+        private static final long serialVersionUID = 763971836L;
+
       public MedicationPrescriptionDispenseComponent() {
         super();
       }
@@ -421,6 +430,21 @@ In some situations, this attribute may be used instead of quantity to identify t
          */
         public MedicationPrescriptionDispenseComponent setMedication(ResourceReference value) { 
           this.medication = value;
+          return this;
+        }
+
+        /**
+         * @return {@link #medication} (The actual object that is the target of the reference. Identifies the medication that is to be dispensed.  This may be a more specifically defined than the medicationPrescription.medication . This is either a link to a resource representing the details of the medication or a simple attribute carrying a code that identifies the medication from a known list of medications.)
+         */
+        public Medication getMedicationTarget() { 
+          return this.medicationTarget;
+        }
+
+        /**
+         * @param value {@link #medication} (The actual object that is the target of the reference. Identifies the medication that is to be dispensed.  This may be a more specifically defined than the medicationPrescription.medication . This is either a link to a resource representing the details of the medication or a simple attribute carrying a code that identifies the medication from a known list of medications.)
+         */
+        public MedicationPrescriptionDispenseComponent setMedicationTarget(Medication value) { 
+          this.medicationTarget = value;
           return this;
         }
 
@@ -524,7 +548,7 @@ In some situations, this attribute may be used instead of quantity to identify t
           childrenList.add(new Property("expectedSupplyDuration", "Duration", "Identifies the period time over which the supplied product is expected to be used, or the length of time the dispense is expected to last. \nIn some situations, this attribute may be used instead of quantity to identify the amount supplied by how long it is expected to last, rather than the physical quantity issued, e.g. 90 days supply of medication (based on an ordered dosage) When possible, it is always better to specify quantity, as this tends to be more precise. expectedSupplyDuration will always be an estimate that can be influenced by external factors.", 0, java.lang.Integer.MAX_VALUE, expectedSupplyDuration));
         }
 
-      public MedicationPrescriptionDispenseComponent copy(MedicationPrescription e) {
+      public MedicationPrescriptionDispenseComponent copy() {
         MedicationPrescriptionDispenseComponent dst = new MedicationPrescriptionDispenseComponent();
         dst.medication = medication == null ? null : medication.copy();
         dst.validityPeriod = validityPeriod == null ? null : validityPeriod.copy();
@@ -546,6 +570,8 @@ In some situations, this attribute may be used instead of quantity to identify t
          * Indicates the reason for the substitution, or why substitution must or must not be performed.
          */
         protected CodeableConcept reason;
+
+        private static final long serialVersionUID = 1693602518L;
 
       public MedicationPrescriptionSubstitutionComponent() {
         super();
@@ -592,7 +618,7 @@ In some situations, this attribute may be used instead of quantity to identify t
           childrenList.add(new Property("reason", "CodeableConcept", "Indicates the reason for the substitution, or why substitution must or must not be performed.", 0, java.lang.Integer.MAX_VALUE, reason));
         }
 
-      public MedicationPrescriptionSubstitutionComponent copy(MedicationPrescription e) {
+      public MedicationPrescriptionSubstitutionComponent copy() {
         MedicationPrescriptionSubstitutionComponent dst = new MedicationPrescriptionSubstitutionComponent();
         dst.type = type == null ? null : type.copy();
         dst.reason = reason == null ? null : reason.copy();
@@ -622,14 +648,29 @@ In some situations, this attribute may be used instead of quantity to identify t
     protected ResourceReference patient;
 
     /**
+     * The actual object that is the target of the reference (A link to a resource representing the person to whom the medication will be given.)
+     */
+    protected Patient patientTarget;
+
+    /**
      * The healthcare professional responsible for authorizing the prescription.
      */
     protected ResourceReference prescriber;
 
     /**
+     * The actual object that is the target of the reference (The healthcare professional responsible for authorizing the prescription.)
+     */
+    protected Practitioner prescriberTarget;
+
+    /**
      * A link to a resource that identifies the particular occurrence of contact between patient and health care provider.
      */
     protected ResourceReference encounter;
+
+    /**
+     * The actual object that is the target of the reference (A link to a resource that identifies the particular occurrence of contact between patient and health care provider.)
+     */
+    protected Encounter encounterTarget;
 
     /**
      * Can be the reason or the indication for writing the prescription.
@@ -640,6 +681,11 @@ In some situations, this attribute may be used instead of quantity to identify t
      * Identifies the medication being administered. This is either a link to a resource representing the details of the medication or a simple attribute carrying a code that identifies the medication from a known list of medications.
      */
     protected ResourceReference medication;
+
+    /**
+     * The actual object that is the target of the reference (Identifies the medication being administered. This is either a link to a resource representing the details of the medication or a simple attribute carrying a code that identifies the medication from a known list of medications.)
+     */
+    protected Medication medicationTarget;
 
     /**
      * Indicates how the medication is to be used by the patient.
@@ -655,6 +701,8 @@ In some situations, this attribute may be used instead of quantity to identify t
      * Indicates whether or not substitution can or should be part of the dispense. In some cases substitution must happen, in other cases substitution must not happen, and in others it does not matter. This block explains the prescriber's intent. If nothing is specified substitution may be done.
      */
     protected MedicationPrescriptionSubstitutionComponent substitution;
+
+    private static final long serialVersionUID = -1812163359L;
 
     public MedicationPrescription() {
       super();
@@ -765,6 +813,21 @@ In some situations, this attribute may be used instead of quantity to identify t
     }
 
     /**
+     * @return {@link #patient} (The actual object that is the target of the reference. A link to a resource representing the person to whom the medication will be given.)
+     */
+    public Patient getPatientTarget() { 
+      return this.patientTarget;
+    }
+
+    /**
+     * @param value {@link #patient} (The actual object that is the target of the reference. A link to a resource representing the person to whom the medication will be given.)
+     */
+    public MedicationPrescription setPatientTarget(Patient value) { 
+      this.patientTarget = value;
+      return this;
+    }
+
+    /**
      * @return {@link #prescriber} (The healthcare professional responsible for authorizing the prescription.)
      */
     public ResourceReference getPrescriber() { 
@@ -780,6 +843,21 @@ In some situations, this attribute may be used instead of quantity to identify t
     }
 
     /**
+     * @return {@link #prescriber} (The actual object that is the target of the reference. The healthcare professional responsible for authorizing the prescription.)
+     */
+    public Practitioner getPrescriberTarget() { 
+      return this.prescriberTarget;
+    }
+
+    /**
+     * @param value {@link #prescriber} (The actual object that is the target of the reference. The healthcare professional responsible for authorizing the prescription.)
+     */
+    public MedicationPrescription setPrescriberTarget(Practitioner value) { 
+      this.prescriberTarget = value;
+      return this;
+    }
+
+    /**
      * @return {@link #encounter} (A link to a resource that identifies the particular occurrence of contact between patient and health care provider.)
      */
     public ResourceReference getEncounter() { 
@@ -791,6 +869,21 @@ In some situations, this attribute may be used instead of quantity to identify t
      */
     public MedicationPrescription setEncounter(ResourceReference value) { 
       this.encounter = value;
+      return this;
+    }
+
+    /**
+     * @return {@link #encounter} (The actual object that is the target of the reference. A link to a resource that identifies the particular occurrence of contact between patient and health care provider.)
+     */
+    public Encounter getEncounterTarget() { 
+      return this.encounterTarget;
+    }
+
+    /**
+     * @param value {@link #encounter} (The actual object that is the target of the reference. A link to a resource that identifies the particular occurrence of contact between patient and health care provider.)
+     */
+    public MedicationPrescription setEncounterTarget(Encounter value) { 
+      this.encounterTarget = value;
       return this;
     }
 
@@ -821,6 +914,21 @@ In some situations, this attribute may be used instead of quantity to identify t
      */
     public MedicationPrescription setMedication(ResourceReference value) { 
       this.medication = value;
+      return this;
+    }
+
+    /**
+     * @return {@link #medication} (The actual object that is the target of the reference. Identifies the medication being administered. This is either a link to a resource representing the details of the medication or a simple attribute carrying a code that identifies the medication from a known list of medications.)
+     */
+    public Medication getMedicationTarget() { 
+      return this.medicationTarget;
+    }
+
+    /**
+     * @param value {@link #medication} (The actual object that is the target of the reference. Identifies the medication being administered. This is either a link to a resource representing the details of the medication or a simple attribute carrying a code that identifies the medication from a known list of medications.)
+     */
+    public MedicationPrescription setMedicationTarget(Medication value) { 
+      this.medicationTarget = value;
       return this;
     }
 
@@ -900,9 +1008,9 @@ In some situations, this attribute may be used instead of quantity to identify t
         dst.medication = medication == null ? null : medication.copy();
         dst.dosageInstruction = new ArrayList<MedicationPrescriptionDosageInstructionComponent>();
         for (MedicationPrescriptionDosageInstructionComponent i : dosageInstruction)
-          dst.dosageInstruction.add(i.copy(dst));
-        dst.dispense = dispense == null ? null : dispense.copy(dst);
-        dst.substitution = substitution == null ? null : substitution.copy(dst);
+          dst.dosageInstruction.add(i.copy());
+        dst.dispense = dispense == null ? null : dispense.copy();
+        dst.substitution = substitution == null ? null : substitution.copy();
         return dst;
       }
 

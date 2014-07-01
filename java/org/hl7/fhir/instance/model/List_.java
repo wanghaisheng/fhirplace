@@ -1,7 +1,7 @@
 package org.hl7.fhir.instance.model;
 
 /*
-  Copyright (c) 2011-2013, HL7, Inc.
+  Copyright (c) 2011-2014, HL7, Inc.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without modification, 
@@ -29,7 +29,7 @@ package org.hl7.fhir.instance.model;
   
 */
 
-// Generated on Fri, May 9, 2014 11:14+1000 for FHIR v0.0.81
+// Generated on Tue, Jul 1, 2014 12:12+0400 for FHIR v0.2.1
 
 import java.util.*;
 
@@ -108,6 +108,13 @@ public class List_ extends Resource {
          * A reference to the actual resource from which data was derived.
          */
         protected ResourceReference item;
+
+        /**
+         * The actual object that is the target of the reference (A reference to the actual resource from which data was derived.)
+         */
+        protected Resource itemTarget;
+
+        private static final long serialVersionUID = 2031329135L;
 
       public ListEntryComponent() {
         super();
@@ -222,6 +229,21 @@ public class List_ extends Resource {
           return this;
         }
 
+        /**
+         * @return {@link #item} (The actual object that is the target of the reference. A reference to the actual resource from which data was derived.)
+         */
+        public Resource getItemTarget() { 
+          return this.itemTarget;
+        }
+
+        /**
+         * @param value {@link #item} (The actual object that is the target of the reference. A reference to the actual resource from which data was derived.)
+         */
+        public ListEntryComponent setItemTarget(Resource value) { 
+          this.itemTarget = value;
+          return this;
+        }
+
         protected void listChildren(List<Property> childrenList) {
           super.listChildren(childrenList);
           childrenList.add(new Property("flag", "CodeableConcept", "The flag allows the system constructing the list to make one or more statements about the role and significance of the item in the list.", 0, java.lang.Integer.MAX_VALUE, flag));
@@ -230,7 +252,7 @@ public class List_ extends Resource {
           childrenList.add(new Property("item", "Resource(Any)", "A reference to the actual resource from which data was derived.", 0, java.lang.Integer.MAX_VALUE, item));
         }
 
-      public ListEntryComponent copy(List_ e) {
+      public ListEntryComponent copy() {
         ListEntryComponent dst = new ListEntryComponent();
         dst.flag = new ArrayList<CodeableConcept>();
         for (CodeableConcept i : flag)
@@ -259,9 +281,19 @@ public class List_ extends Resource {
     protected ResourceReference subject;
 
     /**
+     * The actual object that is the target of the reference (The common subject (or patient) of the resources that are in the list, if there is one.)
+     */
+    protected Resource subjectTarget;
+
+    /**
      * The entity responsible for deciding what the contents of the list were.
      */
     protected ResourceReference source;
+
+    /**
+     * The actual object that is the target of the reference (The entity responsible for deciding what the contents of the list were.)
+     */
+    protected Resource sourceTarget;
 
     /**
      * The date that the list was prepared.
@@ -287,6 +319,8 @@ public class List_ extends Resource {
      * If the list is empty, why the list is empty.
      */
     protected CodeableConcept emptyReason;
+
+    private static final long serialVersionUID = -483434446L;
 
     public List_() {
       super();
@@ -345,6 +379,21 @@ public class List_ extends Resource {
     }
 
     /**
+     * @return {@link #subject} (The actual object that is the target of the reference. The common subject (or patient) of the resources that are in the list, if there is one.)
+     */
+    public Resource getSubjectTarget() { 
+      return this.subjectTarget;
+    }
+
+    /**
+     * @param value {@link #subject} (The actual object that is the target of the reference. The common subject (or patient) of the resources that are in the list, if there is one.)
+     */
+    public List_ setSubjectTarget(Resource value) { 
+      this.subjectTarget = value;
+      return this;
+    }
+
+    /**
      * @return {@link #source} (The entity responsible for deciding what the contents of the list were.)
      */
     public ResourceReference getSource() { 
@@ -356,6 +405,21 @@ public class List_ extends Resource {
      */
     public List_ setSource(ResourceReference value) { 
       this.source = value;
+      return this;
+    }
+
+    /**
+     * @return {@link #source} (The actual object that is the target of the reference. The entity responsible for deciding what the contents of the list were.)
+     */
+    public Resource getSourceTarget() { 
+      return this.sourceTarget;
+    }
+
+    /**
+     * @param value {@link #source} (The actual object that is the target of the reference. The entity responsible for deciding what the contents of the list were.)
+     */
+    public List_ setSourceTarget(Resource value) { 
+      this.sourceTarget = value;
       return this;
     }
 
@@ -521,7 +585,7 @@ public class List_ extends Resource {
         dst.mode = mode == null ? null : mode.copy();
         dst.entry = new ArrayList<ListEntryComponent>();
         for (ListEntryComponent i : entry)
-          dst.entry.add(i.copy(dst));
+          dst.entry.add(i.copy());
         dst.emptyReason = emptyReason == null ? null : emptyReason.copy();
         return dst;
       }

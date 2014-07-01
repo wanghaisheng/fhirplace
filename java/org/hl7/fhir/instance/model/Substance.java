@@ -1,7 +1,7 @@
 package org.hl7.fhir.instance.model;
 
 /*
-  Copyright (c) 2011-2013, HL7, Inc.
+  Copyright (c) 2011-2014, HL7, Inc.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without modification, 
@@ -29,7 +29,7 @@ package org.hl7.fhir.instance.model;
   
 */
 
-// Generated on Fri, May 9, 2014 11:14+1000 for FHIR v0.0.81
+// Generated on Tue, Jul 1, 2014 12:12+0400 for FHIR v0.2.1
 
 import java.util.*;
 
@@ -53,6 +53,8 @@ public class Substance extends Resource {
          * The amount of the substance.
          */
         protected Quantity quantity;
+
+        private static final long serialVersionUID = -95905434L;
 
       public SubstanceInstanceComponent() {
         super();
@@ -131,7 +133,7 @@ public class Substance extends Resource {
           childrenList.add(new Property("quantity", "Quantity", "The amount of the substance.", 0, java.lang.Integer.MAX_VALUE, quantity));
         }
 
-      public SubstanceInstanceComponent copy(Substance e) {
+      public SubstanceInstanceComponent copy() {
         SubstanceInstanceComponent dst = new SubstanceInstanceComponent();
         dst.identifier = identifier == null ? null : identifier.copy();
         dst.expiry = expiry == null ? null : expiry.copy();
@@ -151,6 +153,13 @@ public class Substance extends Resource {
          * Another substance that is a component of this substance.
          */
         protected ResourceReference substance;
+
+        /**
+         * The actual object that is the target of the reference (Another substance that is a component of this substance.)
+         */
+        protected Substance substanceTarget;
+
+        private static final long serialVersionUID = 1192860668L;
 
       public SubstanceIngredientComponent() {
         super();
@@ -191,13 +200,28 @@ public class Substance extends Resource {
           return this;
         }
 
+        /**
+         * @return {@link #substance} (The actual object that is the target of the reference. Another substance that is a component of this substance.)
+         */
+        public Substance getSubstanceTarget() { 
+          return this.substanceTarget;
+        }
+
+        /**
+         * @param value {@link #substance} (The actual object that is the target of the reference. Another substance that is a component of this substance.)
+         */
+        public SubstanceIngredientComponent setSubstanceTarget(Substance value) { 
+          this.substanceTarget = value;
+          return this;
+        }
+
         protected void listChildren(List<Property> childrenList) {
           super.listChildren(childrenList);
           childrenList.add(new Property("quantity", "Ratio", "The amount of the ingredient in the substance - a concentration ratio.", 0, java.lang.Integer.MAX_VALUE, quantity));
           childrenList.add(new Property("substance", "Resource(Substance)", "Another substance that is a component of this substance.", 0, java.lang.Integer.MAX_VALUE, substance));
         }
 
-      public SubstanceIngredientComponent copy(Substance e) {
+      public SubstanceIngredientComponent copy() {
         SubstanceIngredientComponent dst = new SubstanceIngredientComponent();
         dst.quantity = quantity == null ? null : quantity.copy();
         dst.substance = substance == null ? null : substance.copy();
@@ -225,6 +249,8 @@ public class Substance extends Resource {
      * A substance can be composed of other substances.
      */
     protected List<SubstanceIngredientComponent> ingredient = new ArrayList<SubstanceIngredientComponent>();
+
+    private static final long serialVersionUID = -1020778180L;
 
     public Substance() {
       super();
@@ -330,10 +356,10 @@ public class Substance extends Resource {
         Substance dst = new Substance();
         dst.type = type == null ? null : type.copy();
         dst.description = description == null ? null : description.copy();
-        dst.instance = instance == null ? null : instance.copy(dst);
+        dst.instance = instance == null ? null : instance.copy();
         dst.ingredient = new ArrayList<SubstanceIngredientComponent>();
         for (SubstanceIngredientComponent i : ingredient)
-          dst.ingredient.add(i.copy(dst));
+          dst.ingredient.add(i.copy());
         return dst;
       }
 

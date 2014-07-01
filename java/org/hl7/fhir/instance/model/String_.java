@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2013, HL7, Inc
+Copyright (c) 2011-2014, HL7, Inc
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, 
@@ -32,8 +32,9 @@ package org.hl7.fhir.instance.model;
  * Primitive type "string" in FHIR - any sequence of unicode characters less than 1MB in length
  */
 
-public class String_ extends Type {
+public class String_ extends PrimitiveType {
 
+  private static final long serialVersionUID = 4115820767194238069L;
 	/**
 	 * The string value
 	 */
@@ -49,19 +50,27 @@ public class String_ extends Type {
 	/**
 	 * @param value the value of the string
 	 */
-	public void setValue(String value) {
+	public String_ setValue(String value) {
 		this.value = value;
+		return this;
 	}
 	
-	public String_ copy() {
+	@Override
+  public String_ copy() {
 		String_ dst = new String_();
 		dst.value = value;
 		return dst;
 	}
 	
-	protected Type typedCopy() {
+	@Override
+  protected Type typedCopy() {
 		return copy();
 	}
+
+  @Override
+  public String asStringValue() {
+    return value;
+  }
 
 	
 }

@@ -65,7 +65,7 @@
    :search (fnk [] (GET (url "Patient" "_search")))
    :search_atom (fnk [search] (f/parse (:body search)))
 
-   :tags (fnk [] "cat; label=\"Cato\"; scheme=\"http://hl7.org/fhir/tag\"")
+   :tags (fnk [] "cat; scheme=\"http://hl7.org/fhir/tag\"; label=\"Cato\"")
    :new_resource (fnk [tags] (POST
                                (url "Patient")
                                {:headers {"Category" tags} :body (fixture "patient.json")}))
@@ -98,43 +98,40 @@
   (is (= (:status response) status)))
 
 ((deftest test-simple-crud
-  (status? 200 (:metadata subj))
-  (is (instance? Conformance (:conformance subj)))
+   (status? 200 (:metadata subj))
+   (is (instance? Conformance (:conformance subj)))
 
-  (status? 200 (:pt_profile subj))
-  (is (instance? Profile
-                 (f/parse (:body (:pt_profile subj)))))
+   (status? 200 (:pt_profile subj))
+   (is (instance? Profile
+                  (f/parse (:body (:pt_profile subj)))))
 
-  (status? 200 (:search subj))
-  (is (instance? AtomFeed (:search_atom subj)))
+   (status? 200 (:search subj))
+   (is (instance? AtomFeed (:search_atom subj)))
 
-  (status? 201 (:new_resource subj))
+   (status? 201 (:new_resource subj))
 
-  (is (not (nil? (:new_resource_loc subj))))
+   (is (not (nil? (:new_resource_loc subj))))
 
-  (status? 200 (:get_new_resource subj))
+   (status? 200 (:get_new_resource subj))
 
-  (is (= (get-in (:get_new_resource subj) [:headers "Category"])
-         (:category sub)))
+   (is (= (get-in (:get_new_resource subj) [:headers "Category"])
+          (:tags subj)))
 
-  (is (not (nil? (get-in (:get_new_resource subj) [:headers "Category"])))
-      "should return tags")
+   (status? 200 (:update_resource subj))
 
-  (status? 200 (:update_resource subj))
+   (status? 200 (:updated_version subj))
 
-  (status? 200 (:updated_version subj))
-
-  (is (instance? Patient
-                 (f/parse (:body (:updated_version subj)))))
+   (is (instance? Patient
+                  (f/parse (:body (:updated_version subj)))))
 
 
-  (status? 200 (:history_of_resource subj))
+   (status? 200 (:history_of_resource subj))
 
-  (is (instance? AtomFeed
-                 (f/parse (:body (:history_of_resource subj)))))
+   (is (instance? AtomFeed
+                  (f/parse (:body (:history_of_resource subj)))))
 
-  (status? 204 (:delete_resource subj))
-  ))
+   #_(status? 204 (:delete_resource subj))
+   ))
 
 
 

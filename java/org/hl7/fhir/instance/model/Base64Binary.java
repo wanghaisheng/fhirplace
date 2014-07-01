@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2013, HL7, Inc
+Copyright (c) 2011-2014, HL7, Inc
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, 
@@ -33,8 +33,9 @@ import org.hl7.fhir.instance.formats.FormatUtilities;
 /**
  * Primitive type "base64Binary" in FHIR: a sequence of bytes represented in base64
  */
-public class Base64Binary extends Type {
+public class Base64Binary extends PrimitiveType {
 
+  private static final long serialVersionUID = 6170198697716842056L;
 	/**
 	 * The byte content in the base64Binary
 	 */
@@ -54,17 +55,24 @@ public class Base64Binary extends Type {
 		this.value = value;
 	}
 	
-	public Base64Binary copy() {
+	@Override
+  public Base64Binary copy() {
 		Base64Binary dst = new Base64Binary();
 		dst.value = value;
 		return dst;
 	}
 	
-	protected Type typedCopy() {
+	@Override
+  protected Type typedCopy() {
 		return copy();
 	}
 
 	public String getStringValue() {
 	  return FormatUtilities.toString(value);
+  }
+
+  @Override
+  public String asStringValue() {
+    return new String(value);
   }
 }

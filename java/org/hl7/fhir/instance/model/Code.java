@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2013, HL7, Inc
+Copyright (c) 2011-2014, HL7, Inc
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, 
@@ -31,8 +31,9 @@ package org.hl7.fhir.instance.model;
 /**
  * Primitive type "code" in FHIR, when not bound to an enumerated list of codes
  */
-public class Code extends Type {
+public class Code extends PrimitiveType {
 
+  private static final long serialVersionUID = 5312948828142916756L;
 	/**
 	 * The value of the code
 	 */
@@ -48,18 +49,26 @@ public class Code extends Type {
 	/**
 	 * @param value The value of the code
 	 */
-	public void setValue(String value) {
+	public Code setValue(String value) {
 		this.value = value;
+		return this;
 	}
 	
-	public Code copy() {
+	@Override
+  public Code copy() {
 		Code dst = new Code();
 		dst.value = value;
 		return dst;
 	}
 	
-	protected Type typedCopy() {
+	@Override
+  protected Type typedCopy() {
 		return copy();
 	}
+
+  @Override
+  public String asStringValue() {
+    return value;
+  }
 
 }

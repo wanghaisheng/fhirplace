@@ -1,7 +1,7 @@
 package org.hl7.fhir.instance.model;
 
 /*
-  Copyright (c) 2011-2013, HL7, Inc.
+  Copyright (c) 2011-2014, HL7, Inc.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without modification, 
@@ -29,7 +29,7 @@ package org.hl7.fhir.instance.model;
   
 */
 
-// Generated on Fri, May 9, 2014 11:14+1000 for FHIR v0.0.81
+// Generated on Tue, Jul 1, 2014 12:12+0400 for FHIR v0.2.1
 
 import java.util.*;
 
@@ -147,6 +147,11 @@ public class OrderResponse extends Resource {
     protected ResourceReference request;
 
     /**
+     * The actual object that is the target of the reference (A reference to the order that this is in response to.)
+     */
+    protected Order requestTarget;
+
+    /**
      * The date and time at which this order response was made (created/posted).
      */
     protected DateTime date;
@@ -155,6 +160,11 @@ public class OrderResponse extends Resource {
      * The person, organization, or device credited with making the response.
      */
     protected ResourceReference who;
+
+    /**
+     * The actual object that is the target of the reference (The person, organization, or device credited with making the response.)
+     */
+    protected Resource whoTarget;
 
     /**
      * A reference to an authority policy that is the reason for the response. Usually this is used when the order is rejected, to provide a reason for rejection.
@@ -175,6 +185,13 @@ public class OrderResponse extends Resource {
      * Links to resources that provide details of the outcome of performing the order. E.g. Diagnostic Reports in a response that is made to an order that referenced a diagnostic order.
      */
     protected List<ResourceReference> fulfillment = new ArrayList<ResourceReference>();
+    /**
+     * The actual objects that are the target of the reference (Links to resources that provide details of the outcome of performing the order. E.g. Diagnostic Reports in a response that is made to an order that referenced a diagnostic order.)
+     */
+    protected List<Resource> fulfillmentTarget = new ArrayList<Resource>();
+
+
+    private static final long serialVersionUID = 834951178L;
 
     public OrderResponse() {
       super();
@@ -215,6 +232,21 @@ public class OrderResponse extends Resource {
      */
     public OrderResponse setRequest(ResourceReference value) { 
       this.request = value;
+      return this;
+    }
+
+    /**
+     * @return {@link #request} (The actual object that is the target of the reference. A reference to the order that this is in response to.)
+     */
+    public Order getRequestTarget() { 
+      return this.requestTarget;
+    }
+
+    /**
+     * @param value {@link #request} (The actual object that is the target of the reference. A reference to the order that this is in response to.)
+     */
+    public OrderResponse setRequestTarget(Order value) { 
+      this.requestTarget = value;
       return this;
     }
 
@@ -266,6 +298,21 @@ public class OrderResponse extends Resource {
      */
     public OrderResponse setWho(ResourceReference value) { 
       this.who = value;
+      return this;
+    }
+
+    /**
+     * @return {@link #who} (The actual object that is the target of the reference. The person, organization, or device credited with making the response.)
+     */
+    public Resource getWhoTarget() { 
+      return this.whoTarget;
+    }
+
+    /**
+     * @param value {@link #who} (The actual object that is the target of the reference. The person, organization, or device credited with making the response.)
+     */
+    public OrderResponse setWhoTarget(Resource value) { 
+      this.whoTarget = value;
       return this;
     }
 
@@ -367,6 +414,13 @@ public class OrderResponse extends Resource {
       ResourceReference t = new ResourceReference();
       this.fulfillment.add(t);
       return t;
+    }
+
+    /**
+     * @return {@link #fulfillment} (The actual objects that are the target of the reference. Links to resources that provide details of the outcome of performing the order. E.g. Diagnostic Reports in a response that is made to an order that referenced a diagnostic order.)
+     */
+    public List<Resource> getFulfillmentTarget() { 
+      return this.fulfillmentTarget;
     }
 
       protected void listChildren(List<Property> childrenList) {

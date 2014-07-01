@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2013, HL7, Inc
+Copyright (c) 2011-2014, HL7, Inc
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, 
@@ -28,13 +28,12 @@ POSSIBILITY OF SUCH DAMAGE.
 */
 package org.hl7.fhir.instance.model;
 
-import java.net.URI;
-
 /**
  * Primitive type "uri" in FHIR: any valid URI. Sometimes constrained to be only an absolute URI, and sometimes constrained to be a literal reference
  */
-public class Uri extends Type {
+public class Uri extends PrimitiveType {
 	
+  private static final long serialVersionUID = -4774715915772053479L;
 	/**
 	 * any valid URI
 	 */
@@ -54,14 +53,21 @@ public class Uri extends Type {
 		this.value = value;
 	}
 	
-	public Uri copy() {
+	@Override
+  public Uri copy() {
 		Uri dst = new Uri();
 		dst.value = value;
 		return dst;
 	}
 	
-	protected Type typedCopy() {
+	@Override
+  protected Type typedCopy() {
 		return copy();
 	}
+
+  @Override
+  public String asStringValue() {
+    return value;
+  }
 
 }

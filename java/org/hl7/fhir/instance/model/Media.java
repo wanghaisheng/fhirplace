@@ -1,7 +1,7 @@
 package org.hl7.fhir.instance.model;
 
 /*
-  Copyright (c) 2011-2013, HL7, Inc.
+  Copyright (c) 2011-2014, HL7, Inc.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without modification, 
@@ -29,7 +29,7 @@ package org.hl7.fhir.instance.model;
   
 */
 
-// Generated on Fri, May 9, 2014 11:14+1000 for FHIR v0.0.81
+// Generated on Tue, Jul 1, 2014 12:12+0400 for FHIR v0.2.1
 
 import java.util.*;
 
@@ -114,9 +114,19 @@ public class Media extends Resource {
     protected ResourceReference subject;
 
     /**
+     * The actual object that is the target of the reference (Who/What this Media is a record of.)
+     */
+    protected Resource subjectTarget;
+
+    /**
      * The person who administered the collection of the image.
      */
     protected ResourceReference operator;
+
+    /**
+     * The actual object that is the target of the reference (The person who administered the collection of the image.)
+     */
+    protected Practitioner operatorTarget;
 
     /**
      * The name of the imaging view e.g Lateral or Antero-posterior (AP).
@@ -152,6 +162,8 @@ public class Media extends Resource {
      * The actual content of the media - inline or by direct reference to the media source file.
      */
     protected Attachment content;
+
+    private static final long serialVersionUID = 1448386132L;
 
     public Media() {
       super();
@@ -279,6 +291,21 @@ public class Media extends Resource {
     }
 
     /**
+     * @return {@link #subject} (The actual object that is the target of the reference. Who/What this Media is a record of.)
+     */
+    public Resource getSubjectTarget() { 
+      return this.subjectTarget;
+    }
+
+    /**
+     * @param value {@link #subject} (The actual object that is the target of the reference. Who/What this Media is a record of.)
+     */
+    public Media setSubjectTarget(Resource value) { 
+      this.subjectTarget = value;
+      return this;
+    }
+
+    /**
      * @return {@link #operator} (The person who administered the collection of the image.)
      */
     public ResourceReference getOperator() { 
@@ -290,6 +317,21 @@ public class Media extends Resource {
      */
     public Media setOperator(ResourceReference value) { 
       this.operator = value;
+      return this;
+    }
+
+    /**
+     * @return {@link #operator} (The actual object that is the target of the reference. The person who administered the collection of the image.)
+     */
+    public Practitioner getOperatorTarget() { 
+      return this.operatorTarget;
+    }
+
+    /**
+     * @param value {@link #operator} (The actual object that is the target of the reference. The person who administered the collection of the image.)
+     */
+    public Media setOperatorTarget(Practitioner value) { 
+      this.operatorTarget = value;
       return this;
     }
 

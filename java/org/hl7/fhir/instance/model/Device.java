@@ -1,7 +1,7 @@
 package org.hl7.fhir.instance.model;
 
 /*
-  Copyright (c) 2011-2013, HL7, Inc.
+  Copyright (c) 2011-2014, HL7, Inc.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without modification, 
@@ -29,7 +29,7 @@ package org.hl7.fhir.instance.model;
   
 */
 
-// Generated on Fri, May 9, 2014 11:14+1000 for FHIR v0.0.81
+// Generated on Tue, Jul 1, 2014 12:12+0400 for FHIR v0.2.1
 
 import java.util.*;
 
@@ -84,14 +84,29 @@ public class Device extends Resource {
     protected ResourceReference owner;
 
     /**
+     * The actual object that is the target of the reference (An organization that is responsible for the provision and ongoing maintenance of the device.)
+     */
+    protected Organization ownerTarget;
+
+    /**
      * The resource may be found in a literal location (i.e. GPS coordinates), a logical place (i.e. "in/with the patient"), or a coded location.
      */
     protected ResourceReference location;
 
     /**
+     * The actual object that is the target of the reference (The resource may be found in a literal location (i.e. GPS coordinates), a logical place (i.e. "in/with the patient"), or a coded location.)
+     */
+    protected Location locationTarget;
+
+    /**
      * Patient information, if the resource is affixed to a person.
      */
     protected ResourceReference patient;
+
+    /**
+     * The actual object that is the target of the reference (Patient information, if the resource is affixed to a person.)
+     */
+    protected Patient patientTarget;
 
     /**
      * Contact details for an organization or a particular human that is responsible for the device.
@@ -102,6 +117,8 @@ public class Device extends Resource {
      * A network address on which the device may be contacted directly.
      */
     protected Uri url;
+
+    private static final long serialVersionUID = -874134207L;
 
     public Device() {
       super();
@@ -376,6 +393,21 @@ public class Device extends Resource {
     }
 
     /**
+     * @return {@link #owner} (The actual object that is the target of the reference. An organization that is responsible for the provision and ongoing maintenance of the device.)
+     */
+    public Organization getOwnerTarget() { 
+      return this.ownerTarget;
+    }
+
+    /**
+     * @param value {@link #owner} (The actual object that is the target of the reference. An organization that is responsible for the provision and ongoing maintenance of the device.)
+     */
+    public Device setOwnerTarget(Organization value) { 
+      this.ownerTarget = value;
+      return this;
+    }
+
+    /**
      * @return {@link #location} (The resource may be found in a literal location (i.e. GPS coordinates), a logical place (i.e. "in/with the patient"), or a coded location.)
      */
     public ResourceReference getLocation() { 
@@ -391,6 +423,21 @@ public class Device extends Resource {
     }
 
     /**
+     * @return {@link #location} (The actual object that is the target of the reference. The resource may be found in a literal location (i.e. GPS coordinates), a logical place (i.e. "in/with the patient"), or a coded location.)
+     */
+    public Location getLocationTarget() { 
+      return this.locationTarget;
+    }
+
+    /**
+     * @param value {@link #location} (The actual object that is the target of the reference. The resource may be found in a literal location (i.e. GPS coordinates), a logical place (i.e. "in/with the patient"), or a coded location.)
+     */
+    public Device setLocationTarget(Location value) { 
+      this.locationTarget = value;
+      return this;
+    }
+
+    /**
      * @return {@link #patient} (Patient information, if the resource is affixed to a person.)
      */
     public ResourceReference getPatient() { 
@@ -402,6 +449,21 @@ public class Device extends Resource {
      */
     public Device setPatient(ResourceReference value) { 
       this.patient = value;
+      return this;
+    }
+
+    /**
+     * @return {@link #patient} (The actual object that is the target of the reference. Patient information, if the resource is affixed to a person.)
+     */
+    public Patient getPatientTarget() { 
+      return this.patientTarget;
+    }
+
+    /**
+     * @param value {@link #patient} (The actual object that is the target of the reference. Patient information, if the resource is affixed to a person.)
+     */
+    public Device setPatientTarget(Patient value) { 
+      this.patientTarget = value;
       return this;
     }
 

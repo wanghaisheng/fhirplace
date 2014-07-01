@@ -1,7 +1,7 @@
 package org.hl7.fhir.instance.model;
 
 /*
-  Copyright (c) 2011-2013, HL7, Inc.
+  Copyright (c) 2011-2014, HL7, Inc.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without modification, 
@@ -29,7 +29,7 @@ package org.hl7.fhir.instance.model;
   
 */
 
-// Generated on Fri, May 9, 2014 11:14+1000 for FHIR v0.0.81
+// Generated on Tue, Jul 1, 2014 12:12+0400 for FHIR v0.2.1
 
 import java.util.*;
 
@@ -141,6 +141,13 @@ public class Query extends Resource {
          * Resources that are the results of the search.
          */
         protected List<ResourceReference> reference = new ArrayList<ResourceReference>();
+        /**
+         * The actual objects that are the target of the reference (Resources that are the results of the search.)
+         */
+        protected List<Resource> referenceTarget = new ArrayList<Resource>();
+
+
+        private static final long serialVersionUID = 841399625L;
 
       public QueryResponseComponent() {
         super();
@@ -354,6 +361,13 @@ public class Query extends Resource {
           return t;
         }
 
+        /**
+         * @return {@link #reference} (The actual objects that are the target of the reference. Resources that are the results of the search.)
+         */
+        public List<Resource> getReferenceTarget() { 
+          return this.referenceTarget;
+        }
+
         protected void listChildren(List<Property> childrenList) {
           super.listChildren(childrenList);
           childrenList.add(new Property("identifier", "uri", "Links response to source query.", 0, java.lang.Integer.MAX_VALUE, identifier));
@@ -367,7 +381,7 @@ public class Query extends Resource {
           childrenList.add(new Property("reference", "Resource(Any)", "Resources that are the results of the search.", 0, java.lang.Integer.MAX_VALUE, reference));
         }
 
-      public QueryResponseComponent copy(Query e) {
+      public QueryResponseComponent copy() {
         QueryResponseComponent dst = new QueryResponseComponent();
         dst.identifier = identifier == null ? null : identifier.copy();
         dst.outcome = outcome == null ? null : outcome.copy();
@@ -409,6 +423,8 @@ public class Query extends Resource {
      * If this is a response to a query.
      */
     protected QueryResponseComponent response;
+
+    private static final long serialVersionUID = -1622604040L;
 
     public Query() {
       super();
@@ -496,7 +512,7 @@ public class Query extends Resource {
         dst.parameter = new ArrayList<Extension>();
         for (Extension i : parameter)
           dst.parameter.add(i.copy());
-        dst.response = response == null ? null : response.copy(dst);
+        dst.response = response == null ? null : response.copy();
         return dst;
       }
 

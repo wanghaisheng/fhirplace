@@ -1,7 +1,7 @@
 package org.hl7.fhir.instance.model;
 
 /*
-  Copyright (c) 2011-2013, HL7, Inc.
+  Copyright (c) 2011-2014, HL7, Inc.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without modification, 
@@ -29,7 +29,7 @@ package org.hl7.fhir.instance.model;
   
 */
 
-// Generated on Fri, May 9, 2014 11:14+1000 for FHIR v0.0.81
+// Generated on Tue, Jul 1, 2014 12:12+0400 for FHIR v0.2.1
 
 import java.util.*;
 
@@ -125,6 +125,13 @@ public class Identifier extends Type {
      * Organization that issued/manages the identifier.
      */
     protected ResourceReference assigner;
+
+    /**
+     * The actual object that is the target of the reference (Organization that issued/manages the identifier.)
+     */
+    protected Organization assignerTarget;
+
+    private static final long serialVersionUID = 1232091569L;
 
     public Identifier() {
       super();
@@ -301,6 +308,21 @@ public class Identifier extends Type {
      */
     public Identifier setAssigner(ResourceReference value) { 
       this.assigner = value;
+      return this;
+    }
+
+    /**
+     * @return {@link #assigner} (The actual object that is the target of the reference. Organization that issued/manages the identifier.)
+     */
+    public Organization getAssignerTarget() { 
+      return this.assignerTarget;
+    }
+
+    /**
+     * @param value {@link #assigner} (The actual object that is the target of the reference. Organization that issued/manages the identifier.)
+     */
+    public Identifier setAssignerTarget(Organization value) { 
+      this.assignerTarget = value;
       return this;
     }
 
