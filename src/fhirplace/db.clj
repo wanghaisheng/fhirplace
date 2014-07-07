@@ -162,21 +162,21 @@
 
 (defn -history [tp id]
   (f/parse
-    (call* :history_resource tp id)))
+    (call* :fhir_history tp id "{}")))
 
 ;; TODO: bug report
 (defn -tags
-  ([] (call* :tags))
-  ([tp] (call* :tags tp))
-  ([tp id] (call* :tags tp id))
-  ([tp id vid] (call* :tags tp id vid)))
+  ([] (call* :fhir_tags))
+  ([tp] (call* :fhir_tags tp))
+  ([tp id] (call* :fhir_tags tp id))
+  ([tp id vid] (call* :fhir_tags tp id vid)))
 
 (defn -affix-tags
-  ([tp id tags] (call* :affix_tags tp id (json/write-str tags)   ))
-  ([tp id vid tags] (call* :affix_tags tp id vid (json/write-str tags))))
+  ([tp id tags] (call* :fhir_affix_tags tp id (json/write-str tags)   ))
+  ([tp id vid tags] (call* :fhir_affix_tags tp id vid (json/write-str tags))))
 
 (defn -remove-tags
-  ([tp id] (call* :remove_tags tp id))
-  ([tp id vid] (call* :remove_tags tp id vid)))
+  ([tp id] (call* :fhir_remove_tags tp id))
+  ([tp id vid] (call* :fhir_remove_tags tp id vid)))
 
 #_(-history "Patient" (uuid))
