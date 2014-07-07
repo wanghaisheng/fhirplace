@@ -141,7 +141,7 @@
             :limit 1})))
 
 (defn -read [tp id]
-  (find-by-id tp id))
+  (call* :fhir_read tp id))
 
 (defn -vread [tp id vid]
   (find-hist-by-id tp id vid))

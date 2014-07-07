@@ -221,6 +221,19 @@
         (header "Category" (fc/encode-tags tags))
         (header "Last-Modified" (:last_modified_date res)))))
 
+(defn resource-resp-new [res]
+  (let [bundle (json/read-str res :key-fn keyword)
+        entry (first (:entry bundle))
+        loc (:href (first (:link entry)))
+        tags (:category entry)
+        last-modified (:updated entry)
+        fhir-res (f/parse (json/write-str (:content entry)))]
+    (-> {:body fhir-res}
+        (header "Location" loc)
+        (header "Content-Location" loc)
+        (header "Category" (fc/encode-tags tags))
+        (header "Last-Modified" last-modified))))
+
 (defn =create
   [{{rt :type} :params res :data tags :tags :as req}]
   {:pre [(not (nil? res))]}
@@ -258,7 +271,7 @@
 ;;TODO add checks
 (defn =read [{{rt :type id :id} :params}]
   (let [res (db/-read rt id)]
-    (-> (resource-resp res)
+    (-> (resource-resp-new res)
         (status 200))))
 
 (defn =vread [{{rt :type id :id vid :vid} :params}]
