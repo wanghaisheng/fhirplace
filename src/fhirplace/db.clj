@@ -84,10 +84,7 @@
 (import 'java.sql.Timestamp)
 
 (defn -create [tp json tags]
-  (let [id (call* :insert_resource json tags)]
-    (q-one {:select [:*]
-            :from [(tbl-name tp)]
-            :where [:= :logical_id id]})))
+  (call* :fhir_create tp json tags))
 
 (defn -update [tp id json tags]
   (let [id (call* :update_resource id json tags)]

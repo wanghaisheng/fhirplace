@@ -241,7 +241,7 @@
   (let [json (f/serialize :json res)
         jtags (json/write-str tags)
         item (db/-create (str (.getResourceType res)) json jtags)]
-    (-> (resource-resp item)
+    (-> (resource-resp-new item)
         (status 201)
         (header "Category" (fc/encode-tags tags)))))
 
