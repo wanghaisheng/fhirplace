@@ -118,34 +118,11 @@
                   [:= :version_id vid] ]
           :limit 1}))
 
-
-(defn- find-by-id [tp id]
-  (q-one {:select [:*]
-          :from [(tbl-name tp)]
-          :where [:and
-                  [:= :logical_id id]]
-          :limit 1}))
-
-(defn- find-hist-by-id [tp id vid]
-  (or
-    (q-one {:select [:*]
-            :from [(tbl-name tp)]
-            :where [:and
-                    [:= :logical_id id]
-                    [:= :version_id vid] ]
-            :limit 1})
-    (q-one {:select [:*]
-            :from [(htbl-name tp)]
-            :where [:and
-                    [:= :logical_id id]
-                    [:= :version_id vid]]
-            :limit 1})))
-
 (defn -read [tp id]
   (call* :fhir_read (cfg-str) tp id))
 
 (defn -vread [tp id vid]
-  (find-hist-by-id tp id vid))
+  (call* :fhir_vread (cfg-str) tp id vid))
 
 (defn -resource-exists? [tp id]
   (->

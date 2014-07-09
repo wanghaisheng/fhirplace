@@ -277,5 +277,5 @@
 (defn =vread [{{rt :type id :id vid :vid} :params}]
   (let [res (db/-vread rt id vid)]
     (println res)
-    (-> (resource-resp res)
+    (-> (resource-resp-new res)
         (status 200))))
