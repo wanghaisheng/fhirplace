@@ -97,7 +97,7 @@
   (call* :fhir_update (cfg-str) tp id id json tags))
 
 (defn -delete [tp id]
-  (call* :delete_resource  id tp))
+  (call* :fhir_delete (cfg-str) tp id))
 
 (defn -deleted? [tp id]
   (and
