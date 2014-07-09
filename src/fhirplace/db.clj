@@ -91,10 +91,10 @@
 (import 'java.sql.Timestamp)
 
 (defn -create [tp json tags]
-  (call* :fhir_create tp json tags))
+  (call* :fhir_create (cfg-str) tp json tags))
 
 (defn -update [tp id json tags]
-  (call* :fhir_update tp id "vid" json tags))
+  (call* :fhir_update (cfg-str) tp id id json tags))
 
 (defn -delete [tp id]
   (call* :delete_resource  id tp))
@@ -142,7 +142,7 @@
             :limit 1})))
 
 (defn -read [tp id]
-  (call* :fhir_read tp id))
+  (call* :fhir_read (cfg-str) tp id))
 
 (defn -vread [tp id vid]
   (find-hist-by-id tp id vid))
@@ -163,7 +163,7 @@
 
 (defn -history [tp id]
   (f/parse
-    (call* :fhir_history tp id "{}")))
+    (call* :fhir_history (cfg-str) tp id "{}")))
 
 ;; TODO: bug report
 (defn -tags

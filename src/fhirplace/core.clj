@@ -40,9 +40,9 @@
                                 '->latest-version!
                                 '->valid-input!
                                 '=update)
+                   "_history" {GET (h '=history)
                    [:vid]     {"_tags"   {GET (h '=resource-version-tags) }
                                GET (h '=vread)}
-                   "_history" {GET (h '=history)
                                "_tags"  {GET (h '=resource-version-tags)
                                          POST (h '->parse-tags! '->check-tags '=affix-resource-version-tags)
                                          "_delete" (POST (h '=remove-resource-version-tags))}
