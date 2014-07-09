@@ -16,6 +16,13 @@
    :stringtype "unspecified"
    :password (env/env :fhirplace-password)})
 
+
+(defn cfg []
+  {:base (env/env :fhirplace-web-url)})
+
+(defn cfg-str []
+  (json/write-str (cfg)))
+
 (defmacro with-db  [db & body]
   `(binding  [*db* ~db]
      ~@body))
@@ -87,10 +94,7 @@
   (call* :fhir_create tp json tags))
 
 (defn -update [tp id json tags]
-  (let [id (call* :update_resource id json tags)]
-    (q-one {:select [:*]
-            :from [(tbl-name tp)]
-            :where [:= :logical_id id]})))
+  (call* :fhir_update tp id "vid" json tags))
 
 (defn -delete [tp id]
   (call* :delete_resource  id tp))
@@ -155,7 +159,7 @@
 
 (defn -search [tp q]
   (f/parse
-    (call* :search_bundle tp (json/write-str q))))
+    (call* :fhir_search (cfg-str) tp (json/write-str q))))
 
 (defn -history [tp id]
   (f/parse

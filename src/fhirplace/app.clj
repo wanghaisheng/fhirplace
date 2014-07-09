@@ -138,7 +138,7 @@
 (defn- check-latest-version [cl]
   (println "check-latest-version " cl)
   (let [[_ cl-] (cs/split cl (re-pattern (env/env :fhirplace-web-url)))]
-    (let [[_ tp id vid] (cs/split cl- #"/")]
+    (let [[_ tp id _ vid] (cs/split cl- #"/")]
       (println "check-latest " tp " " id " " vid)
       (db/-latest? tp id vid))))
 
@@ -260,7 +260,7 @@
   {:pre [(not (nil? res))]}
   (let [json (f/serialize :json res)
         item (db/-update rt id json (json/write-str tags))]
-    (-> (resource-resp item)
+    (-> (resource-resp-new item)
         (status 200))))
 
 (defn =delete
