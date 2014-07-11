@@ -25,8 +25,13 @@
 (defn- determine-format
   "Determines request format (:xml or :json)."
   [{{fmt :_format} :params}]
-  (or (get {"application/json" :json
-            "application/xml"  :xml} fmt)
+  (or (get {"json" :json
+            "application/json" :json
+            "application/json+fhir" :json
+            "xml" :xml
+            "text/xml" :xml
+            "application/xml" :xml
+            "application/xml+fhir" :xml} fmt)
       :json))
 
 (defn- content-type-format
