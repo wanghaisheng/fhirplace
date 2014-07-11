@@ -29,6 +29,18 @@
             "application/xml"  :xml} fmt)
       :json))
 
+(defn- content-type-format
+  [fmt bd]
+  (let [mime (if (and (instance? AtomFeed bd) (= :xml fmt))
+               "application/atom+xml"
+               (get {:json "application/json+fhir"
+                    :xml "application/xml+fhir"} fmt))]
+       (str mime "; charset=UTF-8")))
+
+(defn- responce-content-type
+  [resp fmt body]
+  (update-in resp [:headers] merge {"content-type" (content-type-format fmt body)}))
+
 (defn <-format [h]
   "formatting midle-ware
   expected body is instance of fhir reference impl"
@@ -37,9 +49,10 @@
           fmt (determine-format req)]
       ;; TODO set right headers
       (println "Formating: " bd)
-      (if (and bd (or (instance? Resource bd) (instance? AtomFeed bd)))
-        (assoc resp :body (f/serialize fmt bd))
-        resp))))
+      (responce-content-type
+       (if (and bd (or (instance? Resource bd) (instance? AtomFeed bd)))
+         (assoc resp :body (f/serialize fmt bd))
+         resp) fmt bd))))
 
 (defn- get-stack-trace [e]
   (let [sw (java.io.StringWriter.)]

@@ -158,3 +158,4 @@
   ([tp id vid] (call* :fhir_remove_tags tp id vid)))
 
 #_(-history "Patient" (uuid))
+#_(-history "Encounter" (uuid))
