@@ -22,16 +22,24 @@
     "/"
     (apply str (interpose "/" parts))))
 
+(defn- request-format
+  [req]
+  (if-let [ct (get-in req [:headers "content-type"])]
+    (if-let [mime (first (cs/split ct #"\;"))]
+      ({"application/json+fhir" :json "application/xml+fhir" :xml} mime))))
+
 (defn- determine-format
   "Determines request format (:xml or :json)."
-  [{{fmt :_format} :params}]
+  [{{fmt :_format} :params :as req}]
   (or (get {"json" :json
             "application/json" :json
             "application/json+fhir" :json
             "xml" :xml
             "text/xml" :xml
             "application/xml" :xml
+            "application/atom+xml" :xml
             "application/xml+fhir" :xml} fmt)
+      (request-format req)
       :json))
 
 (defn- content-type-format
