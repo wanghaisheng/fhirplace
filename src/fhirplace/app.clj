@@ -67,6 +67,15 @@
          (assoc resp :body (f/serialize fmt bd))
          resp) fmt bd))))
 
+(defn <-cors [h]
+  "Cross-origin resource sharing midle-ware"
+  (fn [req]
+    (let [resp (h req)]
+      (println "CORS")
+      (if-let [origin (get-in req [:headers "origin"])]
+        (update-in resp [:headers] merge {"Access-Control-Allow-Origin" origin})
+        resp))))
+
 (defn- get-stack-trace [e]
   (let [sw (java.io.StringWriter.)]
     (.printStackTrace e (java.io.PrintWriter. sw))
