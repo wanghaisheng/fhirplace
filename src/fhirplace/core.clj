@@ -27,7 +27,8 @@
             "_validate" {:mw ['->parse-body! '->valid-input!]
                          POST (h '->parse-tags! '=validate-create)
                          [:id] {POST (h '->latest-version! '=validate-update)}}
-            "_search"   {GET  (h '=search)}
+            GET (h '=search)
+            "_search"   {GET (h '=search)}
             "_tags"     {GET (h '=resource-type-tags)}
             [:id] {:mw ['->resource-exists! '->check-deleted!]
                    "_tags"   {GET (h '=resource-tags)
