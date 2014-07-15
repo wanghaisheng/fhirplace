@@ -67,14 +67,36 @@
          (assoc resp :body (f/serialize fmt bd))
          resp) fmt bd))))
 
+(defn- cors-options
+  [req]
+  (if (= :options (:request-method req))
+    (do
+      (println "CORS OPTIONS")
+      (let [headers (get-in req [:headers "access-control-request-headers"])
+            method (get-in req [:headers "access-control-request-method"])]
+        (println "Request-Headers:" headers "Request-Method" methods)
+        {:status 200
+         :body "preflight complete"
+         :headers {"Access-Control-Allow-Headers" headers
+                   "Access-Control-Allow-Methods" method}}))))
+
+(defn- acao
+  [resp origin]
+  (update-in resp [:headers] merge {"Access-Control-Allow-Origin" origin}))
+
+(defn- allowed-origin
+  "May check if allow CORS access here"
+  [req]
+   (get-in req [:headers "origin"]))
+
 (defn <-cors [h]
   "Cross-origin resource sharing midle-ware"
   (fn [req]
-    (let [resp (h req)]
-      (println "CORS")
-      (if-let [origin (get-in req [:headers "origin"])]
-        (update-in resp [:headers] merge {"Access-Control-Allow-Origin" origin})
-        resp))))
+    (if-let [origin (allowed-origin req)]
+      (do
+        (println "CORS Origin: " origin)
+        (acao (or (cors-options req) (h req)) origin))
+      (h req))))
 
 (defn- get-stack-trace [e]
   (let [sw (java.io.StringWriter.)]
