@@ -78,7 +78,8 @@
         {:status 200
          :body "preflight complete"
          :headers {"Access-Control-Allow-Headers" headers
-                   "Access-Control-Allow-Methods" method}}))))
+                   "Access-Control-Allow-Methods" method
+                   "Access-Control-Expose-Headers" "Location, Content-Location, Category, Content-Type"}}))))
 
 (defn- acao
   [resp origin]
@@ -265,20 +266,7 @@
 (defn =history [{{rt :type id :id} :params}]
   {:body (db/-history rt id)})
 
-
 (defn resource-resp [res]
-  ( let [fhir-res (f/parse (:content res))
-         tags (if (:category res)
-                (json/read-str (:category res) :key-fn keyword)
-                [])
-         loc (url (.getResourceType fhir-res) (:logical_id res) (:version_id res))]
-    (-> {:body fhir-res}
-        (header "Location" loc)
-        (header "Content-Location" loc)
-        (header "Category" (fc/encode-tags tags))
-        (header "Last-Modified" (:last_modified_date res)))))
-
-(defn resource-resp-new [res]
   (let [bundle (json/read-str res :key-fn keyword)
         entry (first (:entry bundle))
         loc (:href (first (:link entry)))
@@ -298,7 +286,7 @@
   (let [json (f/serialize :json res)
         jtags (json/write-str tags)
         item (db/-create (str (.getResourceType res)) json jtags)]
-    (-> (resource-resp-new item)
+    (-> (resource-resp item)
         (status 201)
         (header "Category" (fc/encode-tags tags)))))
 
@@ -317,7 +305,7 @@
   {:pre [(not (nil? res))]}
   (let [json (f/serialize :json res)
         item (db/-update rt id json (json/write-str tags))]
-    (-> (resource-resp-new item)
+    (-> (resource-resp item)
         (status 200))))
 
 (defn =delete
@@ -328,11 +316,11 @@
 ;;TODO add checks
 (defn =read [{{rt :type id :id} :params}]
   (let [res (db/-read rt id)]
-    (-> (resource-resp-new res)
+    (-> (resource-resp res)
         (status 200))))
 
 (defn =vread [{{rt :type id :id vid :vid} :params}]
   (let [res (db/-vread rt id vid)]
     (println res)
-    (-> (resource-resp-new res)
+    (-> (resource-resp res)
         (status 200))))
