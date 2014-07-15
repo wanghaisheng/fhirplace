@@ -78,12 +78,12 @@
         {:status 200
          :body "preflight complete"
          :headers {"Access-Control-Allow-Headers" headers
-                   "Access-Control-Allow-Methods" method
-                   "Access-Control-Expose-Headers" "Location, Content-Location, Category, Content-Type"}}))))
+                   "Access-Control-Allow-Methods" method}}))))
 
 (defn- acao
   [resp origin]
-  (update-in resp [:headers] merge {"Access-Control-Allow-Origin" origin}))
+  (update-in resp [:headers] merge {"Access-Control-Allow-Origin" origin
+                                    "Access-Control-Expose-Headers" "Location, Content-Location, Category, Content-Type"}))
 
 (defn- allowed-origin
   "May check if allow CORS access here"
